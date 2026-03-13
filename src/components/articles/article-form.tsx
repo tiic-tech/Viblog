@@ -39,10 +39,10 @@ interface ArticleFormProps {
     content: string | null
     cover_image: string | null
     project_id: string | null
-    platform: string | null
-    duration: number | null
-    model: string | null
-    original_prompt: string | null
+    vibe_platform: string | null
+    vibe_duration_minutes: number | null
+    vibe_model: string | null
+    vibe_prompt: string | null
   }
 }
 
@@ -67,10 +67,10 @@ export function ArticleForm({ article }: ArticleFormProps) {
       content: article?.content || '',
       cover_image: article?.cover_image || '',
       project_id: article?.project_id || '',
-      platform: article?.platform || '',
-      duration: article?.duration || undefined,
-      model: article?.model || '',
-      original_prompt: article?.original_prompt || '',
+      platform: article?.vibe_platform || '',
+      duration: article?.vibe_duration_minutes || undefined,
+      model: article?.vibe_model || '',
+      original_prompt: article?.vibe_prompt || '',
     },
   })
 
@@ -144,10 +144,10 @@ export function ArticleForm({ article }: ArticleFormProps) {
         content: content,
         cover_image: data.cover_image || null,
         project_id: data.project_id || null,
-        platform: data.platform || null,
-        duration: data.duration || null,
-        model: data.model || null,
-        original_prompt: data.original_prompt || null,
+        vibe_platform: data.platform || null,
+        vibe_duration_minutes: data.duration || null,
+        vibe_model: data.model || null,
+        vibe_prompt: data.original_prompt || null,
       }
 
       if (article) {
@@ -176,10 +176,10 @@ export function ArticleForm({ article }: ArticleFormProps) {
           content: content,
           cover_image: data.cover_image || null,
           project_id: data.project_id || null,
-          platform: data.platform || null,
-          duration: data.duration || null,
-          model: data.model || null,
-          original_prompt: data.original_prompt || null,
+          vibe_platform: data.platform || null,
+          vibe_duration_minutes: data.duration || null,
+          vibe_model: data.model || null,
+          vibe_prompt: data.original_prompt || null,
           status: 'draft',
         })
 

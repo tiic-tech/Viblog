@@ -58,19 +58,22 @@ export async function PUT(request: Request, { params }: Params) {
 
   if (title) {
     updateData.title = title
-    updateData.slug = title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '') + '-' + Date.now().toString(36)
+    updateData.slug =
+      title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '') +
+      '-' +
+      Date.now().toString(36)
   }
   if (content !== undefined) updateData.content = content
   if (cover_image !== undefined) updateData.cover_image = cover_image || null
   if (project_id !== undefined) updateData.project_id = project_id || null
-  if (platform !== undefined) updateData.platform = platform || null
-  if (duration !== undefined) updateData.duration = duration || null
-  if (model !== undefined) updateData.model = model || null
-  if (original_prompt !== undefined) updateData.original_prompt = original_prompt || null
-  if (ai_response_summary !== undefined) updateData.ai_response_summary = ai_response_summary || null
+  if (platform !== undefined) updateData.vibe_platform = platform || null
+  if (duration !== undefined) updateData.vibe_duration_minutes = duration || null
+  if (model !== undefined) updateData.vibe_model = model || null
+  if (original_prompt !== undefined) updateData.vibe_prompt = original_prompt || null
+  if (ai_response_summary !== undefined) updateData.vibe_ai_response = ai_response_summary || null
 
   const { data: article, error } = await supabase
     .from('articles')
@@ -98,11 +101,7 @@ export async function DELETE(request: Request, { params }: Params) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { error } = await supabase
-    .from('articles')
-    .delete()
-    .eq('id', id)
-    .eq('user_id', user.id)
+  const { error } = await supabase.from('articles').delete().eq('id', id).eq('user_id', user.id)
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })

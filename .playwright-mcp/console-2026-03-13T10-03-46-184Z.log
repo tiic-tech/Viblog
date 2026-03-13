@@ -1,0 +1,7 @@
+[    2937ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://viblog-550jua6cl-archyzstudio-2762s-projects.vercel.app/terms?_rsc=1r34m:0
+[    2953ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://viblog-550jua6cl-archyzstudio-2762s-projects.vercel.app/privacy?_rsc=1r34m:0
+[    2957ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://viblog-550jua6cl-archyzstudio-2762s-projects.vercel.app/about?_rsc=1r34m:0
+[    3875ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://viblog-550jua6cl-archyzstudio-2762s-projects.vercel.app/:0
+[   20325ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://viblog-550jua6cl-archyzstudio-2762s-projects.vercel.app/privacy?_rsc=kvokc:0
+[   20328ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://viblog-550jua6cl-archyzstudio-2762s-projects.vercel.app/about?_rsc=kvokc:0
+[   20507ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://viblog-550jua6cl-archyzstudio-2762s-projects.vercel.app/terms?_rsc=kvokc:0

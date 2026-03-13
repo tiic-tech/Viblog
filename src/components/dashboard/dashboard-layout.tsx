@@ -16,6 +16,14 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Skip to main content link for keyboard users */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:outline-none"
+      >
+        Skip to main content
+      </a>
+
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
@@ -30,7 +38,9 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
       {/* Main content */}
       <div className="lg:pl-64">
         <Header user={user} onMenuClick={() => setSidebarOpen(true)} />
-        <main className="p-6">{children}</main>
+        <main id="main-content" className="p-6" role="main">
+          {children}
+        </main>
       </div>
     </div>
   )

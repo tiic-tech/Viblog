@@ -35,12 +35,16 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { title, content, cover_image, project_id, platform, duration, model, original_prompt } = body
+  const { title, content, cover_image, project_id, platform, duration, model, original_prompt } =
+    body
 
-  const slug = title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '') + '-' + Date.now().toString(36)
+  const slug =
+    title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') +
+    '-' +
+    Date.now().toString(36)
 
   const { data: article, error } = await supabase
     .from('articles')
@@ -51,10 +55,10 @@ export async function POST(request: Request) {
       content: content || '',
       cover_image: cover_image || null,
       project_id: project_id || null,
-      platform: platform || null,
-      duration: duration || null,
-      model: model || null,
-      original_prompt: original_prompt || null,
+      vibe_platform: platform || null,
+      vibe_duration_minutes: duration || null,
+      vibe_model: model || null,
+      vibe_prompt: original_prompt || null,
       status: 'draft',
     })
     .select()

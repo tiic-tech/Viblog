@@ -38,9 +38,9 @@ interface Article {
   cover_image: string | null
   status: 'draft' | 'published'
   visibility: 'public' | 'private' | 'unlisted'
-  platform: string | null
-  duration: number | null
-  model: string | null
+  vibe_platform: string | null
+  vibe_duration_minutes: number | null
+  vibe_model: string | null
   created_at: string
   updated_at: string
   published_at: string | null
@@ -117,13 +117,17 @@ export function ArticleList({ articles }: ArticleListProps) {
                 <div className="flex items-center gap-3">
                   <div className={`h-2 w-2 rounded-full ${statusColors[article.status]}`} />
                   <div className="flex items-center gap-2">
-                    <h3 className="font-semibold line-clamp-1">{article.title}</h3>
+                    <h3 className="line-clamp-1 font-semibold">{article.title}</h3>
                     <VisibilityIcon className="h-3 w-3 text-muted-foreground" />
                   </div>
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 opacity-0 group-hover:opacity-100"
+                    >
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -136,7 +140,10 @@ export function ArticleList({ articles }: ArticleListProps) {
                         <Link href={`/dashboard/articles/${article.id}/publish`}>Publish</Link>
                       </DropdownMenuItem>
                     )}
-                    <DropdownMenuItem className="text-destructive cursor-pointer" onSelect={() => setDeleteArticleId(article.id)}>
+                    <DropdownMenuItem
+                      className="cursor-pointer text-destructive"
+                      onSelect={() => setDeleteArticleId(article.id)}
+                    >
                       Delete
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -144,7 +151,7 @@ export function ArticleList({ articles }: ArticleListProps) {
               </CardHeader>
               <CardContent>
                 {article.projects && (
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="mb-2 flex items-center gap-2">
                     <div
                       className="h-2 w-2 rounded-full"
                       style={{ backgroundColor: article.projects.color || '#6366f1' }}
@@ -152,12 +159,16 @@ export function ArticleList({ articles }: ArticleListProps) {
                     <span className="text-xs text-muted-foreground">{article.projects.name}</span>
                   </div>
                 )}
-                <p className="text-sm text-muted-foreground line-clamp-2">
-                  {article.content ? article.content.replace(/<[^>]*>/g, '').slice(0, 100) : 'No content'}
+                <p className="line-clamp-2 text-sm text-muted-foreground">
+                  {article.content
+                    ? article.content.replace(/<[^>]*>/g, '').slice(0, 100)
+                    : 'No content'}
                 </p>
-                <div className="flex items-center justify-between mt-2">
+                <div className="mt-2 flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">
-                    {article.status === 'draft' ? 'Draft' : `Published ${article.published_at ? format(new Date(article.published_at), 'MMM d') : ''}`}
+                    {article.status === 'draft'
+                      ? 'Draft'
+                      : `Published ${article.published_at ? format(new Date(article.published_at), 'MMM d') : ''}`}
                   </span>
                   <span className="text-xs text-muted-foreground">
                     Updated {format(new Date(article.updated_at), 'MMM d, yyyy')}
@@ -182,7 +193,7 @@ export function ArticleList({ articles }: ArticleListProps) {
             <AlertDialogAction
               onClick={handleDelete}
               disabled={isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="hover:bg-destructive/90 bg-destructive text-destructive-foreground"
             >
               {isDeleting ? (
                 <>
