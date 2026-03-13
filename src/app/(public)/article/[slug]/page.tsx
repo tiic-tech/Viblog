@@ -11,14 +11,12 @@ interface ArticlePageProps {
 }
 
 // Generate SEO metadata
-export async function generateMetadata({
-  params,
-}: ArticlePageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
   const { slug } = await params
 
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/public/articles/${slug}`
+      `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/public/articles/${slug}`
     )
 
     if (!response.ok) {
@@ -93,10 +91,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
       {/* Actions */}
       <div className="my-6">
-        <ArticleActions
-          articleId={article.id}
-          initialStarsCount={article.stars_count}
-        />
+        <ArticleActions articleId={article.id} initialStarsCount={article.stars_count} />
       </div>
 
       {/* Premium Notice */}
@@ -106,7 +101,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             Premium Content
             {article.price && ` - $${(article.price / 100).toFixed(2)}`}
           </p>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm text-muted-foreground">
             This article is available for premium subscribers.
           </p>
         </div>
