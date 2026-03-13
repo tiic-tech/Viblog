@@ -99,10 +99,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## [0.1.0] - TBD
+## [0.1.0] - 2026-03-13
 
 ### Added
-- Initial MVP release (planned)
+- Initial MVP release
+- User authentication (login, register, forgot password)
+- 5-step onboarding flow
+- Project management (CRUD)
+- Article management with Tiptap editor
+- Auto-save drafts (every 30 seconds)
+- Publish with visibility options
+- Public feed with filters and sorting
+- Article detail pages with star/share
+- User profile pages
+- Dashboard with timeline
+- Loading states and error boundaries
+- Accessibility features (skip links, ARIA labels)
+- Testing infrastructure (Vitest)
 
 ---
 
@@ -135,15 +148,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Phase 4: Polish & Deploy
 | Step | Task | Status |
 |------|------|--------|
-| 4.1 | UI Polish | Not Started |
-| 4.2 | Testing | Not Started |
-| 4.3 | Deployment | Not Started |
+| 4.1 | UI Polish | Completed |
+| 4.2 | Testing | Completed |
+| 4.3 | Deployment | Completed |
 
 ---
 
 ## Session Log
 
-### 2026-03-13
+### 2026-03-13 (MVP Complete)
+- Phase 4 completed: UI Polish, Testing, Deployment
+- Added loading skeletons for all pages
+- Added error boundaries and 404 pages
+- Added accessibility improvements
+- Configured Vitest with 23 passing tests
+- Deployed to Vercel
+
+### 2026-03-13 (Earlier)
 - Created project documentation suite
 - Defined product vision: Viblog for Vibe Coders
 - Established three-level page architecture
@@ -152,15 +173,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## Next Session
+## MVP Release v0.1.0
 
-To start development, run:
+**Release Date:** 2026-03-13
 
-```bash
-/ccg:execute IMPLEMENTATION_PLAN.md
-```
-
-Or begin with Step 1.1: Initialize Project from IMPLEMENTATION_PLAN.md.
+All MVP features from PRD.md have been implemented and deployed.
 
 ---
 
