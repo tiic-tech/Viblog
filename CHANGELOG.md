@@ -22,6 +22,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Context management rules
   - Development isolation modes (sandbox, worktree)
   - Environment setup instructions
+- Database schema created via Supabase migrations
+  - profiles table with RLS
+  - projects table with RLS
+  - articles table with RLS
+  - user_settings table with RLS
+  - stars table with RLS
+- Generated TypeScript types from database schema
 
 ### Changed
 - Nothing yet
@@ -51,7 +58,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 |------|------|--------|
 | 1.1 | Initialize Project | Completed |
 | 1.2 | Configure Supabase Client | Completed |
-| 1.3 | Set Up Database Schema | Not Started |
+| 1.3 | Set Up Database Schema | Completed |
 | 1.4 | Build Authentication | Not Started |
 | 1.5 | Build Onboarding Flow | Not Started |
 
