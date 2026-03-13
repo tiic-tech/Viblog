@@ -273,7 +273,15 @@ Why 50%? Because:
       - Note any pending work
       - Add session notes for next session
    b. Commit all changes with message: `docs: context overflow - update CHANGELOG`
-   c. Inform user: "Context approaching limit. Recommend /clear to continue."
+   c. **Auto-compact:** Execute `/strategic-compact` to compress context
+   d. **Repeat compact** if still approaching threshold after first compression
+   e. **Notify user for /clear** only when:
+      - Multiple compacts failed to reduce context below threshold
+      - AND CHANGELOG.md + git status provide complete recovery information:
+        - All completed steps documented
+        - All pending work clearly listed
+        - File changes committed or staged
+        - Next step clearly identified
 
 ### Token Usage Detection Method
 
@@ -335,7 +343,11 @@ Check `~/.claude.json` at project path:
 - [ ] If approaching 90% of Available Context:
   - [ ] Update CHANGELOG.md with current progress
   - [ ] Commit changes: `docs: context overflow - update CHANGELOG`
-  - [ ] Notify user to run `/clear`
+  - [ ] Execute `/strategic-compact` to compress context
+  - [ ] Repeat compact if still above threshold
+  - [ ] Only notify user for `/clear` when:
+    - Multiple compacts failed, AND
+    - CHANGELOG.md + git status enable full recovery
 
 **At the end of each session:**
 - [ ] Update `CHANGELOG.md` with progress
