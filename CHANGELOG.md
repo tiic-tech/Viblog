@@ -35,6 +35,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Forgot password page with form
   - Auth callback API route
   - Supabase auth integration
+- Onboarding flow implemented
+  - Step 1: LLM configuration
+  - Step 2: Database configuration
+  - Step 3: Vibe platform selection
+  - Step 4: Discovery source tracking
+  - Step 5: Welcome blog generation
 
 ### Changed
 - Nothing yet
@@ -66,7 +72,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 | 1.2 | Configure Supabase Client | Completed |
 | 1.3 | Set Up Database Schema | Completed |
 | 1.4 | Build Authentication | Completed |
-| 1.5 | Build Onboarding Flow | Not Started |
+| 1.5 | Build Onboarding Flow | Completed |
 
 ### Phase 2: Core Features
 | Step | Task | Status |
