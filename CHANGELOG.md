@@ -1,0 +1,105 @@
+# Viblog - Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+---
+
+## [Unreleased]
+
+### Added
+- Project documentation suite created:
+  - PRD.md - Product Requirements Document
+  - APP_FLOW.md - Application Flow Document
+  - TECH_STACK.md - Technology Stack Document
+  - FRONTEND_GUIDELINES.md - Frontend Design Guidelines
+  - BACKEND_STRUCTURE.md - Backend Structure Document
+  - IMPLEMENTATION_PLAN.md - Implementation Plan
+  - CHANGELOG.md - This changelog
+- Updated CLAUDE.md with development workflow rules
+  - Agent & Skill usage guidelines
+  - Context management rules
+  - Development isolation modes (sandbox, worktree)
+  - Environment setup instructions
+
+### Changed
+- Nothing yet
+
+### Deprecated
+- Nothing yet
+
+### Removed
+- Nothing yet
+
+### Fixed
+- Nothing yet
+
+---
+
+## [0.1.0] - TBD
+
+### Added
+- Initial MVP release (planned)
+
+---
+
+## Progress Tracking
+
+### Phase 1: Foundation
+| Step | Task | Status |
+|------|------|--------|
+| 1.1 | Initialize Project | Completed |
+| 1.2 | Configure Supabase Client | Not Started |
+| 1.3 | Set Up Database Schema | Not Started |
+| 1.4 | Build Authentication | Not Started |
+| 1.5 | Build Onboarding Flow | Not Started |
+
+### Phase 2: Core Features
+| Step | Task | Status |
+|------|------|--------|
+| 2.1 | Build Dashboard Layout | Not Started |
+| 2.2 | Build Project Management | Not Started |
+| 2.3 | Build Article Management | Not Started |
+| 2.4 | Build Timeline View | Not Started |
+
+### Phase 3: Public Features
+| Step | Task | Status |
+|------|------|--------|
+| 3.1 | Build Public Feed | Not Started |
+| 3.2 | Build Article Detail Page | Not Started |
+| 3.3 | Build User Profile Pages | Not Started |
+
+### Phase 4: Polish & Deploy
+| Step | Task | Status |
+|------|------|--------|
+| 4.1 | UI Polish | Not Started |
+| 4.2 | Testing | Not Started |
+| 4.3 | Deployment | Not Started |
+
+---
+
+## Session Log
+
+### 2026-03-13
+- Created project documentation suite
+- Defined product vision: Viblog for Vibe Coders
+- Established three-level page architecture
+- Confirmed tech stack: Next.js + Tailwind + shadcn/ui + Supabase
+- Created detailed implementation plan
+
+---
+
+## Next Session
+
+To start development, run:
+
+```bash
+/ccg:execute IMPLEMENTATION_PLAN.md
+```
+
+Or begin with Step 1.1: Initialize Project from IMPLEMENTATION_PLAN.md.
+
+---
+
+**Last Updated:** 2026-03-13
