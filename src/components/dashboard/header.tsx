@@ -29,12 +29,13 @@ export function Header({ user, onMenuClick }: HeaderProps) {
     router.refresh()
   }
 
-  const initials = user.user_metadata?.display_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || 'U'
+  const initials =
+    user.user_metadata?.display_name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || 'U'
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-card px-6">
       {/* Mobile menu button */}
-      <button onClick={onMenuClick} className="lg:hidden">
+      <button onClick={onMenuClick} className="lg:hidden" aria-label="Open sidebar">
         <Menu className="h-5 w-5" />
       </button>
 

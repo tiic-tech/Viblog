@@ -12,6 +12,14 @@ export default async function PublicLayout({ children }: { children: React.React
 
   return (
     <div className="flex min-h-screen flex-col">
+      {/* Skip to main content link for keyboard users */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:outline-none"
+      >
+        Skip to main content
+      </a>
+
       {/* Header */}
       <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
         <div className="container flex h-16 items-center justify-between">
@@ -22,7 +30,7 @@ export default async function PublicLayout({ children }: { children: React.React
           </Link>
 
           {/* Navigation - Desktop */}
-          <nav className="hidden items-center gap-6 md:flex">
+          <nav aria-label="Main navigation" className="hidden items-center gap-6 md:flex">
             <Link
               href="/"
               className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
@@ -73,7 +81,9 @@ export default async function PublicLayout({ children }: { children: React.React
       </header>
 
       {/* Main Content */}
-      <main className="flex-1">{children}</main>
+      <main id="main-content" className="flex-1" role="main">
+        {children}
+      </main>
 
       {/* Toast Notifications */}
       <Toaster position="bottom-right" />
@@ -87,7 +97,10 @@ export default async function PublicLayout({ children }: { children: React.React
               <span>Viblog</span>
             </div>
 
-            <nav className="flex items-center gap-6 text-sm text-muted-foreground">
+            <nav
+              aria-label="Footer navigation"
+              className="flex items-center gap-6 text-sm text-muted-foreground"
+            >
               <Link href="/" className="transition-colors hover:text-foreground">
                 Feed
               </Link>

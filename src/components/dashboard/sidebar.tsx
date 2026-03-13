@@ -3,13 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import {
-  LayoutDashboard,
-  FolderKanban,
-  FileText,
-  Settings,
-  X,
-} from 'lucide-react'
+import { LayoutDashboard, FolderKanban, FileText, Settings, X } from 'lucide-react'
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -28,23 +22,25 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   return (
     <aside
+      role="navigation"
+      aria-label="Dashboard navigation"
       className={cn(
-        'fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform transition-transform duration-200 ease-in-out lg:translate-x-0',
+        'fixed inset-y-0 left-0 z-50 w-64 transform border-r border-border bg-card transition-transform duration-200 ease-in-out lg:translate-x-0',
         isOpen ? 'translate-x-0' : '-translate-x-full'
       )}
     >
       {/* Logo */}
-      <div className="flex h-16 items-center justify-between px-6 border-b border-border">
+      <div className="flex h-16 items-center justify-between border-b border-border px-6">
         <Link href="/" className="text-xl font-bold">
           <span className="text-primary">Vi</span>blog
         </Link>
-        <button onClick={onClose} className="lg:hidden">
+        <button onClick={onClose} className="lg:hidden" aria-label="Close sidebar">
           <X className="h-5 w-5" />
         </button>
       </div>
 
       {/* Navigation */}
-      <nav className="p-4 space-y-1">
+      <nav className="space-y-1 p-4">
         {navItems.map((item) => {
           const isActive = pathname === item.href
           return (
@@ -52,8 +48,9 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               key={item.href}
               href={item.href}
               onClick={onClose}
+              aria-current={isActive ? 'page' : undefined}
               className={cn(
-                'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                 isActive
                   ? 'bg-primary text-primary-foreground'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground'

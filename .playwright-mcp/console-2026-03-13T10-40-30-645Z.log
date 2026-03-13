@@ -1,0 +1,8 @@
+[    6053ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://viblog-r4cjeya71-archyzstudio-2762s-projects.vercel.app/about?_rsc=1r34m:0
+[    6170ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://viblog-r4cjeya71-archyzstudio-2762s-projects.vercel.app/privacy?_rsc=1r34m:0
+[    6171ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://viblog-r4cjeya71-archyzstudio-2762s-projects.vercel.app/favicon.ico:0
+[    6177ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://viblog-r4cjeya71-archyzstudio-2762s-projects.vercel.app/terms?_rsc=1r34m:0
+[    7083ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://viblog-r4cjeya71-archyzstudio-2762s-projects.vercel.app/:0
+[ 4410938ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://viblog-r4cjeya71-archyzstudio-2762s-projects.vercel.app/about?_rsc=1r34m:0
+[ 4410959ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://viblog-r4cjeya71-archyzstudio-2762s-projects.vercel.app/terms?_rsc=1r34m:0
+[ 4410982ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://viblog-r4cjeya71-archyzstudio-2762s-projects.vercel.app/privacy?_rsc=1r34m:0
