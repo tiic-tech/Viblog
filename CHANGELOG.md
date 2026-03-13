@@ -29,6 +29,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - user_settings table with RLS
   - stars table with RLS
 - Generated TypeScript types from database schema
+- Authentication system implemented
+  - Login page with form
+  - Register page with form
+  - Forgot password page with form
+  - Auth callback API route
+  - Supabase auth integration
 
 ### Changed
 - Nothing yet
@@ -59,7 +65,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 | 1.1 | Initialize Project | Completed |
 | 1.2 | Configure Supabase Client | Completed |
 | 1.3 | Set Up Database Schema | Completed |
-| 1.4 | Build Authentication | Not Started |
+| 1.4 | Build Authentication | Completed |
 | 1.5 | Build Onboarding Flow | Not Started |
 
 ### Phase 2: Core Features
