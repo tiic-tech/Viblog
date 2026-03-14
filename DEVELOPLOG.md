@@ -149,6 +149,7 @@ This document records the development process of Viblog. It serves as a living r
 - Authenticated E2E tests skipped due to Supabase email rate limits
 - `next lint` removed in Next.js 16 - need to set up ESLint directly
 - Test files had type errors that CI caught
+- File corruption detected after compaction (onboarding/*.tsx filled with null bytes)
 
 **Key Learnings:**
 - Next.js 16 removed `next lint` command
@@ -224,6 +225,35 @@ After creating Vercel project:
 When adding test configuration files:
 1. Consider using .js extension for config files to avoid TypeScript checking
 2. Or exclude test config from tsconfig.json include array
+```
+
+---
+
+### Bad Case 5: Local Filesystem Corruption
+
+**What happened:** After context compaction and session resume, `src/components/onboarding/*.tsx` files were filled with null bytes (0x00) instead of actual code.
+
+**Impact:** Unable to read onboarding component files. Read tool showed blank content, `cat` showed null bytes.
+
+**Root cause:** Likely filesystem corruption during context compaction or session transition. Git still had correct content, but local files were corrupted.
+
+**Resolution:**
+```bash
+# Verify file is corrupted (shows null bytes)
+xxd src/components/onboarding/step-1-llm.tsx | head -5
+
+# Restore from git
+git show 502274f:src/components/onboarding/step-1-llm.tsx > /tmp/step-1-llm.tsx
+cp /tmp/step-1-llm.tsx src/components/onboarding/step-1-llm.tsx
+```
+
+**Prevention:**
+```
+After context compaction/session resume:
+1. If file reads show blank content, check with `xxd` or `cat`
+2. Always verify critical files exist and have content
+3. Git is source of truth - restore from git if local files are corrupted
+4. Run `git status` to check if files are tracked vs corrupted
 ```
 
 ---
