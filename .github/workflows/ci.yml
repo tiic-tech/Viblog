@@ -1,0 +1,67 @@
+name: CI
+
+# Trigger on pull requests to main and pushes to main
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel in-progress runs when a new commit is pushed
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: Build, Lint, Test
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Setup pnpm with caching
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      # Step 3: Setup Node.js with pnpm cache
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      # Step 4: Install dependencies
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Step 5: Run linter
+      - name: Lint
+        run: pnpm lint
+
+      # Step 6: Run type check
+      - name: Type check
+        run: pnpm type-check
+
+      # Step 7: Build the application
+      - name: Build
+        run: pnpm build
+        env:
+          # Required environment variables for build
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+
+      # Step 8: Run unit tests
+      - name: Run tests
+        run: pnpm test:run
+
+      # Note: E2E tests are not run in CI because:
+      # 1. Supabase has email rate limits
+      # 2. E2E tests require real authentication
+      # Run E2E tests locally with: E2E_RUN_AUTH_TESTS=1 pnpm test:e2e
