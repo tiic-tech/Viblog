@@ -263,11 +263,33 @@ After creating Vercel project:
 
 | Priority | Task | Status |
 |----------|------|--------|
-| High | Configure custom domain `viblog.tiic.tech` | Pending |
+| High | Configure custom domain `viblog.tiic.tech` | **Completed** |
 | High | Increase test coverage to 80% | Pending |
 | Medium | Add E2E test suite (Playwright) | Pending |
 | Medium | Fix onboarding data usage (actually store/use LLM keys) | Pending |
 | Low | Add animations (Framer Motion) | Skipped |
+
+---
+
+## Post-MVP Progress
+
+### 2026-03-14: Custom Domain Configuration
+
+**What I Did:**
+1. User configured DNS in DNSPod (CNAME: viblog -> cname.vercel-dns.com)
+2. User added domain in Vercel Dashboard
+3. Updated environment variables:
+   - `NEXT_PUBLIC_APP_URL=https://viblog.tiic.tech`
+   - `NEXT_PUBLIC_SITE_URL=https://viblog.tiic.tech`
+4. Fixed build error: TypeScript check failing on `@vitejs/plugin-react` type definitions
+   - **Solution:** Converted `vitest.config.ts` to `vitest.config.js`
+
+**What Went Well:**
+- Quick resolution of build error by isolating test config from TypeScript check
+- Domain propagated faster than expected
+
+**What Could Be Better:**
+- Next.js 16 shows deprecation warning for middleware (not urgent, can be migrated to `proxy` later)
 
 ---
 

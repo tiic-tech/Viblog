@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Custom domain configuration: `viblog.tiic.tech`
   - Added `NEXT_PUBLIC_SITE_URL` environment variable
   - Updated `.env.local` and `.env.local.example`
+  - Fixed build error by converting vitest.config.ts to JS
 - Project documentation suite created:
   - PRD.md - Product Requirements Document
   - APP_FLOW.md - Application Flow Document
