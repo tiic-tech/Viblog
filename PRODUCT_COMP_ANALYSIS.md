@@ -20,13 +20,186 @@
 | **Feature Matrix** | Feature comparison, differentiation points | Feature table |
 | **Technical Implementation** | Tech stack, architecture patterns | Tech recommendations |
 
-### 1.2 Analysis Method
+### 1.2 Detailed Evaluation Criteria
+
+#### 1.2.1 Information Architecture (IA)
+
+**评估目标：** 理解产品的信息组织方式和导航结构
+
+| 评估项 | 说明 | 观察要点 |
+|--------|------|----------|
+| **层级深度** | 信息层级是否合理 | 3层以内为佳，超过5层为差 |
+| **导航清晰度** | 导航是否直观易懂 | 主导航、面包屑、侧边栏的一致性 |
+| **分类逻辑** | 内容分类是否合理 | 用户心智模型匹配度 |
+| **搜索发现** | 搜索和发现机制 | 全局搜索、标签系统、推荐入口 |
+| **URL结构** | URL是否语义化 | RESTful、可读性、分享友好 |
+
+**评分标准 (1-5)：**
+- **5分：** 层级清晰(≤3层)，导航直观，分类符合心智模型，搜索强大
+- **4分：** 层级合理(≤4层)，导航清晰，分类较好
+- **3分：** 层级可接受(≤5层)，导航基本可用
+- **2分：** 层级过深，导航有困惑
+- **1分：** 信息混乱，导航难以理解
+
+---
+
+#### 1.2.2 Visual Design System
+
+**评估目标：** 提取可复用的视觉设计模式
+
+| 评估项 | 说明 | 观察要点 |
+|--------|------|----------|
+| **色彩系统** | 主色、辅色、语义色 | 色彩数量、对比度、深色模式 |
+| **排版系统** | 字体、字号、行高 | 字体栈、响应式排版、阅读舒适度 |
+| **组件规范** | 按钮、卡片、表单 | 一致性、复用性、可扩展性 |
+| **间距系统** | margin、padding | 间距比例、网格系统 |
+| **动效设计** | 过渡、动画 | 流畅度、目的性、性能影响 |
+| **图标系统** | 图标风格、使用场景 | 一致性、可识别性 |
+
+**评分标准 (1-5)：**
+- **5分：** 完整设计系统，视觉一致性强，动效精致
+- **4分：** 设计系统较完整，视觉一致性较好
+- **3分：** 基本视觉规范，有一定一致性
+- **2分：** 视觉较混乱，一致性差
+- **1分：** 无设计系统，视觉混乱
+
+**设计Token提取模板：**
+```css
+/* Colors */
+--primary: #xxx;
+--secondary: #xxx;
+--background: #xxx;
+--foreground: #xxx;
+--accent: #xxx;
+--muted: #xxx;
+
+/* Typography */
+--font-sans: "xxx", sans-serif;
+--font-mono: "xxx", monospace;
+--text-xs: 0.75rem;
+--text-sm: 0.875rem;
+--text-base: 1rem;
+--text-lg: 1.125rem;
+
+/* Spacing */
+--space-1: 0.25rem;
+--space-2: 0.5rem;
+--space-3: 0.75rem;
+--space-4: 1rem;
+
+/* Radius */
+--radius-sm: 0.25rem;
+--radius-md: 0.5rem;
+--radius-lg: 1rem;
+```
+
+---
+
+#### 1.2.3 Interaction Flow
+
+**评估目标：** 理解核心用户旅程和交互模式
+
+| 评估项 | 说明 | 观察要点 |
+|--------|------|----------|
+| **注册流程** | 注册步骤、验证方式 | 步骤数、第三方登录、引导 |
+| **核心操作** | 主要功能的操作路径 | 点击次数、操作复杂度 |
+| **错误处理** | 错误提示、恢复机制 | 提示清晰度、容错性 |
+| **反馈机制** | 操作反馈、进度展示 | 即时反馈、加载状态 |
+| **快捷操作** | 键盘快捷键、批量操作 | 效率提升、高级功能 |
+
+**评分标准 (1-5)：**
+- **5分：** 流程极简，交互流畅，错误处理完善
+- **4分：** 流程简洁，交互顺畅，错误处理较好
+- **3分：** 流程可接受，交互基本顺畅
+- **2分：** 流程繁琐，交互有卡点
+- **1分：** 流程混乱，交互困难
+
+**流程图符号说明：**
+```
+[矩形] = 页面/状态
+(圆角) = 操作/动作
+<菱形> = 判断/分支
+--> = 流程方向
+```
+
+---
+
+#### 1.2.4 Feature Matrix
+
+**评估目标：** 对比功能特性，找出差异化机会
+
+| 评估项 | 说明 | 观察要点 |
+|--------|------|----------|
+| **核心功能** | 产品主要功能 | 功能完整度、独特性 |
+| **辅助功能** | 增值功能 | 实用性、差异化 |
+| **集成能力** | 第三方集成 | API、Webhook、插件 |
+| **自定义能力** | 配置、扩展 | 主题、模板、自定义字段 |
+| **协作功能** | 多人协作 | 权限、评论、版本控制 |
+
+**评分标准 (1-5)：**
+- **5分：** 功能全面，有独特创新，集成丰富
+- **4分：** 功能较全面，有一定特色
+- **3分：** 功能基本满足需求
+- **2分：** 功能有缺失
+- **1分：** 功能严重不足
+
+---
+
+#### 1.2.5 Technical Implementation
+
+**评估目标：** 推断技术栈和架构模式
+
+| 评估项 | 说明 | 推断方法 |
+|--------|------|----------|
+| **前端框架** | 使用的JS框架 | 查看DOM结构、bundle分析 |
+| **UI组件库** | 组件库选择 | class命名、组件特征 |
+| **状态管理** | 数据流管理 | React DevTools、网络请求 |
+| **后端架构** | API设计 | 请求格式、响应结构 |
+| **部署方式** | 托管平台 | 响应头、CDN特征 |
+| **性能优化** | 加载、渲染优化 | Lighthouse、网络瀑布图 |
+
+**评分标准 (1-5)：**
+- **5分：** 技术栈先进，架构清晰，性能优秀
+- **4分：** 技术栈较新，架构合理，性能良好
+- **3分：** 技术栈可接受，架构一般
+- **2分：** 技术栈过时，架构有问题
+- **1分：** 技术债务严重
+
+**技术栈推断工具：**
+- Wappalyzer (浏览器插件)
+- Chrome DevTools → Network
+- Lighthouse 性能报告
+- View Source 分析
+
+---
+
+### 1.3 Analysis Method
 
 For each product:
 1. **Landscape scan** - Understand the product at a high level
 2. **Deep dive** - Analyze specific dimensions in detail
 3. **Pattern extraction** - Identify reusable patterns
 4. **Gap analysis** - Find opportunities for differentiation
+
+### 1.4 Scoring Summary Template
+
+```markdown
+## [Product Name] - Scoring Summary
+
+| Dimension | Score | Key Findings |
+|-----------|-------|--------------|
+| Information Architecture | X/5 | [Top 2-3 findings] |
+| Visual Design System | X/5 | [Top 2-3 findings] |
+| Interaction Flow | X/5 | [Top 2-3 findings] |
+| Feature Matrix | X/5 | [Top 2-3 findings] |
+| Technical Implementation | X/5 | [Top 2-3 findings] |
+| **Total** | **XX/25** | |
+
+### Applicable Patterns for Viblog
+1. [Pattern to adopt]
+2. [Pattern to adapt]
+3. [Anti-pattern to avoid]
+```
 
 ---
 
@@ -395,51 +568,188 @@ Recommended card implementation:
 
 ## 10. Analysis Templates
 
-### 10.1 Product Analysis Template
+### 10.1 Product Analysis Template (Detailed)
 
 ```markdown
-## [Product Name]
+## [Product Name] - Comprehensive Analysis
 
 **Analysis Date:** YYYY-MM-DD
-
+**Analyst Model:** [glm-5 / kimi-k2.5]
 **Product Category:** [Category]
+**Assets Cached:** [screenshot paths in .comp_product_assets/]
 
-**Key Characteristics:**
-- Characteristic 1
-- Characteristic 2
-- Characteristic 3
+---
 
-### Information Architecture
+### 1. Information Architecture (X/5)
 
-[Structure diagram]
+**Score Breakdown:**
+- Hierarchy Depth: [Score]
+- Navigation Clarity: [Score]
+- Classification Logic: [Score]
+- Search & Discovery: [Score]
+- URL Structure: [Score]
 
-### Visual Design
+**Key Findings:**
+1. [Finding with screenshot reference]
+2. [Finding with screenshot reference]
+3. [Finding with screenshot reference]
 
-[Design tokens and patterns]
-
-### Interaction Flow
-
-[Flow diagrams]
-
-### Technical Implementation
-
-[Tech stack and patterns]
-
-### Key Takeaways
-
-1. Takeaway 1
-2. Takeaway 2
-3. Takeaway 3
-
-### Applicable to Viblog
-
-- [ ] Feature: [description]
-- [ ] Pattern: [description]
-- [ ] Avoid: [description]
+**Structure Diagram:**
+```
+[ASCII diagram of IA structure]
 ```
 
 ---
 
-**Document Version:** 1.0
+### 2. Visual Design System (X/5)
+
+**Design Tokens:**
+```css
+/* Extracted design tokens */
+--primary: #xxx;
+--font-main: xxx;
+--spacing-unit: xxx;
+```
+
+**Key Findings:**
+1. [Color system findings]
+2. [Typography findings]
+3. [Component patterns]
+
+**Screenshots:**
+- `visual-design/[product]-card-*.png`
+- `visual-design/[product]-typography-*.png`
+
+---
+
+### 3. Interaction Flow (X/5)
+
+**Core Flow Diagram:**
+```
+[ASCII flow diagram]
+[Start] --> [Step 1] --> [Step 2] --> [End]
+```
+
+**Key Findings:**
+1. [Flow efficiency]
+2. [Error handling patterns]
+3. [Feedback mechanisms]
+
+---
+
+### 4. Feature Matrix (X/5)
+
+| Feature Category | Features | Viblog Relevance |
+|------------------|----------|------------------|
+| Core | [List] | [Adopt/Adapt/Skip] |
+| Integration | [List] | [Adopt/Adapt/Skip] |
+| Customization | [List] | [Adopt/Adapt/Skip] |
+
+**Key Findings:**
+1. [Unique features]
+2. [Missing features]
+3. [Differentiation opportunities]
+
+---
+
+### 5. Technical Implementation (X/5)
+
+**Inferred Tech Stack:**
+- Frontend: [Framework]
+- UI Library: [Library]
+- State Management: [Tool]
+- Backend: [Inferred from API]
+- Deployment: [Platform]
+
+**Performance Metrics:**
+- Lighthouse Score: XX
+- FCP: X.XXs
+- LCP: X.XXs
+
+**Key Findings:**
+1. [Architecture patterns]
+2. [Performance optimizations]
+3. [Technical debt signals]
+
+---
+
+### Summary
+
+| Dimension | Score | Key Takeaway |
+|-----------|-------|--------------|
+| IA | X/5 | [One sentence] |
+| Visual | X/5 | [One sentence] |
+| Flow | X/5 | [One sentence] |
+| Features | X/5 | [One sentence] |
+| Tech | X/5 | [One sentence] |
+| **Total** | **XX/25** | |
+
+---
+
+### Applicable to Viblog
+
+**Patterns to Adopt:**
+- [ ] [Pattern 1 - with implementation notes]
+- [ ] [Pattern 2 - with implementation notes]
+
+**Patterns to Adapt:**
+- [ ] [Pattern 1 - how to modify for Viblog]
+- [ ] [Pattern 2 - how to modify for Viblog]
+
+**Anti-patterns to Avoid:**
+- [ ] [Anti-pattern 1 - why to avoid]
+- [ ] [Anti-pattern 2 - why to avoid]
+
+---
+
+### Technical Translation
+
+**For MCP Implementation:**
+```typescript
+// Code example from analysis
+```
+
+**For Visual Design:**
+```css
+/* CSS example from analysis */
+```
+
+**For Interaction Flow:**
+```typescript
+// Flow implementation example
+```
+```
+
+---
+
+### 10.2 Quick Analysis Template (For Lower Priority Products)
+
+```markdown
+## [Product Name] - Quick Analysis
+
+**Analysis Date:** YYYY-MM-DD
+**Priority:** [Low/Medium]
+
+### Quick Scores
+| Dimension | Score | Notes |
+|-----------|-------|-------|
+| IA | X/5 | [Brief note] |
+| Visual | X/5 | [Brief note] |
+| Flow | X/5 | [Brief note] |
+| Features | X/5 | [Brief note] |
+| Tech | X/5 | [Brief note] |
+
+### Top 3 Takeaways
+1. [Takeaway]
+2. [Takeaway]
+3. [Takeaway]
+
+### One Thing to Borrow
+[Single most valuable pattern/feature]
+```
+
+---
+
+**Document Version:** 2.0
 **Last Updated:** 2026-03-15
 **Author:** Viblog Team

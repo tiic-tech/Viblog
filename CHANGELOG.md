@@ -23,6 +23,12 @@ All notable changes to this project will be documented in this file.
   - BACKEND_STRUCTURE.md v2.0 - Added draft_buckets and MCP API schemas
   - IMPLEMENTATION_PLAN.md v3.0 - Post-MVP Phase 2 roadmap
   - PRODUCT_COMP_ANALYSIS.md - Competitive analysis framework
+- Competitive Analysis Framework (Step 9.1):
+  - 5-dimension evaluation system (IA, Visual, Flow, Features, Tech)
+  - 1-5 scoring rubric for each dimension
+  - Detailed evaluation criteria with observable indicators
+  - Design token extraction template
+  - Quick and detailed analysis templates
 
 ---
 
