@@ -1,10 +1,18 @@
 # Viblog - Implementation Plan
 
+## 文档信息
+- **功能**: 实施计划文档，定义开发阶段、任务分解和技术细节
+- **作用**: 开发执行的路线图，跟踪进度和依赖关系
+- **职责**: 明确"什么时候做什么"，覆盖所有开发任务
+- **阅读顺序**: 3 - 开工会话必读，了解当前任务和下一步工作
+
+---
+
 ## 1. Overview
 
-This document provides a step-by-step build sequence for Viblog. Each step has clear deliverables and dependencies.
+This document provides a step-by-step build sequence for Viblog post-MVP development. Each step has clear deliverables and dependencies.
 
-**Current Status:** MVP v0.1.0 Released (2026-03-13), Post-MVP in progress
+**Current Status:** Post-MVP Phase 2 Planning
 
 ---
 
@@ -12,409 +20,335 @@ This document provides a step-by-step build sequence for Viblog. Each step has c
 
 ```
 MVP Phases (Completed)
-├── Phase 1: Foundation
-├── Phase 2: Core Features
-├── Phase 3: Public Features
-└── Phase 4: Polish & Deploy
+├── Phase 1: Foundation (Completed)
+├── Phase 2: Core Features (Completed)
+├── Phase 3: Public Features (Completed)
+└── Phase 4: Polish & Deploy (Completed)
 
-Post-MVP Phases
-├── Phase 5: Custom Domain (Completed 2026-03-14)
-├── Phase 6: Test Coverage (Completed 20.15%, 142 tests)
-├── Phase 7: E2E Test Suite (Completed 2026-03-14)
-└── Phase 8: Fix Onboarding Data Usage (Current)
+Post-MVP Phases (Completed)
+├── Phase 5: Custom Domain (Completed)
+├── Phase 6: Test Coverage (Completed 20.15%)
+├── Phase 7: E2E Test Suite (Completed)
+└── Phase 8: Secure API Key Storage (Completed)
+
+Post-MVP Phase 2 (Current)
+├── Phase 9: Competitive Analysis
+├── Phase 10: MCP Server Development
+├── Phase 11: Draft Bucket System
+├── Phase 12: Dual-Layer Publishing
+└── Phase 13: Visual Redesign
 ```
 
 ---
 
-## 3. Current Phase: Phase 8 - Fix Onboarding Data Usage
+## 3. Current Phase: Phase 9 - Competitive Analysis
 
-**Goal:** Actually store and use LLM API keys collected during onboarding
+**Goal:** Deep-dive analysis of competitors to inform product differentiation
 
-**Status:** Completed (2026-03-14)
+**Status:** In Progress
 
-**Dependencies:** Phase 7 completion
-
----
-
-### Step 8.1: Design Secure Storage for API Keys
-**Status:** Completed
-
-**Deliverable:** AES-256-GCM encryption with PBKDF2 key derivation
-
-**File:** `src/lib/encryption.ts`
+**Dependencies:** None (can run in parallel with planning)
 
 ---
 
-### Step 8.2: Update Onboarding to Encrypt and Store Keys
-**Status:** Completed
+### Step 9.1: Define Analysis Framework
+**Status:** Pending
 
-**Deliverable:** Modified onboarding flow that stores encrypted keys via API
-
-**Files:**
-- `src/components/onboarding/step-1-llm.tsx`
-- `src/components/onboarding/step-2-database.tsx`
-
----
-
-### Step 8.3: Create API Route to Retrieve Keys Securely
-**Status:** Completed
-
-**Deliverable:** Secure API endpoint for key management (GET/PUT/DELETE)
-
-**Files:**
-- `src/app/api/user/api-keys/route.ts`
-- `src/lib/api-keys.ts` (server-side key retrieval)
-
----
-
-### Step 8.4: Update Settings Page to Manage Keys
-**Status:** Completed
-
-**Deliverable:** Settings UI for viewing/updating API keys
-
-**File:** `src/app/(dashboard)/dashboard/settings/page.tsx`
-
----
-
-### Step 8.5: Add Tests for Key Management
-**Status:** Completed
-
-**Deliverable:** Unit tests for encryption utilities (7 tests passing)
-
-**File:** `src/lib/encryption.test.ts`
-
----
-
-### Phase 8 Configuration Changes
-
-**Required Environment Variable:**
-```bash
-# Generate with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-ENCRYPTION_KEY=<64-character-hex-string>
-```
-
-**GitHub Secrets:** Add `ENCRYPTION_KEY` to repository secrets for CI
-
----
-
-## 4. Phase 7: E2E Test Suite (Completed)
-
-**Completed:** 2026-03-14
-
-**What was accomplished:**
-- Playwright configuration with Chromium
-- Test fixtures with authentication helpers
-- Page Object Models for Login, Register, Dashboard, ArticleEditor
-- 8 E2E tests for login and registration UI flows
-- CI/CD pipeline with GitHub Actions
-
----
-
-### Step 7.1: Configure Playwright
-**Status:** Completed
-
-**Deliverable:** Playwright configuration for E2E testing
+**Deliverable:** Analysis framework document
 
 **Tasks:**
-- [x] Install Playwright dependencies
-- [x] Create `playwright.config.ts`
-- [x] Set up test directory structure
-- [x] Configure test fixtures
+- [ ] Define analysis dimensions (IA, visual, interaction, features, tech)
+- [ ] Create evaluation criteria for each dimension
+- [ ] Design output format for analysis reports
 
 ---
 
-### Step 7.2: Create Test Utilities
-**Status:** Completed
+### Step 9.2: Analyze Traditional Blogging Platforms
+**Status:** Pending
 
-**Deliverable:** Reusable E2E test helpers
+**Deliverable:** Analysis reports for Notion, Medium, Substack
+
+**Analysis Focus:**
+- Content creation flow
+- Publishing workflow
+- Content organization
+- Reader experience
+
+---
+
+### Step 9.3: Analyze AI Coding Tools
+**Status:** Pending
+
+**Deliverable:** Analysis reports for Cursor, Claude Code, Windsurf
+
+**Analysis Focus:**
+- Session recording capabilities
+- Context capture mechanisms
+- Export/sharing features
+- MCP integration patterns
+
+---
+
+### Step 9.4: Analyze Visual Design References
+**Status:** Pending
+
+**Deliverable:** Analysis reports for Pinterest, Dribbble, Behance, Awwwards
+
+**Analysis Focus:**
+- Card design patterns
+- Grid layouts
+- Animation patterns
+- Visual hierarchy
+
+---
+
+### Step 9.5: Synthesize Findings
+**Status:** Pending
+
+**Deliverable:** Competitive analysis summary with actionable insights
+
+**Output:**
+- Feature gap analysis
+- Differentiation opportunities
+- Technical implementation recommendations
+
+---
+
+## 4. Phase 10: MCP Server Development
+
+**Goal:** Build MCP server that integrates with Claude Code and Cursor
+
+**Estimated Effort:** 2-3 weeks
+
+**Dependencies:** Phase 9 completion
+
+---
+
+### Step 10.1: MCP SDK Setup
+**Status:** Pending
+
+**Deliverable:** Working MCP server skeleton
 
 **Tasks:**
-- [x] Create authentication helpers
-- [x] Create page object models
-- [x] Create test data generators
+- [ ] Initialize MCP server project
+- [ ] Set up build and publish pipeline
+- [ ] Create basic server with health check
 
 ---
 
-### Step 7.3: E2E Test for Registration Flow
-**Status:** Completed
+### Step 10.2: Implement update_vibe_coding_history Tool
+**Status:** Pending
 
-**Deliverable:** Automated registration test
-
-**File:** `e2e/register.spec.ts`
-
----
-
-### Step 7.4: E2E Test for Login Flow
-**Status:** Completed
-
-**Deliverable:** Automated login test
-
-**File:** `e2e/login.spec.ts`
-
----
-
-### Step 7.5: E2E Test for Article Creation
-**Status:** Skipped (requires authentication)
-
-**Note:** Moved to `e2e/authenticated.spec.ts` - requires `E2E_RUN_AUTH_TESTS=1`
-
----
-
-### Step 7.6: E2E Test for Article Publishing
-**Status:** Skipped (requires authentication)
-
-**Note:** Moved to `e2e/authenticated.spec.ts` - requires `E2E_RUN_AUTH_TESTS=1`
-
----
-
-### Step 7.7: Add CI/CD Integration
-**Status:** Completed
-
-**Deliverable:** GitHub Actions workflow for automated testing
-
-**Strategy:**
-
-CI (Continuous Integration) automatically runs tests when pushing code or creating PRs.
-This catches bugs early before they reach production.
-
-**Pipeline:**
-```
-1. Install & Build (pnpm install → pnpm build)
-2. Lint & Type Check (pnpm lint → pnpm type-check)
-3. Unit Tests (pnpm test:run - 142 Vitest tests)
-4. E2E Tests (skipped in CI - requires Supabase auth, rate-limited)
-```
-
-**Why skip E2E in CI?**
-- Supabase has email rate limits
-- E2E tests require real authentication
-- Run locally with `E2E_RUN_AUTH_TESTS=1 pnpm test:e2e`
+**Deliverable:** MCP tool for session recording
 
 **Tasks:**
-- [x] Create `.github/workflows/` directory
-- [x] Create `ci.yml` workflow file
-- [x] Configure pnpm caching for faster builds
-- [x] Add GitHub secrets (manual step completed)
-- [x] Test workflow by pushing to a branch
-
-**File:** `.github/workflows/ci.yml`
-
-**Setup Instructions:**
-1. Go to GitHub repo → Settings → Secrets and variables → Actions
-2. Add the following secrets from your `.env.local`:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `NEXT_PUBLIC_APP_URL`
-   - `NEXT_PUBLIC_SITE_URL`
+- [ ] Define input schema
+- [ ] Implement API client
+- [ ] Add error handling
+- [ ] Write unit tests
 
 ---
 
-## 4. Phase 6: Test Coverage (Completed)
+### Step 10.3: Implement get_recent_sessions Tool
+**Status:** Pending
 
-**Final Coverage:** 20.15% (142 tests)
+**Deliverable:** MCP tool for retrieving sessions
 
-**What was accomplished:**
-- Test utilities with mock factories
-- Validation tests for all forms (43 tests)
-- Component tests (25 tests)
-- Hook tests (8 tests)
-- API tests (53 tests)
-
----
-
-### Step 6.2: Unit Tests for Utilities
-**Status:** Completed
-
-**Deliverable:** Tests for all utility functions
+**Tasks:**
+- [ ] Define output schema
+- [ ] Implement pagination
+- [ ] Add filtering options
 
 ---
 
-### Step 6.3: Unit Tests for Form Validation
-**Status:** Completed
+### Step 10.4: MCP API Key Management
+**Status:** Pending
 
-**Deliverable:** Tests for all form validation schemas (43 tests)
+**Deliverable:** API key generation and management
 
----
-
-### Step 6.4: Component Tests for Forms
-**Status:** Completed
-
-**Deliverable:** Tests for form components (17 tests)
+**Tasks:**
+- [ ] Create MCP API key generation endpoint
+- [ ] Add key display in settings
+- [ ] Implement key revocation
 
 ---
 
-### Step 6.5: Integration Tests for Auth API
-**Status:** Completed (merged into API tests)
+### Step 10.5: Documentation and Testing
+**Status:** Pending
+
+**Deliverable:** MCP server documentation and tests
+
+**Tasks:**
+- [ ] Write README with setup instructions
+- [ ] Create Claude Code config example
+- [ ] Add integration tests
 
 ---
 
-### Step 6.6: Integration Tests for Project API
-**Status:** Completed
+## 5. Phase 11: Draft Bucket System
 
-**Deliverable:** Tests for project API routes
+**Goal:** Build the draft bucket UI and article generation pipeline
 
----
+**Estimated Effort:** 2 weeks
 
-### Step 6.7: Integration Tests for Article API
-**Status:** Completed
-
-**Deliverable:** Tests for article API routes (53 API tests)
+**Dependencies:** Phase 10 completion
 
 ---
 
-### Step 6.8: Coverage Report and Gap Filling
-**Status:** Deferred
+### Step 11.1: Database Migration
+**Status:** Pending
 
-**Note:** Further coverage improvements deferred. Current 20.15% coverage with E2E tests provides sufficient stability for MVP.
+**Deliverable:** draft_buckets table with RLS
 
-**If resumed:**
-- [ ] Add tests for `src/app/(public)` pages
-- [ ] Add tests for middleware
-- [ ] Add tests for remaining components
-- [ ] Run final coverage report
-
----
-
-## 4. Phase 5: Custom Domain (Completed)
-
-**Completed:** 2026-03-14
-
-**What was done:**
-- Configured DNS in DNSPod (CNAME: viblog -> cname.vercel-dns.com)
-- Added domain in Vercel Dashboard
-- Updated environment variables
-- Fixed build error by converting vitest.config.ts to JS
+**Tasks:**
+- [ ] Create migration file
+- [ ] Add RLS policies
+- [ ] Generate TypeScript types
 
 ---
 
-## 5. Phase 7: E2E Test Suite (Planned)
+### Step 11.2: Draft Bucket API
+**Status:** Pending
 
-**Goal:** Create automated E2E tests for critical user flows
+**Deliverable:** REST API for draft buckets
 
-**Estimated Effort:** 5-6 hours
-
-**Dependencies:** Phase 6 completion
-
-**Planned Steps:**
-- Step 7.1: Configure Playwright
-- Step 7.2: Create test utilities and fixtures
-- Step 7.3: E2E test for registration flow
-- Step 7.4: E2E test for login flow
-- Step 7.5: E2E test for article creation
-- Step 7.6: E2E test for article publishing
-- Step 7.7: Add CI/CD integration
+**Tasks:**
+- [ ] Implement CRUD endpoints
+- [ ] Add filtering and pagination
+- [ ] Write API tests
 
 ---
 
-## 6. Phase 8: Fix Onboarding Data Usage (Planned)
+### Step 11.3: Draft Bucket UI
+**Status:** Pending
 
-**Goal:** Actually store and use LLM API keys collected during onboarding
+**Deliverable:** Draft bucket list and detail pages
 
-**Estimated Effort:** 4-5 hours
-
-**Dependencies:** Phase 6 completion
-
-**Planned Steps:**
-- Step 8.1: Design secure storage for API keys
-- Step 8.2: Update onboarding to encrypt and store keys
-- Step 8.3: Create API route to retrieve keys securely
-- Step 8.4: Update settings page to manage keys
-- Step 8.5: Add tests for key management
+**Tasks:**
+- [ ] Create list page with cards
+- [ ] Create detail page with human input form
+- [ ] Add status indicators
 
 ---
 
-## 7. MVP Implementation (Completed)
+### Step 11.4: Article Generation Pipeline
+**Status:** Pending
 
-### Phase 1: Foundation (Completed)
+**Deliverable:** AI article generation from draft buckets
 
-#### Step 1.1: Initialize Project
-**Status:** Completed
-**Deliverable:** Working Next.js project with TypeScript
-
-#### Step 1.2: Configure Supabase Client
-**Status:** Completed
-**Deliverable:** Working Supabase connection
-
-#### Step 1.3: Set Up Database Schema
-**Status:** Completed
-**Deliverable:** Complete database tables with RLS policies
-
-#### Step 1.4: Build Authentication
-**Status:** Completed
-**Deliverable:** Working login/register flow
-
-#### Step 1.5: Build Onboarding Flow
-**Status:** Completed
-**Deliverable:** 5-step onboarding wizard
+**Tasks:**
+- [ ] Create generation endpoint
+- [ ] Implement LLM integration
+- [ ] Add progress tracking
+- [ ] Handle generation failures
 
 ---
 
-### Phase 2: Core Features (Completed)
+## 6. Phase 12: Dual-Layer Publishing
 
-#### Step 2.1: Build Dashboard Layout
-**Status:** Completed
-**Deliverable:** Dashboard with sidebar navigation
+**Goal:** Implement dual-format (Markdown + JSON) publishing
 
-#### Step 2.2: Build Project Management
-**Status:** Completed
-**Deliverable:** Full CRUD for projects
+**Estimated Effort:** 1 week
 
-#### Step 2.3: Build Article Management
-**Status:** Completed
-**Deliverable:** Full CRUD for articles with rich text editor
-
-#### Step 2.4: Build Timeline View
-**Status:** Completed
-**Deliverable:** Timeline showing projects and articles
+**Dependencies:** Phase 11 completion
 
 ---
 
-### Phase 3: Public Features (Completed)
+### Step 12.1: JSON Content Schema
+**Status:** Pending
 
-#### Step 3.1: Build Public Feed
-**Status:** Completed
-**Deliverable:** Landing page with article cards
+**Deliverable:** JSON schema for AI-consumable content
 
-#### Step 3.2: Build Article Detail Page
-**Status:** Completed
-**Deliverable:** Full article view with metadata
-
-#### Step 3.3: Build User Profile Pages
-**Status:** Completed
-**Deliverable:** Public profile with article list
+**Tasks:**
+- [ ] Define JSON structure
+- [ ] Add validation
+- [ ] Document schema
 
 ---
 
-### Phase 4: Polish & Deploy (Completed)
+### Step 12.2: JSON Generation
+**Status:** Pending
 
-#### Step 4.1: UI Polish
-**Status:** Completed
-**Deliverable:** Consistent, polished UI
+**Deliverable:** Auto-generate JSON from article content
 
-#### Step 4.2: Testing
-**Status:** Completed
-**Deliverable:** Basic test coverage (23 tests)
+**Tasks:**
+- [ ] Create generation logic
+- [ ] Add extraction for code snippets
+- [ ] Add key decision extraction
 
-#### Step 4.3: Deployment
-**Status:** Completed
-**Deliverable:** Live application on Vercel
+---
+
+### Step 12.3: JSON API Endpoint
+**Status:** Pending
+
+**Deliverable:** Public API for JSON content
+
+**Tasks:**
+- [ ] Create JSON endpoint
+- [ ] Add caching
+- [ ] Document API
+
+---
+
+## 7. Phase 13: Visual Redesign
+
+**Goal:** Implement Pinterest-style card layout and premium visual design
+
+**Estimated Effort:** 2 weeks
+
+**Dependencies:** Phase 9 completion (analysis)
+
+---
+
+### Step 13.1: Card Component Redesign
+**Status:** Pending
+
+**Deliverable:** New article card component
+
+**Tasks:**
+- [ ] Design new card in Figma
+- [ ] Implement card component
+- [ ] Add hover animations
+
+---
+
+### Step 13.2: Masonry Grid Layout
+**Status:** Pending
+
+**Deliverable:** Pinterest-style grid layout
+
+**Tasks:**
+- [ ] Implement masonry grid
+- [ ] Add responsive breakpoints
+- [ ] Optimize for performance
+
+---
+
+### Step 13.3: Visual Polish
+**Status:** Pending
+
+**Deliverable:** Premium visual design throughout
+
+**Tasks:**
+- [ ] Update color system
+- [ ] Add micro-interactions
+- [ ] Improve typography
+- [ ] Add loading animations
 
 ---
 
 ## 8. Dependency Graph
 
 ```
-MVP (Completed)
-├── Phase 1: Foundation
-│   └── Phase 2: Core Features
-│       └── Phase 3: Public Features
-│           └── Phase 4: Polish & Deploy
-
-Post-MVP
-├── Phase 5: Custom Domain (Completed)
-└── Phase 6: Test Coverage
-    ├── Phase 7: E2E Test Suite
-    └── Phase 8: Fix Onboarding Data Usage
+Phase 9: Competitive Analysis
+    │
+    ├── Phase 10: MCP Server
+    │       │
+    │       └── Phase 11: Draft Buckets
+    │               │
+    │               └── Phase 12: Dual-Layer Publishing
+    │
+    └── Phase 13: Visual Redesign (can run parallel with 10-12)
 ```
 
 ---
@@ -423,13 +357,15 @@ Post-MVP
 
 - [x] Node.js 20+ installed
 - [x] pnpm installed
-- [x] Supabase account created
-- [x] Supabase project created
-- [x] Vercel account created
+- [x] Supabase project configured
+- [x] Vercel deployment configured
 - [x] Custom domain configured (viblog.tiic.tech)
-- [x] Git repository initialized
+- [x] CI/CD pipeline active
+- [ ] MCP SDK documentation reviewed
+- [ ] LLM API keys configured for article generation
 
 ---
 
-**Document Version:** 2.0
-**Last Updated:** 2026-03-14
+**Document Version:** 3.0
+**Last Updated:** 2026-03-15
+**Author:** Viblog Team

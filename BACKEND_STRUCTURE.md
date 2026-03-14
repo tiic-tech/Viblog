@@ -1,8 +1,16 @@
 # Viblog - Backend Structure Document
 
+## 文档信息
+- **功能**: 后端结构文档，定义数据库架构、API 端点和后端逻辑
+- **作用**: 后端开发的权威参考，确保数据层一致性
+- **职责**: 明确"数据如何存储和流转"，覆盖数据库、API、安全
+- **阅读时机**: 按需阅读 - 当需要了解数据库结构、API 端点或 MCP 后端实现时
+
+---
+
 ## 1. Overview
 
-This document defines the database schema, API endpoints, and backend logic for Viblog.
+This document defines the database schema, API endpoints, and backend logic for Viblog, including new MCP-related components.
 
 ---
 
@@ -25,13 +33,16 @@ This document defines the database schema, API endpoints, and backend logic for 
 │       ▼                                                     │
 │  public.profiles ─────────┬──────────────┐                  │
 │       │                   │              │                  │
-│       │ 1:N               │ 1:N          │                  │
+│       │ 1:N               │ 1:N          │ 1:N              │
 │       ▼                   ▼              ▼                  │
-│  public.projects     public.articles  public.user_settings  │
-│       │                                                     │
-│       │ 1:N                                                 │
-│       ▼                                                     │
-│  public.articles                                            │
+│  public.projects     public.articles  public.draft_buckets  │
+│       │                   │              │ (NEW)            │
+│       │ 1:N               │              │                  │
+│       ▼                   │              │                  │
+│  public.articles           │              │                 │
+│                            │              │                 │
+│  public.user_settings      │              │                 │
+│  public.stars              │              │                 │
 │                                                             │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -40,489 +51,341 @@ This document defines the database schema, API endpoints, and backend logic for 
 
 ## 3. Database Schema
 
-### 3.1 Profiles Table
+### 3.1 Draft Buckets Table (New)
 
 ```sql
--- Extends Supabase auth.users
-CREATE TABLE public.profiles (
-  id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
-  username TEXT UNIQUE NOT NULL,
-  display_name TEXT,
-  avatar_url TEXT,
-  bio TEXT,
-  website_url TEXT,
-  github_username TEXT,
-  twitter_username TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-
-  CONSTRAINT username_length CHECK (char_length(username) >= 3 AND char_length(username) <= 30),
-  CONSTRAINT username_format CHECK (username ~ '^[a-zA-Z0-9_]+$')
-);
-
--- Index for username lookups
-CREATE INDEX profiles_username_idx ON public.profiles(username);
-
--- Index for public profile queries
-CREATE INDEX profiles_created_at_idx ON public.profiles(created_at DESC);
-```
-
-### 3.2 Projects Table
-
-```sql
-CREATE TABLE public.projects (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
-  name TEXT NOT NULL,
-  slug TEXT NOT NULL,
-  description TEXT,
-  icon TEXT,
-  color TEXT DEFAULT '#6366f1',
-  is_public BOOLEAN DEFAULT true NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-
-  CONSTRAINT name_length CHECK (char_length(name) >= 1 AND char_length(name) <= 50),
-  CONSTRAINT description_length CHECK (char_length(description) <= 500),
-  UNIQUE(user_id, slug)
-);
-
--- Indexes
-CREATE INDEX projects_user_id_idx ON public.projects(user_id);
-CREATE INDEX projects_created_at_idx ON public.projects(created_at DESC);
-CREATE INDEX projects_slug_idx ON public.projects(slug);
-```
-
-### 3.3 Articles Table
-
-```sql
-CREATE TABLE public.articles (
+CREATE TABLE public.draft_buckets (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
   project_id UUID REFERENCES public.projects(id) ON DELETE SET NULL,
 
-  -- Content
-  title TEXT NOT NULL,
-  slug TEXT NOT NULL,
-  content TEXT,
-  excerpt TEXT,
-  cover_image TEXT,
+  -- Session Data (from MCP)
+  session_data JSONB NOT NULL,
+  -- Structure:
+  -- {
+  --   "prompts": [{ "content": "...", "timestamp": "..." }],
+  --   "responses": [{ "content": "...", "timestamp": "..." }],
+  --   "code_changes": [{ "file": "...", "diff": "...", "timestamp": "..." }],
+  --   "decisions": [{ "decision": "...", "context": "..." }],
+  --   "metadata": {
+  --     "platform": "claude-code",
+  --     "duration_minutes": 45,
+  --     "model": "claude-opus-4-6"
+  --   }
+  -- }
 
-  -- Vibe Coding Metadata
-  vibe_platform TEXT,
-  vibe_duration_minutes INTEGER,
-  vibe_model TEXT,
-  vibe_prompt TEXT,
-  vibe_ai_response TEXT,
+  -- AI-Extracted Content
+  title_suggestions TEXT[],
+  code_snippets JSONB DEFAULT '[]'::jsonb,
+  -- [{ "purpose": "...", "code": "...", "language": "...", "context": "..." }]
 
-  -- Publishing
-  status TEXT DEFAULT 'draft' NOT NULL CHECK (status IN ('draft', 'published', 'archived')),
-  visibility TEXT DEFAULT 'private' NOT NULL CHECK (visibility IN ('public', 'private', 'unlisted')),
-  is_premium BOOLEAN DEFAULT false NOT NULL,
-  price DECIMAL(10, 2) DEFAULT 0,
+  decisions JSONB DEFAULT '[]'::jsonb,
+  -- [{ "decision": "...", "reason": "...", "context": "..." }]
 
-  -- Engagement
-  stars_count INTEGER DEFAULT 0 NOT NULL,
-  views_count INTEGER DEFAULT 0 NOT NULL,
+  problems JSONB DEFAULT '[]'::jsonb,
+  -- [{ "problem": "...", "solution": "...", "context": "..." }]
 
-  -- Timestamps
-  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-  published_at TIMESTAMPTZ,
+  -- Human Input
+  human_reflections TEXT,
+  additional_notes TEXT,
+  custom_title TEXT,
 
-  -- Constraints
-  CONSTRAINT title_length CHECK (char_length(title) >= 1 AND char_length(title) <= 100),
-  CONSTRAINT valid_price CHECK (price >= 0),
-  CONSTRAINT published_has_content CHECK (status != 'published' OR content IS NOT NULL),
-  UNIQUE(user_id, slug)
-);
-
--- Indexes
-CREATE INDEX articles_user_id_idx ON public.articles(user_id);
-CREATE INDEX articles_project_id_idx ON public.articles(project_id);
-CREATE INDEX articles_status_idx ON public.articles(status);
-CREATE INDEX articles_visibility_idx ON public.articles(visibility);
-CREATE INDEX articles_published_at_idx ON public.articles(published_at DESC);
-CREATE INDEX articles_stars_count_idx ON public.articles(stars_count DESC);
-CREATE INDEX articles_created_at_idx ON public.articles(created_at DESC);
-
--- Full-text search index
-CREATE INDEX articles_content_search_idx ON public.articles USING gin(to_tsvector('english', title || ' ' || COALESCE(content, '')));
-```
-
-### 3.4 User Settings Table
-
-```sql
-CREATE TABLE public.user_settings (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE UNIQUE NOT NULL,
-
-  -- LLM Configuration
-  llm_provider TEXT,
-  llm_api_key_encrypted TEXT,
-  llm_model TEXT,
-
-  -- Database Configuration
-  database_type TEXT CHECK (database_type IN ('supabase', 'clickhouse', 'sqlite', 'none')),
-  database_url_encrypted TEXT,
-
-  -- Vibe Platforms
-  vibe_platforms JSONB DEFAULT '[]'::jsonb,
-
-  -- Discovery
-  discovery_source TEXT,
+  -- Status
+  status TEXT DEFAULT 'raw' NOT NULL
+    CHECK (status IN ('raw', 'draft', 'generating', 'completed')),
+  generated_article_id UUID REFERENCES public.articles(id),
 
   -- Timestamps
   created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
   updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
 
--- Index
-CREATE INDEX user_settings_user_id_idx ON public.user_settings(user_id);
+-- Indexes
+CREATE INDEX draft_buckets_user_id_idx ON public.draft_buckets(user_id);
+CREATE INDEX draft_buckets_status_idx ON public.draft_buckets(status);
+CREATE INDEX draft_buckets_created_at_idx ON public.draft_buckets(created_at DESC);
+CREATE INDEX draft_buckets_project_id_idx ON public.draft_buckets(project_id);
 ```
 
-### 3.5 Stars Table (Engagement)
+### 3.2 Articles Table (Updated)
 
 ```sql
-CREATE TABLE public.stars (
+-- Add JSON content column for AI-consumable format
+ALTER TABLE public.articles ADD COLUMN json_content JSONB;
+
+-- json_content structure:
+-- {
+--   "article_id": "uuid",
+--   "title": "...",
+--   "summary": "...",
+--   "key_decisions": [{ "decision": "...", "reason": "..." }],
+--   "code_snippets": [{ "purpose": "...", "code": "...", "language": "..." }],
+--   "lessons_learned": ["..."],
+--   "related_topics": ["..."],
+--   "keywords": ["..."],
+--   "difficulty_level": "beginner|intermediate|advanced"
+-- }
+
+-- Index for JSON content search
+CREATE INDEX articles_json_content_idx ON public.articles USING gin(json_content);
+```
+
+### 3.3 MCP API Keys Table (New)
+
+```sql
+CREATE TABLE public.mcp_api_keys (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
-  article_id UUID REFERENCES public.articles(id) ON DELETE CASCADE NOT NULL,
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE UNIQUE NOT NULL,
+  api_key_hash TEXT NOT NULL,
+  api_key_prefix TEXT NOT NULL, -- First 8 chars for display
+  last_used_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
 
-  UNIQUE(user_id, article_id)
+  CONSTRAINT api_key_prefix_length CHECK (char_length(api_key_prefix) = 8)
 );
 
-CREATE INDEX stars_user_id_idx ON public.stars(user_id);
-CREATE INDEX stars_article_id_idx ON public.stars(article_id);
+CREATE INDEX mcp_api_keys_user_id_idx ON public.mcp_api_keys(user_id);
+CREATE INDEX mcp_api_keys_prefix_idx ON public.mcp_api_keys(api_key_prefix);
 ```
 
 ---
 
 ## 4. Row Level Security (RLS)
 
-### 4.1 Profiles RLS
+### 4.1 Draft Buckets RLS
 
 ```sql
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.draft_buckets ENABLE ROW LEVEL SECURITY;
 
--- Anyone can view profiles
-CREATE POLICY "Profiles are viewable by everyone"
-  ON public.profiles FOR SELECT
-  USING (true);
-
--- Users can update their own profile
-CREATE POLICY "Users can update own profile"
-  ON public.profiles FOR UPDATE
-  USING (auth.uid() = id);
-
--- Users can insert their own profile
-CREATE POLICY "Users can insert own profile"
-  ON public.profiles FOR INSERT
-  WITH CHECK (auth.uid() = id);
-```
-
-### 4.2 Projects RLS
-
-```sql
-ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
-
--- View public projects or own projects
-CREATE POLICY "Projects are viewable by owner or if public"
-  ON public.projects FOR SELECT
-  USING (is_public = true OR user_id = auth.uid());
-
--- Users manage their own projects
-CREATE POLICY "Users can manage own projects"
-  ON public.projects FOR ALL
+-- Users can only see their own draft buckets
+CREATE POLICY "Users can manage own draft buckets"
+  ON public.draft_buckets FOR ALL
   USING (user_id = auth.uid());
 ```
 
-### 4.3 Articles RLS
+### 4.2 MCP API Keys RLS
 
 ```sql
-ALTER TABLE public.articles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.mcp_api_keys ENABLE ROW LEVEL SECURITY;
 
--- View published public articles or own articles
-CREATE POLICY "Articles are viewable if public or owned"
-  ON public.articles FOR SELECT
-  USING (
-    (status = 'published' AND visibility = 'public')
-    OR user_id = auth.uid()
-  );
-
--- Users manage their own articles
-CREATE POLICY "Users can manage own articles"
-  ON public.articles FOR ALL
+-- Users can only see their own API keys
+CREATE POLICY "Users can manage own MCP API keys"
+  ON public.mcp_api_keys FOR ALL
   USING (user_id = auth.uid());
-```
-
-### 4.4 User Settings RLS
-
-```sql
-ALTER TABLE public.user_settings ENABLE ROW LEVEL SECURITY;
-
--- Only owner can view/modify settings
-CREATE POLICY "Users can manage own settings"
-  ON public.user_settings FOR ALL
-  USING (user_id = auth.uid());
-```
-
-### 4.5 Stars RLS
-
-```sql
-ALTER TABLE public.stars ENABLE ROW LEVEL SECURITY;
-
--- Anyone can view stars
-CREATE POLICY "Stars are viewable by everyone"
-  ON public.stars FOR SELECT
-  USING (true);
-
--- Authenticated users can star
-CREATE POLICY "Authenticated users can star"
-  ON public.stars FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
-
--- Users can remove their own stars
-CREATE POLICY "Users can remove own stars"
-  ON public.stars FOR DELETE
-  USING (auth.uid() = user_id);
 ```
 
 ---
 
-## 5. Database Functions
+## 5. API Endpoints
 
-### 5.1 Auto-update Timestamps
+### 5.1 MCP Integration Endpoints (New)
 
-```sql
-CREATE OR REPLACE FUNCTION public.handle_updated_at()
-RETURNS TRIGGER AS $$
-BEGIN
-  NEW.updated_at = NOW();
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | `/api/mcp/history` | Receive session data | MCP API Key |
+| GET | `/api/mcp/status` | Check connection status | User Session |
+| POST | `/api/mcp/api-keys` | Generate new MCP API key | User Session |
+| DELETE | `/api/mcp/api-keys` | Revoke MCP API key | User Session |
 
--- Apply to tables
-CREATE TRIGGER handle_profiles_updated_at
-  BEFORE UPDATE ON public.profiles
-  FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+### 5.2 Draft Bucket Endpoints (New)
 
-CREATE TRIGGER handle_projects_updated_at
-  BEFORE UPDATE ON public.projects
-  FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/draft-buckets` | List user's draft buckets |
+| GET | `/api/draft-buckets/[id]` | Get draft bucket details |
+| PUT | `/api/draft-buckets/[id]` | Update draft bucket (add reflections) |
+| POST | `/api/draft-buckets/[id]/generate` | Generate article from bucket |
+| DELETE | `/api/draft-buckets/[id]` | Delete draft bucket |
 
-CREATE TRIGGER handle_articles_updated_at
-  BEFORE UPDATE ON public.articles
-  FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+### 5.3 Dual-Layer Content Endpoints (New)
 
-CREATE TRIGGER handle_user_settings_updated_at
-  BEFORE UPDATE ON public.user_settings
-  FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
-```
-
-### 5.2 Create Profile on User Signup
-
-```sql
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
-BEGIN
-  INSERT INTO public.profiles (id, username, display_name, avatar_url)
-  VALUES (
-    NEW.id,
-    COALESCE(NEW.raw_user_meta_data->>'username', 'user_' || LEFT(NEW.id::text, 8)),
-    NEW.raw_user_meta_data->>'display_name',
-    NEW.raw_user_meta_data->>'avatar_url'
-  );
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
-```
-
-### 5.3 Update Article Stars Count
-
-```sql
-CREATE OR REPLACE FUNCTION public.handle_star_change()
-RETURNS TRIGGER AS $$
-BEGIN
-  IF TG_OP = 'INSERT' THEN
-    UPDATE public.articles
-    SET stars_count = stars_count + 1
-    WHERE id = NEW.article_id;
-    RETURN NEW;
-  ELSIF TG_OP = 'DELETE' THEN
-    UPDATE public.articles
-    SET stars_count = stars_count - 1
-    WHERE id = OLD.article_id;
-    RETURN OLD;
-  END IF;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER on_star_change
-  AFTER INSERT OR DELETE ON public.stars
-  FOR EACH ROW EXECUTE FUNCTION public.handle_star_change();
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/public/articles/[id]` | Get article (Markdown) |
+| GET | `/api/public/articles/[id]/json` | Get article (JSON format) |
+| GET | `/api/public/articles/[id]/json/schema` | Get JSON schema |
 
 ---
 
-## 6. API Endpoints
+## 6. API Request/Response Schemas
 
-### 6.1 API Structure
-
-All API routes are under `/api/` using Next.js API Routes.
-
-### 6.2 Authentication Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/auth/register` | Register new user |
-| POST | `/api/auth/login` | Login user |
-| POST | `/api/auth/logout` | Logout user |
-| POST | `/api/auth/reset-password` | Request password reset |
-| POST | `/api/auth/update-password` | Update password |
-
-### 6.3 User Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/user/profile` | Get current user profile |
-| PATCH | `/api/user/profile` | Update current user profile |
-| GET | `/api/user/settings` | Get user settings |
-| PATCH | `/api/user/settings` | Update user settings |
-
-### 6.4 Project Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/projects` | List user's projects |
-| POST | `/api/projects` | Create new project |
-| GET | `/api/projects/[id]` | Get project details |
-| PATCH | `/api/projects/[id]` | Update project |
-| DELETE | `/api/projects/[id]` | Delete project |
-
-### 6.5 Article Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/articles` | List user's articles |
-| POST | `/api/articles` | Create new article |
-| GET | `/api/articles/[id]` | Get article details |
-| PATCH | `/api/articles/[id]` | Update article |
-| DELETE | `/api/articles/[id]` | Delete article |
-| POST | `/api/articles/[id]/publish` | Publish article |
-| POST | `/api/articles/[id]/unpublish` | Unpublish article |
-
-### 6.6 Public Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/public/articles` | List public articles (feed) |
-| GET | `/api/public/articles/[slug]` | Get public article |
-| GET | `/api/public/users/[username]` | Get public profile |
-| GET | `/api/public/users/[username]/articles` | Get user's public articles |
-| POST | `/api/public/articles/[id]/star` | Star an article |
-| DELETE | `/api/public/articles/[id]/star` | Unstar an article |
-
----
-
-## 7. API Request/Response Schemas
-
-### 7.1 Create Article Request
+### 6.1 MCP History Request
 
 ```typescript
-// POST /api/articles
-interface CreateArticleRequest {
-  title: string;           // Required, 1-100 chars
-  content: string;         // Required
-  excerpt?: string;        // Optional, auto-generated if not provided
-  cover_image?: string;    // Optional URL
-  project_id?: string;     // Optional UUID
-
-  // Vibe metadata
-  vibe_platform?: 'claude-code' | 'cursor' | 'codex' | 'trae' | 'other';
-  vibe_duration_minutes?: number;
-  vibe_model?: string;
-  vibe_prompt?: string;
-  vibe_ai_response?: string;
-
-  // Publishing
-  status?: 'draft' | 'published';
-  visibility?: 'public' | 'private' | 'unlisted';
-  is_premium?: boolean;
-  price?: number;
+// POST /api/mcp/history
+interface MCPHistoryRequest {
+  session_data: {
+    prompts: Array<{
+      content: string;
+      timestamp: string;
+    }>;
+    responses: Array<{
+      content: string;
+      timestamp: string;
+    }>;
+    code_changes: Array<{
+      file: string;
+      diff: string;
+      timestamp: string;
+    }>;
+    decisions: Array<{
+      decision: string;
+      context: string;
+    }>;
+    metadata: {
+      platform: 'claude-code' | 'cursor' | 'codex' | 'other';
+      duration_minutes: number;
+      model: string;
+    };
+  };
+  project_id?: string;
 }
 
-interface CreateArticleResponse {
-  id: string;
-  slug: string;
-  title: string;
-  status: string;
+interface MCPHistoryResponse {
+  draft_bucket_id: string;
+  title_suggestions: string[];
+  status: 'raw';
   created_at: string;
 }
 ```
 
-### 7.2 List Articles Response
+### 6.2 Draft Bucket Update Request
 
 ```typescript
-// GET /api/articles
-interface ListArticlesResponse {
-  articles: Array<{
-    id: string;
-    title: string;
-    slug: string;
-    excerpt: string;
-    cover_image: string | null;
-    status: 'draft' | 'published' | 'archived';
-    visibility: 'public' | 'private' | 'unlisted';
-    stars_count: number;
-    views_count: number;
-    published_at: string | null;
-    created_at: string;
-    project: {
-      id: string;
-      name: string;
-    } | null;
-  }>;
-  total: number;
-  page: number;
-  per_page: number;
+// PUT /api/draft-buckets/[id]
+interface UpdateDraftBucketRequest {
+  human_reflections?: string;
+  additional_notes?: string;
+  custom_title?: string;
+  title_selection?: number; // Index of selected title suggestion
 }
 ```
 
-### 7.3 Public Feed Response
+### 6.3 Article Generation Request
 
 ```typescript
-// GET /api/public/articles
-interface PublicFeedResponse {
-  articles: Array<{
-    id: string;
-    title: string;
-    slug: string;
-    excerpt: string;
-    cover_image: string | null;
-    stars_count: number;
-    vibe_platform: string | null;
-    vibe_duration_minutes: number | null;
-    vibe_model: string | null;
-    is_premium: boolean;
-    price: number;
-    published_at: string;
+// POST /api/draft-buckets/[id]/generate
+interface GenerateArticleRequest {
+  style?: 'tutorial' | 'case-study' | 'reflection' | 'technical';
+  target_audience?: 'beginner' | 'intermediate' | 'advanced';
+  include_code_comments?: boolean;
+}
+
+interface GenerateArticleResponse {
+  article_id: string;
+  title: string;
+  status: 'draft';
+  generated_at: string;
+}
+```
+
+### 6.4 JSON Article Response
+
+```typescript
+// GET /api/public/articles/[id]/json
+interface JSONArticleResponse {
+  article_id: string;
+  title: string;
+  summary: string;
+  key_decisions: Array<{
+    decision: string;
+    reason: string;
+  }>;
+  code_snippets: Array<{
+    purpose: string;
+    code: string;
+    language: string;
+  }>;
+  lessons_learned: string[];
+  related_topics: string[];
+  keywords: string[];
+  difficulty_level: 'beginner' | 'intermediate' | 'advanced';
+  full_content_url: string;
+  metadata: {
     author: {
       username: string;
       display_name: string | null;
-      avatar_url: string | null;
     };
-  }>;
-  total: number;
-  page: number;
-  per_page: number;
+    platform: string | null;
+    duration_minutes: number | null;
+    model: string | null;
+    published_at: string;
+  };
 }
+```
+
+---
+
+## 7. MCP Server Implementation
+
+### 7.1 Server Structure
+
+```
+viblog-mcp-server/
+├── src/
+│   ├── index.ts           # Server entry point
+│   ├── tools/
+│   │   ├── update-history.ts   # update_vibe_coding_history tool
+│   │   ├── get-sessions.ts     # get_recent_sessions tool
+│   │   └── generate-draft.ts   # generate_draft_bucket tool
+│   ├── api/
+│   │   └── client.ts      # Viblog API client
+│   └── types/
+│       └── index.ts       # Shared types
+├── package.json
+└── README.md
+```
+
+### 7.2 Tool Definitions
+
+```typescript
+// MCP Tool: update_vibe_coding_history
+const updateVibeCodingHistoryTool = {
+  name: "update_vibe_coding_history",
+  description: "Record a vibe coding session for article generation",
+  inputSchema: {
+    type: "object",
+    properties: {
+      prompts: {
+        type: "array",
+        items: { type: "string" },
+        description: "List of prompts sent to the AI"
+      },
+      responses: {
+        type: "array",
+        items: { type: "string" },
+        description: "List of AI responses"
+      },
+      code_changes: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            file: { type: "string" },
+            diff: { type: "string" }
+          }
+        },
+        description: "Code changes made during session"
+      },
+      decisions: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            decision: { type: "string" },
+            context: { type: "string" }
+          }
+        },
+        description: "Key decisions made"
+      },
+      project_id: {
+        type: "string",
+        description: "Optional project to associate with"
+      }
+    },
+    required: ["prompts", "responses"]
+  }
+};
 ```
 
 ---
@@ -549,55 +412,48 @@ interface APIError {
 | `UNAUTHORIZED` | 401 | Authentication required |
 | `FORBIDDEN` | 403 | Permission denied |
 | `NOT_FOUND` | 404 | Resource not found |
-| `CONFLICT` | 409 | Resource conflict (e.g., duplicate) |
+| `CONFLICT` | 409 | Resource conflict |
 | `RATE_LIMITED` | 429 | Too many requests |
+| `GENERATION_FAILED` | 500 | Article generation failed |
 | `INTERNAL_ERROR` | 500 | Server error |
 
 ---
 
-## 9. Storage
+## 9. Database Functions
 
-### 9.1 Supabase Storage Buckets
-
-| Bucket | Purpose | Access |
-|--------|---------|--------|
-| `avatars` | User avatars | Public read, authenticated write |
-| `covers` | Article cover images | Public read, authenticated write |
-
-### 9.2 Storage Policies
+### 9.1 Auto-generate JSON Content
 
 ```sql
--- Avatars bucket policies
-CREATE POLICY "Avatar images are publicly accessible"
-  ON storage.objects FOR SELECT
-  USING (bucket_id = 'avatars');
+CREATE OR REPLACE FUNCTION public.generate_json_content(article_id UUID)
+RETURNS JSONB AS $$
+DECLARE
+  article RECORD;
+  json_content JSONB;
+BEGIN
+  SELECT * INTO article FROM public.articles WHERE id = article_id;
 
-CREATE POLICY "Anyone can upload an avatar"
-  ON storage.objects FOR INSERT
-  WITH CHECK (bucket_id = 'avatars');
+  json_content = jsonb_build_object(
+    'article_id', article.id,
+    'title', article.title,
+    'summary', COALESCE(article.excerpt, LEFT(article.content, 200)),
+    'key_decisions', '[]'::jsonb,
+    'code_snippets', '[]'::jsonb,
+    'lessons_learned', '[]'::jsonb,
+    'related_topics', '[]'::jsonb,
+    'full_content_url', '/articles/' || article.slug
+  );
 
-CREATE POLICY "Anyone can update their own avatar"
-  ON storage.objects FOR UPDATE
-  USING (bucket_id = 'avatars');
+  UPDATE public.articles
+  SET json_content = json_content
+  WHERE id = article_id;
 
--- Covers bucket policies (similar structure)
+  RETURN json_content;
+END;
+$$ LANGUAGE plpgsql;
 ```
 
 ---
 
-## 10. Migration Files
-
-### 10.1 Migration File Naming
-
-```
-supabase/migrations/
-├── 20260313000000_initial_schema.sql
-├── 20260313000001_rls_policies.sql
-├── 20260313000002_functions.sql
-└── 20260313000003_storage_buckets.sql
-```
-
----
-
-**Document Version:** 1.0
-**Last Updated:** 2026-03-13
+**Document Version:** 2.0
+**Last Updated:** 2026-03-15
+**Author:** Viblog Team

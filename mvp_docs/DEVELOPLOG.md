@@ -4,14 +4,6 @@
 
 ---
 
-## 文档信息
-- **功能**: 开发日志，记录开发过程中的里程碑、教训和坏案例
-- **作用**: 跨会话上下文传递，防止重复错误，沉淀最佳实践
-- **职责**: 记录"做得好的"、"可以改进的"、"需要避免的"
-- **阅读顺序**: 1 - 开工会话必读，了解项目历史和教训
-
----
-
 ## Overview
 
 This document records the development process of Viblog. It serves as a living record of what worked, what didn't, and how to improve future development cycles.
@@ -163,51 +155,6 @@ This document records the development process of Viblog. It serves as a living r
 - Next.js 16 removed `next lint` command
 - `eslint-config-next` v14 is incompatible with Next.js 16
 - pnpm/action-setup reads version from package.json `packageManager` field
-
----
-
-### Phase 8: Secure API Key Storage (Completed 2026-03-14)
-
-**What I Did:**
-1. Encryption Utility - AES-256-GCM encryption with PBKDF2 key derivation
-2. API Key Management - GET/PUT/DELETE endpoints for secure key storage
-3. Settings Page - UI for viewing/updating encrypted API keys
-4. Onboarding Update - Modified to use encrypted storage
-5. Tests - 7 unit tests for encryption utilities
-
-**What Went Well:**
-- Encryption implementation using Node.js crypto module (no external dependencies)
-- Masked display of API keys (show only prefix)
-- Server-side only access to decrypted keys
-
-**What Could Be Better:**
-- External SSD caused file corruption during development
-- Had to clone repository to internal drive
-
----
-
-## Post-MVP Phase 2 Planning (2026-03-15)
-
-### Key Decisions
-
-1. **AI-Native Definition Clarified**
-   - Not just AI writing blogs
-   - AI growing blogs from coding sessions
-   - Dual-layer content: Markdown + JSON
-
-2. **Dual-Track Users Identified**
-   - A2A Users: Vibe Coders using MCP
-   - Human Readers: AI enthusiasts consuming content
-
-3. **Technical Differentiation**
-   - MCP integration as core entry point
-   - Draft Bucket system bridging sessions and articles
-   - Dual-format publishing
-
-4. **Visual Differentiation**
-   - Pinterest-style masonry layout
-   - Premium visual design
-   - Card-centric UI
 
 ---
 
@@ -417,6 +364,6 @@ After context compaction/session resume:
 
 ---
 
-**Document Version:** 3.0
-**Last Updated:** 2026-03-15
+**Document Version:** 2.0
+**Last Updated:** 2026-03-14
 **Author:** Claude (with human collaborator)

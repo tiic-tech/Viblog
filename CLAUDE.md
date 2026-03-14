@@ -11,19 +11,65 @@
 
 ## Documentation
 
-This project uses 8 core documents:
+This project uses 9 core documents:
 
-**Planning Documents:**
-- `PRD.md` - Product Requirements Document
-- `APP_FLOW.md` - Application Flow Document
-- `TECH_STACK.md` - Technology Stack Document
-- `FRONTEND_GUIDELINES.md` - Frontend Design Guidelines
-- `BACKEND_STRUCTURE.md` - Backend Structure Document
+### 必读文档 (每会话必读)
 
-**Execution Documents (Updated during development):**
-- `IMPLEMENTATION_PLAN.md` - Step-by-step task breakdown with technical details
-- `CHANGELOG.md` - Change records (Added/Changed/Fixed/Deprecated)
-- `DEVELOPLOG.md` - Milestones, lessons learned, and bad cases
+| 文档 | 功能 | 阅读顺序 |
+|------|------|----------|
+| `DEVELOPLOG.md` | 项目历史、教训、坏案例 | **1 - 首先阅读** |
+| `CHANGELOG.md` | 最新变更、当前版本状态 | **2 - 其次阅读** |
+| `IMPLEMENTATION_PLAN.md` | 当前任务、下一步工作 | **3 - 第三阅读** |
+
+### 按需阅读文档 (根据任务需要)
+
+| 文档 | 功能 | 阅读时机 |
+|------|------|----------|
+| `PRD.md` | 产品定位、用户故事、功能范围 | 需要了解产品决策时 |
+| `PRODUCT_COMP_ANALYSIS.md` | 竞品分析、差异化设计 | 需要竞品分析或差异化设计时 |
+| `TECH_STACK.md` | 技术选型、依赖版本 | 需要了解技术细节时 |
+| `FRONTEND_GUIDELINES.md` | 视觉设计、组件规范 | 需要了解 UI 规范时 |
+| `BACKEND_STRUCTURE.md` | 数据库结构、API 端点 | 需要了解后端实现时 |
+| `APP_FLOW.md` | 页面结构、用户流程 | 需要了解用户流程时 |
+
+### MVP 文档归档
+
+MVP 阶段的文档已归档到 `mvp_docs/` 文件夹，供历史参考。
+
+---
+
+### Session Startup Checklist
+
+**第一步：文档导航扫描 (每次会话必须)**
+
+执行 `head -15 *.md` 快速扫描所有文档头部，建立文档导航：
+
+```bash
+head -15 DEVELOPLOG.md CHANGELOG.md IMPLEMENTATION_PLAN.md PRD.md PRODUCT_COMP_ANALYSIS.md TECH_STACK.md FRONTEND_GUIDELINES.md BACKEND_STRUCTURE.md APP_FLOW.md
+```
+
+**目的：**
+1. 通过每个文档的"文档信息"部分，快速了解各文档功能
+2. 根据当前任务，判断需要深入阅读哪些文档
+3. 建立上下文导航，避免遗漏关键信息
+
+**第二步：深入阅读 (根据任务需要)**
+
+根据扫描结果和当前任务，选择深入阅读：
+
+| 任务类型 | 推荐深入阅读 |
+|----------|-------------|
+| 了解项目状态 | `DEVELOPLOG.md` → `CHANGELOG.md` → `IMPLEMENTATION_PLAN.md` |
+| 产品功能开发 | `PRD.md` + 任务相关技术文档 |
+| 竞品分析 | `PRODUCT_COMP_ANALYSIS.md` → `PRD.md` |
+| 前端开发 | `FRONTEND_GUIDELINES.md` → `APP_FLOW.md` |
+| 后端开发 | `BACKEND_STRUCTURE.md` → `TECH_STACK.md` |
+| 技术决策 | `TECH_STACK.md` + `BACKEND_STRUCTURE.md` |
+
+**第三步：验证环境**
+- [ ] Verify environment variables are set
+
+---
 
 ### Document Responsibilities
 
@@ -32,14 +78,7 @@ This project uses 8 core documents:
 | **IMPLEMENTATION_PLAN.md** | Implementation plan | When designing plans | Phase→Step tasks, technical details, dependencies, current status |
 | **CHANGELOG.md** | Change log | After each Step completion | Added/Changed/Fixed/Deprecated (Keep a Changelog format) |
 | **DEVELOPLOG.md** | Development log | After each Phase completion | What I Did/What Went Well/What Could Be Better/Bad Cases |
-
-### Session Startup Checklist
-
-**Reading Order:**
-1. [ ] Read `DEVELOPLOG.md` - Understand project history, lessons learned, bad cases
-2. [ ] Read `CHANGELOG.md` - Check latest changes and current version state
-3. [ ] Read `IMPLEMENTATION_PLAN.md` - Identify next tasks and technical approach
-4. [ ] Verify environment variables are set
+| **PRODUCT_COMP_ANALYSIS.md** | Competitive analysis | When analyzing competitors | Product analysis, differentiation opportunities |
 
 ### Update Priority
 
@@ -373,15 +412,18 @@ Check `~/.claude.json` at project path:
 
 ## Session Checklist
 
-### At the start of each session:
-- [ ] Read `DEVELOPLOG.md` for history, lessons learned, bad cases
-- [ ] Read `CHANGELOG.md` for latest changes
-- [ ] Read `IMPLEMENTATION_PLAN.md` for next steps
+### At the start of each session (文档导航):
+- [ ] Execute `head -15 *.md` to scan all document headers
+- [ ] Identify which documents to read in depth based on current task
 - [ ] Verify environment variables are set
 
-### During development:
-- [ ] Use appropriate agents/skills proactively
+### During development (按需深入阅读):
+- [ ] Reference `PRD.md` when making product decisions
+- [ ] Reference `PRODUCT_COMP_ANALYSIS.md` for competitive insights
+- [ ] Reference `FRONTEND_GUIDELINES.md` for UI patterns
+- [ ] Reference `BACKEND_STRUCTURE.md` for API/database questions
 - [ ] Reference `DEVELOPLOG.md` "Bad Cases" to avoid repeat mistakes
+- [ ] Use appropriate agents/skills proactively
 - [ ] Monitor context length (check tokens after each Step)
 
 ### After completing each Step:

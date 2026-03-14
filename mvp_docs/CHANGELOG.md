@@ -1,32 +1,12 @@
 # Viblog - Changelog
 
-## 文档信息
-- **功能**: 变更日志，记录所有版本变更和功能更新
-- **作用**: 追踪项目演进，快速了解最新状态
-- **职责**: 记录"做了什么变更"，保持变更历史可追溯
-- **阅读顺序**: 2 - 开工会话必读，了解最新变更
-
----
-
 All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
 ## [Unreleased]
-
-### Added
-- Post-MVP planning documentation:
-  - PRD.md v2.0 - Updated with AI-Native definition and dual-track users
-  - APP_FLOW.md v2.0 - Added MCP session-to-article flow
-  - TECH_STACK.md v2.0 - Added MCP-related technologies
-  - FRONTEND_GUIDELINES.md v2.0 - Added Pinterest-style card design
-  - BACKEND_STRUCTURE.md v2.0 - Added draft_buckets and MCP API schemas
-  - IMPLEMENTATION_PLAN.md v3.0 - Post-MVP Phase 2 roadmap
-  - PRODUCT_COMP_ANALYSIS.md - Competitive analysis framework
-
----
-
-## [0.2.0] - 2026-03-14
 
 ### Added
 - Secure API key storage with AES-256-GCM encryption (Phase 8)
@@ -146,14 +126,4 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## Version History
-
-| Version | Date | Milestone |
-|---------|------|-----------|
-| 0.2.0 | 2026-03-14 | Post-MVP: Secure storage, E2E tests, CI/CD |
-| 0.1.0 | 2026-03-13 | MVP Release |
-| 0.0.1 | 2026-03-12 | Project initialization |
-
----
-
-**Last Updated:** 2026-03-15
+**Last Updated:** 2026-03-14

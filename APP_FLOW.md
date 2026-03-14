@@ -1,39 +1,57 @@
 # Viblog - Application Flow Document
 
+## 文档信息
+- **功能**: 应用流程文档，定义所有页面、导航和用户交互流程
+- **作用**: 产品设计和开发的导航地图，确保流程一致性
+- **职责**: 明确"用户如何使用产品"，覆盖所有用户旅程
+- **阅读时机**: 按需阅读 - 当需要了解页面结构、用户流程或 MCP 集成流程时
+
+---
+
 ## 1. Overview
 
-This document describes every page, navigation path, and user interaction in the Viblog application.
+This document describes every page, navigation path, and user interaction in the Viblog application, with emphasis on the new MCP-driven workflow.
 
 ---
 
 ## 2. User Journey Map
 
+### 2.1 MCP User Journey (Primary)
+
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                           NEW USER JOURNEY                                   │
+│                        MCP-INTEGRATED USER JOURNEY                           │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
-│  Landing Page → Register → Onboarding → Dashboard → Create Project →        │
-│       ↓                    (5 steps)      ↓              ↓                  │
-│    [Public Feed]                  [Welcome Blog]   [Write Article]          │
+│  Daily Coding Session                                                        │
+│       ↓                                                                      │
+│  MCP auto-calls update_vibe_coding_history()                                │
+│       ↓                                                                      │
+│  Draft Bucket generated (metadata, code, problems)                          │
+│       ↓                                                                      │
+│  Developer adds "Human Touch" (reflections/insights)                        │
+│       ↓                                                                      │
+│  Click "Generate Article"                                                    │
+│       ↓                                                                      │
+│  Viblog AI combines metadata + human input → Draft article                  │
+│       ↓                                                                      │
+│  Developer reviews & edits                                                   │
+│       ↓                                                                      │
+│  Publish → Dual-layer format (Markdown + JSON)                              │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
+```
 
+### 2.2 Traditional User Journey (Fallback)
+
+```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                        RETURNING USER JOURNEY                                │
+│                        TRADITIONAL USER JOURNEY                              │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
-│  Landing Page → Login → Dashboard → Continue Writing / View Stats            │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                          VISITOR JOURNEY                                     │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  Landing Page → Browse Feed → View Article → View Author Profile            │
-│                     ↓              ↓                ↓                       │
-│               [Filter/Sort]   [Star/Share]    [See All Articles]            │
+│  Landing Page → Register → Onboarding → Dashboard →                         │
+│       ↓                    (5 steps)      ↓                                 │
+│  [Public Feed]                  [Welcome Blog]   [Write Article manually]   │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -46,8 +64,9 @@ This document describes every page, navigation path, and user interaction in the
 
 | Route | Page Name | Description |
 |-------|-----------|-------------|
-| `/` | Landing / Public Feed | Homepage with trending articles |
-| `/article/[id]` | Article Detail | Full article view |
+| `/` | Landing / Public Feed | Homepage with Pinterest-style article cards |
+| `/article/[id]` | Article Detail | Full article view (Markdown) |
+| `/article/[id]/json` | Article JSON View | Structured AI-consumable format |
 | `/@[username]` | User Profile | Public profile with articles |
 | `/login` | Login | Authentication page |
 | `/register` | Register | New user registration |
@@ -59,459 +78,290 @@ This document describes every page, navigation path, and user interaction in the
 |-------|-----------|-------------|
 | `/onboarding` | Onboarding | 5-step setup wizard |
 | `/dashboard` | Dashboard | Personal management center |
+| `/dashboard/draft-buckets` | Draft Buckets | MCP-generated content drafts |
+| `/dashboard/draft-buckets/[id]` | Draft Bucket Detail | Review and generate article |
 | `/dashboard/projects` | Projects | Project list management |
-| `/dashboard/projects/new` | New Project | Create project form |
-| `/dashboard/projects/[id]` | Project Detail | Single project view |
 | `/dashboard/articles` | Articles | All articles list |
 | `/dashboard/articles/new` | New Article | Article editor |
 | `/dashboard/articles/[id]/edit` | Edit Article | Article editor |
 | `/dashboard/settings` | Settings | User preferences |
+| `/dashboard/mcp-setup` | MCP Setup | MCP configuration guide |
 
 ---
 
 ## 4. Detailed Flow Diagrams
 
-### 4.1 Registration Flow
+### 4.1 MCP Session to Article Flow (New)
 
 ```
-┌──────────────┐
-│ Landing Page │
-│     "/"      │
-└──────┬───────┘
-       │ Click "Get Started" or "Sign Up"
-       ▼
-┌──────────────┐
-│  Register    │
-│ "/register"  │
-└──────┬───────┘
-       │
-       │ Input: Email, Password, Username
-       │
-       ├──────────────────┬────────────────────┐
-       │                  │                    │
-       ▼                  ▼                    ▼
-  [Valid Input]    [Email Exists]      [Weak Password]
-       │                  │                    │
-       │                  ▼                    ▼
-       │           Error: "Email        Error: "Password
-       │           already registered"  must be 8+ chars"
-       │                  │                    │
-       │                  └───────┬────────────┘
-       │                          │
-       ▼                          ▼
-  Submit Form ◄───────────── Retry Input
-       │
-       │ API: POST /api/auth/register
-       │
-       ├──────────────┬────────────────┐
-       │              │                │
-       ▼              ▼                ▼
-   [Success]    [Network Error]  [Validation Error]
-       │              │                │
-       │              ▼                ▼
-       │         Show toast      Show error
-       │         "Connection     message
-       │         failed"
-       │
-       ▼
-  Create Session
-       │
-       ▼
-  Redirect to "/onboarding"
+┌──────────────────────────────────────────────────────────────────┐
+│                    CODING SESSION (External)                       │
+│                                                                   │
+│  Developer uses Claude Code/Cursor with Viblog MCP Server         │
+│                                                                   │
+└────────────────────────────┬─────────────────────────────────────┘
+                             │
+                             │ MCP: update_vibe_coding_history()
+                             │
+                             ▼
+┌──────────────────────────────────────────────────────────────────┐
+│                       VIBLOG BACKEND                               │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│  1. Receive session data (prompts, responses, code, timestamps)  │
+│  2. Store in draft_buckets table                                  │
+│  3. Extract metadata:                                             │
+│     - Title suggestions                                           │
+│     - Key code snippets                                           │
+│     - Problems encountered                                        │
+│     - Decisions made                                              │
+│                                                                   │
+└────────────────────────────┬─────────────────────────────────────┘
+                             │
+                             ▼
+┌──────────────────────────────────────────────────────────────────┐
+│                     DRAFT BUCKET VIEW                              │
+│                  "/dashboard/draft-buckets/[id]"                   │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│  ┌─────────────────────────────────────────────────────────────┐ │
+│  │ AI-Generated Content                                        │ │
+│  ├─────────────────────────────────────────────────────────────┤ │
+│  │ Title: [Suggested Title] or [Custom Title]                  │ │
+│  │                                                             │ │
+│  │ Key Code Snippets:                                          │ │
+│  │ ┌─────────────────────────────────────────────────────────┐ │ │
+│  │ │ // Code snippet 1                                        │ │ │
+│  │ │ const result = await processData(input)                  │ │ │
+│  │ └─────────────────────────────────────────────────────────┘ │ │
+│  │                                                             │ │
+│  │ Decisions Made:                                             │ │
+│  │ • Decision 1: Reason...                                     │ │
+│  │ • Decision 2: Reason...                                     │ │
+│  │                                                             │ │
+│  │ Problems Encountered:                                       │ │
+│  │ • Problem 1: Solution...                                    │ │
+│  └─────────────────────────────────────────────────────────────┘ │
+│                                                                   │
+│  ┌─────────────────────────────────────────────────────────────┐ │
+│  │ Human Touch (Your Input)                                    │ │
+│  ├─────────────────────────────────────────────────────────────┤ │
+│  │ Today's Reflections:                                        │ │
+│  │ [________________________________________________________]  │ │
+│  │ [________________________________________________________]  │ │
+│  │                                                             │ │
+│  │ Additional Notes:                                           │ │
+│  │ [________________________________________________________]  │ │
+│  └─────────────────────────────────────────────────────────────┘ │
+│                                                                   │
+│  [Save Draft]  [Generate Article]  [Delete]                       │
+│                                                                   │
+└──────────────────────────────────────────────────────────────────┘
+                             │
+                             │ Click "Generate Article"
+                             ▼
+┌──────────────────────────────────────────────────────────────────┐
+│                     ARTICLE GENERATION                             │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│  Viblog AI combines:                                              │
+│  • Metadata (code, decisions, problems)                           │
+│  • Human reflections                                              │
+│  → Generates full article draft                                   │
+│                                                                   │
+│  Processing: [████████░░] 80%                                     │
+│                                                                   │
+└────────────────────────────┬─────────────────────────────────────┘
+                             │
+                             ▼
+┌──────────────────────────────────────────────────────────────────┐
+│                     ARTICLE EDITOR                                 │
+│              "/dashboard/articles/[id]/edit"                       │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│  Developer reviews and edits generated content                    │
+│  - Full rich text editor                                          │
+│  - Vibe coding metadata                                           │
+│  - Cover image selection                                          │
+│                                                                   │
+│  [Save Draft]  [Preview]  [Publish]                               │
+│                                                                   │
+└────────────────────────────┬─────────────────────────────────────┘
+                             │
+                             │ Click "Publish"
+                             ▼
+┌──────────────────────────────────────────────────────────────────┐
+│                     DUAL-LAYER PUBLISH                             │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│  ┌──────────────────────┐    ┌────────────────────────────────┐  │
+│  │   Markdown Version    │    │      JSON Version              │  │
+│  │   (Human-readable)    │    │   (AI-consumable)              │  │
+│  ├──────────────────────┤    ├────────────────────────────────┤  │
+│  │                      │    │                                │  │
+│  │  Full article        │    │  {                             │  │
+│  │  content with        │    │    "article_id": "...",        │  │
+│  │  formatting...       │    │    "title": "...",             │  │
+│  │                      │    │    "summary": "...",           │  │
+│  │                      │    │    "key_decisions": [...],     │  │
+│  │                      │    │    "code_snippets": [...],     │  │
+│  │                      │    │    "lessons_learned": [...]    │  │
+│  │                      │    │  }                             │  │
+│  └──────────────────────┘    └────────────────────────────────┘  │
+│                                                                   │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
-### 4.2 Onboarding Flow
+### 4.2 MCP Setup Flow
 
 ```
-┌─────────────────┐
-│   Onboarding    │
-│  "/onboarding"  │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│    Step 1/5     │
-│   LLM Config    │
-├─────────────────┤
-│ - Provider      │
-│   [OpenAI]      │
-│   [Anthropic]   │
-│   [Google]      │
-│   [Custom]      │
-│ - API Key       │
-│   [••••••••]    │
-│                 │
-│ [Skip] [Next →] │
-└────────┬────────┘
-         │ Click "Next" or "Skip"
-         ▼
-┌─────────────────┐
-│    Step 2/5     │
-│  Database Config│
-├─────────────────┤
-│ - Type          │
-│   [Supabase]    │
-│   [ClickHouse]  │
-│   [SQLite]      │
-│   [None/Skip]   │
-│ - Connection    │
-│   URL/Config    │
-│                 │
-│ [Back] [Next →] │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│    Step 3/5     │
-│ Vibe Platform   │
-├─────────────────┤
-│ - Platform      │
-│   [Claude Code] │
-│   [Cursor]      │
-│   [Codex]       │
-│   [Trae]        │
-│   [Other]       │
-│                 │
-│ [Back] [Next →] │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│    Step 4/5     │
-│  Discovery      │
-├─────────────────┤
-│ "How did you    │
-│  find us?"      │
-│                 │
-│ [Twitter/X]     │
-│ [GitHub]        │
-│ [Friend]        │
-│ [Search]        │
-│ [Other]         │
-│                 │
-│ [Back] [Next →] │
-└────────┬────────┘
-         │
-         ▼
-┌─────────────────┐
-│    Step 5/5     │
-│  Welcome Blog   │
-├─────────────────┤
-│ "Generating     │
-│  your first     │
-│  blog post..."  │
-│                 │
-│ [████████░░]    │
-│     80%         │
-│                 │
-│ [Back] [Finish] │
-└────────┬────────┘
-         │ Click "Finish"
-         ▼
-┌─────────────────┐
-│   Dashboard     │
-│  "/dashboard"   │
-│                 │
-│ "Welcome to     │
-│  Viblog!"       │
-└─────────────────┘
-```
-
-### 4.3 Article Creation Flow
-
-```
-┌──────────────────┐
-│    Dashboard     │
-│   "/dashboard"   │
-└────────┬─────────┘
-         │ Click "New Article" or
-         │       "Write" button
-         ▼
-┌──────────────────┐
-│   New Article    │
-│ "/dashboard/     │
-│  articles/new"   │
-└────────┬─────────┘
-         │
-         ▼
-┌──────────────────────────────────────┐
-│           Article Editor              │
-├──────────────────────────────────────┤
-│                                      │
-│  Title: [___________________]        │
-│                                      │
-│  Project: [Select Project ▼]         │
-│                                      │
-│  ┌────────────────────────────────┐  │
-│  │                                │  │
-│  │     Rich Text Editor           │  │
-│  │     (Markdown supported)       │  │
-│  │                                │  │
-│  │                                │  │
-│  └────────────────────────────────┘  │
-│                                      │
-│  ─── Vibe Coding Metadata ───        │
-│  Platform: [Claude Code ▼]           │
-│  Duration: [___] minutes             │
-│  Model:    [Opus 4.6 ▼]              │
-│                                      │
-│  Cover Image: [Upload]               │
-│                                      │
-│  ─── Actions ───                     │
-│  [Save Draft]  [Preview]  [Publish]  │
-│                                      │
-└──────────────────┬───────────────────┘
-                   │
-       ┌───────────┼───────────┐
-       │           │           │
-       ▼           ▼           ▼
-  [Save Draft] [Preview]  [Publish]
-       │           │           │
-       ▼           │           ▼
-  Auto-save      │    ┌─────────────────┐
-  to drafts      │    │ Publish Modal   │
-  (30s interval) │    ├─────────────────┤
-       │           │    │ Visibility:     │
-       ▼           │    │ ○ Public        │
-  Toast:          │    │ ○ Private       │
-  "Draft saved"   │    │ ○ Unlisted      │
-       │           │    │                 │
-       │           │    │ Pricing:        │
-       │           │    │ ○ Free          │
-       │           │    │ ○ Paid $[__.__] │
-       │           │    │                 │
-       │           │    │ [Cancel][Publish]│
-       │           │    └────────┬────────┘
-       │           │             │
-       │           ▼             ▼
-       │     Preview Page   Publish Success
-       │     (new tab)      Toast + Redirect
-       │           │        to Article View
-       │           │
-       └───────────┴───────────────────────┘
-```
-
-### 4.4 Public Article Discovery Flow
-
-```
-┌──────────────────────┐
-│   Landing / Feed     │
-│        "/"           │
-├──────────────────────┤
-│  ┌────┐ ┌────┐ ┌────┐│
-│  │Card│ │Card│ │Card││  ← Trending Articles
-│  │ 1  │ │ 2  │ │ 3  ││
-│  └────┘ └────┘ └────┘│
-│                      │
-│  ─── Filters ───     │
-│  [Platform ▼]        │
-│  [Model ▼]           │
-│  [Duration Range]    │
-│                      │
-│  ─── Sort ───        │
-│  ○ Trending          │
-│  ○ Recent            │
-│  ○ Most Starred      │
-│                      │
-│  [Load More...]      │
-└──────────┬───────────┘
-           │
-           │ Click on Card
-           ▼
-┌──────────────────────┐
-│   Article Detail     │
-│ "/article/[id]"      │
-├──────────────────────┤
-│  ┌──────────────────┐│
-│  │   Cover Image    ││
-│  └──────────────────┘│
-│                      │
-│  Title               │
-│  by @username        │
-│                      │
-│  Platform | Duration │
-│  Model    | Stars    │
-│                      │
-│  ─── Content ───     │
-│  [Full Article...]   │
-│                      │
-│  ─── Actions ───     │
-│  [⭐ Star] [Share]   │
-│                      │
-│  ─── Author ───      │
-│  [Avatar] @username  │
-│  [View Profile]      │
-└──────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│                       MCP SETUP PAGE                               │
+│                 "/dashboard/mcp-setup"                            │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│  Step 1: Choose Your Platform                                     │
+│                                                                   │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐               │
+│  │ Claude Code │  │   Cursor    │  │   Other     │               │
+│  │    [✓]      │  │   [ ]       │  │   [ ]       │               │
+│  └─────────────┘  └─────────────┘  └─────────────┘               │
+│                                                                   │
+│  Step 2: Copy MCP Configuration                                   │
+│                                                                   │
+│  ┌─────────────────────────────────────────────────────────────┐ │
+│  │ {                                                            │ │
+│  │   "mcpServers": {                                            │ │
+│  │     "viblog": {                                              │ │
+│  │       "command": "npx",                                      │ │
+│  │       "args": ["viblog-mcp-server"],                         │ │
+│  │       "env": {                                               │ │
+│  │         "VIBLOG_API_KEY": "your-api-key-here"               │ │
+│  │       }                                                      │ │
+│  │     }                                                        │ │
+│  │   }                                                          │ │
+│  │ }                                                            │ │
+│  └─────────────────────────────────────────────────────────────┘ │
+│                                                                   │
+│  [Copy to Clipboard]                                              │
+│                                                                   │
+│  Step 3: Add to your MCP config file                              │
+│                                                                   │
+│  Claude Code: ~/.claude/config.json                               │
+│  Cursor: Settings → MCP Servers                                   │
+│                                                                   │
+│  Step 4: Verify Connection                                        │
+│                                                                   │
+│  [Test Connection] → ✓ Connected!                                 │
+│                                                                   │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 5. Navigation Structure
+## 5. Public Feed Redesign
 
-### 5.1 Main Navigation
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                         HEADER                               │
-├─────────────────────────────────────────────────────────────┤
-│  [Logo] Viblog                    [Search...]    [Actions]  │
-│                                                             │
-│  Actions (Logged Out):                                      │
-│  [Sign In] [Get Started]                                    │
-│                                                             │
-│  Actions (Logged In):                                       │
-│  [Write] [Notifications] [Avatar ▼]                         │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### 5.2 Dashboard Navigation
+### 5.1 Pinterest-Style Card Layout
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                     DASHBOARD LAYOUT                         │
-├─────────────────────────────────────────────────────────────┤
-│  ┌──────────┐  ┌────────────────────────────────────────┐   │
-│  │ Sidebar  │  │              Main Content              │   │
-│  │          │  │                                        │   │
-│  │ Overview │  │                                        │   │
-│  │ ───────  │  │                                        │   │
-│  │ Projects │  │                                        │   │
-│  │ Articles │  │                                        │   │
-│  │ Drafts   │  │                                        │   │
-│  │          │  │                                        │   │
-│  │ Settings │  │                                        │   │
-│  │          │  │                                        │   │
-│  └──────────┘  └────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│                       PUBLIC FEED (Redesigned)                     │
+│                            "/"                                     │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│  ┌─────────────────────────────────────────────────────────────┐ │
+│  │  [Logo] Viblog          [Search...]        [Sign In] [Write]│ │
+│  └─────────────────────────────────────────────────────────────┘ │
+│                                                                   │
+│  ─── Filters ───                                                  │
+│  [Platform ▼] [Model ▼] [Duration] [Sort: Trending ▼]            │
+│                                                                   │
+│  ─── Masonry Grid ───                                             │
+│                                                                   │
+│  ┌──────────┐  ┌──────────┐  ┌──────────────┐  ┌──────────┐      │
+│  │  Cover   │  │  Cover   │  │    Cover     │  │  Cover   │      │
+│  │  Image   │  │  Image   │  │    Image     │  │  Image   │      │
+│  │          │  │          │  │              │  │          │      │
+│  ├──────────┤  ├──────────┤  ├──────────────┤  ├──────────┤      │
+│  │ Title    │  │ Title    │  │ Title        │  │ Title    │      │
+│  │          │  │          │  │              │  │          │      │
+│  │ @author  │  │ @author  │  │ @author      │  │ @author  │      │
+│  │ ⭐ 42    │  │ ⭐ 28    │  │ ⭐ 156       │  │ ⭐ 67    │      │
+│  └──────────┘  └──────────┘  └──────────────┘  └──────────┘      │
+│                                                                   │
+│  ┌────────────────┐  ┌──────────┐  ┌──────────┐                  │
+│  │    Cover       │  │  Cover   │  │  Cover   │                  │
+│  │    Image       │  │  Image   │  │  Image   │                  │
+│  │                │  │          │  │          │                  │
+│  │                │  │          │  │          │                  │
+│  ├────────────────┤  ├──────────┤  ├──────────┤                  │
+│  │ Title          │  │ Title    │  │ Title    │                  │
+│  │                │  │          │  │          │                  │
+│  │ @author        │  │ @author  │  │ @author  │                  │
+│  │ ⭐ 89          │  │ ⭐ 34    │  │ ⭐ 201   │                  │
+│  └────────────────┘  └──────────┘  └──────────┘                  │
+│                                                                   │
+│  [Load More...]                                                   │
+│                                                                   │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
 ## 6. State Transitions
 
-### 6.1 Article States
+### 6.1 Draft Bucket States
 
 ```
 ┌─────────────┐
-│   DRAFT     │  ← Initial state when created
+│   RAW       │  ← Created by MCP session recording
 └──────┬──────┘
        │
-       │ User clicks "Publish"
+       │ User adds reflections
        ▼
 ┌─────────────┐
-│  PUBLISHED  │  ← Visible based on visibility setting
-│             │
-│  - Public   │  ← Appears in public feed
-│  - Private  │  ← Only author can see
-│  - Unlisted │  ← Only via direct link
+│   DRAFT     │  ← Ready for article generation
 └──────┬──────┘
        │
-       │ User clicks "Unpublish" or "Edit"
-       │
-       ├──────────────┐
-       │              │
-       ▼              ▼
-┌─────────────┐ ┌─────────────┐
-│    DRAFT    │ │  ARCHIVED   │
-│ (Unpublish) │ │  (Deleted)  │
-└─────────────┘ └─────────────┘
-```
-
-### 6.2 User States
-
-```
-┌─────────────┐
-│   GUEST     │  ← Not logged in
-└──────┬──────┘
-       │
-       │ Registers
+       │ User clicks "Generate"
        ▼
 ┌─────────────┐
-│  PENDING    │  ← Email verification pending (future)
-│ ONBOARDING  │  ← In 5-step setup
+│  GENERATING │  ← AI creating article
 └──────┬──────┘
        │
-       │ Completes onboarding
+       │ Generation complete
        ▼
 ┌─────────────┐
-│   ACTIVE    │  ← Full access
-└──────┬──────┘
-       │
-       │ Inactive for 90 days
-       ▼
-┌─────────────┐
-│   DORMANT   │  ← Account still exists
+│   ARTICLE   │  ← Article created, linked to bucket
+│   DRAFT     │
 └─────────────┘
 ```
 
 ---
 
-## 7. Error Handling Flows
+## 7. API Endpoints for MCP
 
-### 7.1 API Error Responses
+### 7.1 MCP-Related Endpoints
 
-| Error Code | User Message | Action |
-|------------|--------------|--------|
-| 400 | "Invalid input. Please check your data." | Stay on form, highlight errors |
-| 401 | "Session expired. Please log in again." | Redirect to /login |
-| 403 | "You don't have permission to do that." | Show toast, stay on page |
-| 404 | "Page not found." | Show 404 page |
-| 429 | "Too many requests. Please wait." | Show toast with countdown |
-| 500 | "Something went wrong. Please try again." | Show toast, allow retry |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/mcp/history` | Receive session data from MCP |
+| GET | `/api/mcp/status` | Check MCP connection status |
+| GET | `/api/draft-buckets` | List user's draft buckets |
+| GET | `/api/draft-buckets/[id]` | Get draft bucket details |
+| POST | `/api/draft-buckets/[id]/generate` | Generate article from bucket |
+| PUT | `/api/draft-buckets/[id]` | Update draft bucket (add reflections) |
+| DELETE | `/api/draft-buckets/[id]` | Delete draft bucket |
 
-### 7.2 Network Error Flow
+### 7.2 Dual-Layer Content Endpoints
 
-```
-User Action
-     │
-     ▼
-API Call
-     │
-     ├──────────────┬─────────────┐
-     │              │             │
-     ▼              ▼             ▼
- [Success]    [Timeout]     [Network Error]
-     │              │             │
-     ▼              ▼             ▼
- Continue     Retry (3x)    Show offline toast
-                   │             │
-                   ▼             ▼
-              [Still Fail]  [Retry Button]
-                   │
-                   ▼
-              Show error
-              message
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/public/articles/[id]` | Get article (Markdown) |
+| GET | `/api/public/articles/[id]/json` | Get article (JSON format) |
 
 ---
 
-## 8. Responsive Behavior
-
-### 8.1 Breakpoints
-
-| Name | Width | Layout |
-|------|-------|--------|
-| Mobile | < 640px | Single column, bottom nav |
-| Tablet | 640px - 1024px | Two column, sidebar collapsible |
-| Desktop | > 1024px | Full layout, persistent sidebar |
-
-### 8.2 Mobile Navigation
-
-```
-┌─────────────────────┐
-│      Mobile Header   │
-│  [☰]  Viblog  [👤]  │
-├─────────────────────┤
-│                     │
-│    Main Content     │
-│                     │
-├─────────────────────┤
-│    Bottom Nav Bar   │
-│  [Home] [Search] [+] [Profile] [More] │
-└─────────────────────┘
-```
-
----
-
-**Document Version:** 1.0
-**Last Updated:** 2026-03-13
+**Document Version:** 2.0
+**Last Updated:** 2026-03-15
+**Author:** Viblog Team
