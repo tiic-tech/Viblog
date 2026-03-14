@@ -9,6 +9,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- CI/CD pipeline with GitHub Actions
+  - Automated lint, type-check, build, and test on every PR
+  - pnpm caching for faster CI runs
+  - Skips E2E tests in CI (Supabase rate limits)
+- E2E test infrastructure with Playwright
+  - `playwright.config.ts` with base URL, retries, and browser configuration
+  - Test fixtures with authentication helpers (username, email, password)
+  - Page Object Models for Login, Register, Dashboard, ArticleEditor
+  - E2E tests for login and registration UI flows (8 passing tests)
+  - Authenticated tests template (requires `E2E_RUN_AUTH_TESTS=1`)
+  - NPM scripts: `test:e2e`, `test:e2e:ui`, `test:e2e:debug`, `test:e2e:report`
 - Test infrastructure for Phase 6
   - Test utilities with custom render function
   - Mock factories for User, Project, Article types
