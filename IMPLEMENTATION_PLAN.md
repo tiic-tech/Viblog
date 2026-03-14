@@ -49,68 +49,210 @@ Post-MVP Phase 2 (Current)
 
 **Dependencies:** None (can run in parallel with planning)
 
+**Cache Folder:** `.comp_product_assets/` (git-ignored, stores screenshots and raw data)
+
+**Recommended Model:** `kimi-k2.5` (better multimodal understanding for web analysis)
+
+---
+
+### Step 9.0: Setup Analysis Environment
+**Status:** Completed
+
+**Deliverable:** Cache folder structure and analysis tools ready
+
+**Checkpoints:**
+- [x] Create `.comp_product_assets/` folder with subdirectories
+- [x] Add to `.gitignore`
+- [x] Create README for cache folder
+- [ ] Verify kimi-k2.5 model availability (user action required)
+
 ---
 
 ### Step 9.1: Define Analysis Framework
 **Status:** Pending
 
-**Deliverable:** Analysis framework document
+**Deliverable:** Analysis framework with evaluation criteria
 
-**Tasks:**
-- [ ] Define analysis dimensions (IA, visual, interaction, features, tech)
-- [ ] Create evaluation criteria for each dimension
-- [ ] Design output format for analysis reports
+**Checkpoints:**
+- [ ] Define 5 analysis dimensions:
+  - [ ] Information Architecture (IA) - structure, navigation, hierarchy
+  - [ ] Visual Design System - colors, typography, components
+  - [ ] Interaction Flow - user journeys, interaction patterns
+  - [ ] Feature Matrix - functionality comparison
+  - [ ] Technical Implementation - tech stack inference
+- [ ] Create scoring rubric for each dimension (1-5 scale)
+- [ ] Design analysis output template
+- [ ] Update `PRODUCT_COMP_ANALYSIS.md` with framework
+
+**Analysis Output Template:**
+```markdown
+## [Product Name] - [Dimension] Analysis
+
+**Analysis Date:** YYYY-MM-DD
+**Analyst Model:** kimi-k2.5
+**Assets Cached:** [screenshot paths]
+
+### Summary
+[2-3 sentence overview]
+
+### Key Findings
+1. Finding 1
+2. Finding 2
+3. Finding 3
+
+### Applicable to Viblog
+- [ ] Feature to adopt: [description]
+- [ ] Pattern to learn: [description]
+- [ ] Anti-pattern to avoid: [description]
+
+### Technical Translation
+[How to implement key findings in Viblog]
+```
 
 ---
 
-### Step 9.2: Analyze Traditional Blogging Platforms
+### Step 9.2: Analyze Claude Code (Priority 1 - MCP Reference)
 **Status:** Pending
 
-**Deliverable:** Analysis reports for Notion, Medium, Substack
+**Deliverable:** Comprehensive analysis of Claude Code for MCP patterns
 
-**Analysis Focus:**
-- Content creation flow
-- Publishing workflow
-- Content organization
-- Reader experience
+**Why Priority 1:** Direct reference for Viblog MCP implementation
+
+**Checkpoints:**
+- [ ] **9.2.1 Session Structure Analysis**
+  - [ ] Capture session format and structure
+  - [ ] Document context management approach
+  - [ ] Identify session persistence mechanisms
+  - [ ] Cache: `ai-coding-tools/claude-code-session-*.md`
+
+- [ ] **9.2.2 MCP Protocol Analysis**
+  - [ ] Analyze MCP tool definitions
+  - [ ] Document server-client communication
+  - [ ] Identify extension patterns
+  - [ ] Cache: `ai-coding-tools/claude-code-mcp-*.md`
+
+- [ ] **9.2.3 Context Capture Analysis**
+  - [ ] Document what context is captured
+  - [ ] Identify context filtering mechanisms
+  - [ ] Analyze context window management
+  - [ ] Cache: `ai-coding-tools/claude-code-context-*.md`
+
+- [ ] **9.2.4 Export/Share Analysis**
+  - [ ] Document sharing capabilities
+  - [ ] Identify export formats
+  - [ ] Analyze integration points
+  - [ ] Cache: `ai-coding-tools/claude-code-export-*.md`
 
 ---
 
-### Step 9.3: Analyze AI Coding Tools
+### Step 9.3: Analyze Cursor (Priority 2 - IDE Integration)
 **Status:** Pending
 
-**Deliverable:** Analysis reports for Cursor, Claude Code, Windsurf
+**Deliverable:** Analysis of Cursor for IDE integration patterns
 
-**Analysis Focus:**
-- Session recording capabilities
-- Context capture mechanisms
-- Export/sharing features
-- MCP integration patterns
+**Checkpoints:**
+- [ ] **9.3.1 IDE Integration Analysis**
+  - [ ] Document editor integration approach
+  - [ ] Identify inline suggestion patterns
+  - [ ] Analyze code context awareness
+  - [ ] Cache: `ai-coding-tools/cursor-ide-*.md`
+
+- [ ] **9.3.2 Session Recording Analysis**
+  - [ ] Document chat history format
+  - [ ] Identify code change tracking
+  - [ ] Analyze session persistence
+  - [ ] Cache: `ai-coding-tools/cursor-session-*.md`
+
+- [ ] **9.3.3 MCP Compatibility Analysis**
+  - [ ] Check MCP support status
+  - [ ] Document alternative protocols
+  - [ ] Identify integration opportunities
+  - [ ] Cache: `ai-coding-tools/cursor-mcp-*.md`
 
 ---
 
-### Step 9.4: Analyze Visual Design References
+### Step 9.4: Analyze Pinterest (Priority 3 - Visual Reference)
 **Status:** Pending
 
-**Deliverable:** Analysis reports for Pinterest, Dribbble, Behance, Awwwards
+**Deliverable:** Analysis of Pinterest for card design and masonry layout
 
-**Analysis Focus:**
-- Card design patterns
-- Grid layouts
-- Animation patterns
-- Visual hierarchy
+**Checkpoints:**
+- [ ] **9.4.1 Card Design Analysis**
+  - [ ] Screenshot card variations
+  - [ ] Document card component structure
+  - [ ] Identify hover interactions
+  - [ ] Cache: `visual-design/pinterest-card-*.png/md`
+
+- [ ] **9.4.2 Masonry Grid Analysis**
+  - [ ] Analyze grid implementation
+  - [ ] Document responsive behavior
+  - [ ] Identify performance optimizations
+  - [ ] Cache: `visual-design/pinterest-grid-*.md`
+
+- [ ] **9.4.3 Interaction Animation Analysis**
+  - [ ] Document scroll animations
+  - [ ] Identify hover effects
+  - [ ] Analyze loading states
+  - [ ] Cache: `visual-design/pinterest-animation-*.md`
 
 ---
 
-### Step 9.5: Synthesize Findings
+### Step 9.5: Analyze Notion (Priority 4 - Content Creation)
+**Status:** Pending
+
+**Deliverable:** Analysis of Notion for content creation flow
+
+**Checkpoints:**
+- [ ] **9.5.1 Editor Analysis**
+  - [ ] Document block editor structure
+  - [ ] Identify content types supported
+  - [ ] Analyze auto-save behavior
+  - [ ] Cache: `traditional-blogs/notion-editor-*.md`
+
+- [ ] **9.5.2 Publishing Flow Analysis**
+  - [ ] Document publish workflow
+  - [ ] Identify visibility options
+  - [ ] Analyze SEO capabilities
+  - [ ] Cache: `traditional-blogs/notion-publish-*.md`
+
+---
+
+### Step 9.6: Analyze Medium (Priority 5 - Reader Experience)
+**Status:** Pending
+
+**Deliverable:** Analysis of Medium for reader experience
+
+**Checkpoints:**
+- [ ] **9.6.1 Reading Experience Analysis**
+  - [ ] Document typography choices
+  - [ ] Identify reading flow patterns
+  - [ ] Analyze engagement features
+  - [ ] Cache: `traditional-blogs/medium-reading-*.md`
+
+- [ ] **9.6.2 Recommendation Analysis**
+  - [ ] Document recommendation algorithm signals
+  - [ ] Identify discovery mechanisms
+  - [ ] Cache: `traditional-blogs/medium-recommendation-*.md`
+
+---
+
+### Step 9.7: Synthesize Findings
 **Status:** Pending
 
 **Deliverable:** Competitive analysis summary with actionable insights
 
-**Output:**
-- Feature gap analysis
-- Differentiation opportunities
-- Technical implementation recommendations
+**Checkpoints:**
+- [ ] Create feature comparison matrix
+- [ ] Identify 5 key differentiation opportunities
+- [ ] Document technical implementation recommendations
+- [ ] Update `PRODUCT_COMP_ANALYSIS.md` with full analysis
+- [ ] Present findings for user review
+
+**Output Artifacts:**
+1. `PRODUCT_COMP_ANALYSIS.md` - Complete analysis report
+2. `.comp_product_assets/` - All cached screenshots and raw data
+3. Feature comparison matrix
+4. Differentiation strategy document
 
 ---
 

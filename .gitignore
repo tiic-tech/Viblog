@@ -37,3 +37,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# competitive analysis assets (screenshots, cached data)
+.comp_product_assets/
