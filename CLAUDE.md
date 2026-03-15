@@ -32,6 +32,8 @@ This project uses 9 core documents:
 
 当执行竞品分析时，**必须严格遵循 `PRODUCT_COMP_ANALYSIS.md` 中的 Section 0 工作流**：
 
+**👉 推荐：使用 `competitive-analyzer` agent 自动执行完整工作流**
+
 ```
 Step 1: Web Scraping (firecrawl, exa) → ⚠️ SAVE TO *.md BEFORE STEP 2
 Step 2: Screenshots (Playwright)     → ⚠️ DEEP EXPLORE, THEN STOP & REPORT
@@ -242,6 +244,44 @@ DEBUG=false
 | E2E testing | `e2e-runner` agent | Critical user flows |
 | Database operations | `database-reviewer` agent | SQL/migrations |
 | Documentation | `doc-updater` agent | After changes |
+| **Competitive analysis** | **`competitive-analyzer` agent** | **When analyzing competitor products** |
+
+---
+
+### 🔴 Competitive Analysis Workflow (CRITICAL - READ BEFORE EXECUTION)
+
+**When performing competitive analysis, MUST use `competitive-analyzer` agent OR follow these rules:**
+
+#### Model Capabilities (CRITICAL)
+
+| Model | Vision? | CRITICAL NOTE |
+|-------|---------|---------------|
+| **glm-5** | ❌ **NO** | TEXT-ONLY - NEVER use for images |
+| **kimi-k2.5** | ✅ YES | Use via `image-analyzer-kimi` skill |
+| **qwen3.5-plus** | ✅ YES | Use via `image-analyzer-qwen` skill |
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│   ⚠️ NEVER use glm-5 for visual analysis ⚠️                    │
+│   glm-5 is TEXT-ONLY - will cause input errors and rollbacks   │
+│   ✅ ALWAYS use image-analyzer-kimi or image-analyzer-qwen     │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### 6 MANDATORY RULES
+
+| Rule | Requirement | Consequence of Violation |
+|------|-------------|--------------------------|
+| **RULE 1** | Save Step 1 data to *.md BEFORE Step 2 | Data loss on rollback |
+| **RULE 2** | Playwright deep explore (5-8+ screenshots) | Incomplete analysis |
+| **RULE 3** | STOP after Playwright, wait for user confirm | Broken workflow |
+| **RULE 4** | Parallel agents + vision models only | Errors & rollback |
+| **RULE 5** | Report only after ALL visual analysis | Incomplete report |
+| **RULE 6** | Update IMPLEMENTATION_PLAN + CHANGELOG | Lost tracking |
+
+**Full workflow:** See `PRODUCT_COMP_ANALYSIS.md` Section 0
+
+---
 
 ### Context Management
 
