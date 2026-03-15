@@ -351,7 +351,109 @@ Post-MVP Phase 2 (Current)
 
 ---
 
-### Step 9.7: Synthesize Findings
+### Step 9.7: Analyze Dribbble (Priority 6 - Visual Design Showcase)
+**Status:** Pending
+
+**Deliverable:** Analysis of Dribbble for high-end visual design patterns
+
+**Why Critical:** Dribbble is the premier design showcase platform - essential for understanding what "premium visual design" looks like. Viblog needs to feel like a designer-made product, not a generic blog.
+
+**Checkpoints:**
+- [ ] **9.7.1 Web Scraping**
+  - [ ] Scrape homepage for shot grid layout
+  - [ ] Scrape individual shot pages for detail view
+  - [ ] Document hover interaction descriptions
+  - [ ] Cache: `visual-design/dribbble-scraped.md`
+
+- [ ] **9.7.2 Screenshot Capture (Playwright)**
+  - [ ] Homepage shot grid
+  - [ ] Shot detail page (with sidebar)
+  - [ ] Profile/portfolio page
+  - [ ] Search results page
+  - [ ] Cache: `visual-design/dribbble_screenshots/`
+
+- [ ] **9.7.3 Visual Analysis (image-analyzer-kimi)**
+  - [ ] Shot card design and dimensions
+  - [ ] Hover effect details (scale, overlay, actions)
+  - [ ] Grid spacing and layout
+  - [ ] Color palette and typography
+  - [ ] Navigation and search patterns
+
+- [ ] **9.7.4 Design Pattern Extraction**
+  - [ ] Card hover animations (timing, easing)
+  - [ ] Overlay action buttons design
+  - [ ] User attribution display
+  - [ ] Like/save interaction patterns
+  - [ ] Infinite scroll behavior
+
+**Key Analysis Questions:**
+1. How does Dribbble achieve "premium" feel?
+2. What makes shot cards visually appealing?
+3. How are hover interactions designed for discoverability?
+4. What typography creates design authority?
+5. How does color usage differ from functional products?
+
+**Expected Output:**
+- Visual hierarchy patterns
+- Hover animation specifications
+- Card design tokens
+- Premium typography guidelines
+- Color usage for design credibility
+
+---
+
+### Step 9.8: Analyze Awwwards (Priority 7 - Premium Web Design)
+**Status:** Pending
+
+**Deliverable:** Analysis of Awwwards for cutting-edge web design patterns
+
+**Why Critical:** Awwwards showcases the best of web design - this is where "high-end visual presentation" is defined. Essential for making Viblog feel like a premium, design-forward product rather than a typical blog.
+
+**Checkpoints:**
+- [ ] **9.8.1 Web Scraping**
+  - [ ] Scrape homepage for award site cards
+  - [ ] Scrape individual site showcase pages
+  - [ ] Document animation techniques described
+  - [ ] Cache: `visual-design/awwwards-scraped.md`
+
+- [ ] **9.8.2 Screenshot Capture (Playwright)**
+  - [ ] Homepage with site cards
+  - [ ] Site of the Day showcase
+  - [ ] Developer Award winners
+  - [ ] Site detail page (with scores)
+  - [ ] Cache: `visual-design/awwwards_screenshots/`
+
+- [ ] **9.8.3 Visual Analysis (image-analyzer-kimi)**
+  - [ ] Site card design (aspect ratios, previews)
+  - [ ] Score badge design
+  - [ ] Navigation innovation
+  - [ ] Typography for design authority
+  - [ ] Animation and motion patterns
+
+- [ ] **9.8.4 Premium Pattern Extraction**
+  - [ ] What defines "award-winning" visual design
+  - [ ] How to balance creativity with usability
+  - [ ] Typography choices for design-forward products
+  - [ ] Color gradients and modern effects
+  - [ ] Micro-interactions that delight
+
+**Key Analysis Questions:**
+1. What visual patterns appear across award-winning sites?
+2. How does Awwwards present design work credibly?
+3. What typography conveys "design authority"?
+4. How are animations used purposefully?
+5. What makes a site feel "premium" vs "functional"?
+
+**Expected Output:**
+- Award-winning visual patterns
+- Typography for design credibility
+- Modern color and gradient usage
+- Purposeful animation guidelines
+- Premium interaction principles
+
+---
+
+### Step 9.9: Synthesize Findings
 **Status:** Pending
 
 **Deliverable:** Competitive analysis summary with actionable insights
