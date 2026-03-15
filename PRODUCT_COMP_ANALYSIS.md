@@ -296,24 +296,139 @@ For each product:
 
 ### 3.2 Claude Code
 
-**Analysis Date:** Pending
+**Analysis Date:** 2026-03-15
 
 **Product Category:** AI coding assistant
 
 **Key Characteristics:**
 - CLI-based AI assistant
-- MCP server integration
+- MCP server integration (reference implementation)
 - Session-based interactions
 - Tool use capabilities
+- Multi-surface architecture (Terminal, VS Code, Desktop, Web, JetBrains)
 
-**Analysis Focus:**
-- [ ] MCP protocol details
-- [ ] Session structure
-- [ ] Tool definitions
-- [ ] Context management
-- [ ] Integration patterns
+**Cached Analysis:** `.comp_product_assets/ai-coding-tools/claude-code-analysis.md`
 
-**Detailed Analysis:** (To be completed)
+---
+
+#### 3.2.1 Scoring Summary
+
+| Dimension | Score | Key Findings |
+|-----------|-------|--------------|
+| Information Architecture | 5/5 | Multi-surface architecture with shared context |
+| Visual Design System | 3/5 | Terminal-focused, minimal (intentional) |
+| Interaction Flow | 5/5 | Natural language → Actions pipeline |
+| Feature Matrix | 5/5 | MCP integration is the killer feature |
+| Technical Implementation | 5/5 | JSON-RPC 2.0 protocol, session-based |
+| **Total** | **23/25** | **Reference implementation for AI-native tools** |
+
+---
+
+#### 3.2.2 MCP Protocol Analysis (Critical for Viblog)
+
+**Architecture:**
+```
+Claude Code Host
+├── MCP Client Manager (coordinates connections)
+├── Core Engine (shared across surfaces)
+├── Tools Layer (file, bash, grep, etc.)
+└── Memory System (CLAUDE.md + auto memory)
+        │
+        │ JSON-RPC 2.0
+        ▼
+┌───────────────┐  ┌───────────────┐  ┌───────────────┐
+│  MCP Server   │  │  MCP Server   │  │  MCP Server   │
+│  (Filesystem) │  │   (GitHub)    │  │  (Viblog)     │
+└───────────────┘  └───────────────┘  └───────────────┘
+```
+
+**Key MCP Primitives:**
+- **Tools**: Executable functions (`tools/call`)
+- **Resources**: Data sources (`resources/read`)
+- **Prompts**: Templates (`prompts/get`)
+
+**Viblog MCP Tools Design:**
+```json
+{
+  "tools": [
+    {"name": "create_draft_bucket", "description": "Create draft from session"},
+    {"name": "update_draft_bucket", "description": "Update existing draft"},
+    {"name": "publish_article", "description": "Publish draft to blog"},
+    {"name": "get_user_articles", "description": "List user's articles"}
+  ]
+}
+```
+
+---
+
+#### 3.2.3 Session Recording Pattern
+
+```typescript
+interface SessionRecord {
+  id: string;
+  timestamp: Date;
+  projectPath: string;
+
+  context: {
+    claudeMdContent: string;
+    gitBranch: string;
+    recentFiles: string[];
+  };
+
+  messages: Array<{
+    role: "user" | "assistant";
+    content: string;
+  }>;
+
+  actions: Array<{
+    type: "read" | "write" | "bash" | "grep";
+    target: string;
+    result: string;
+  }>;
+
+  outcomes: {
+    filesChanged: string[];
+    commandsRun: string[];
+  };
+}
+```
+
+**Viblog Translation:** This maps directly to the **Draft Bucket** system.
+
+---
+
+#### 3.2.4 Patterns for Viblog
+
+**Patterns to Adopt:**
+- [x] **MCP Protocol** - Core integration layer
+- [x] **Session Recording** - Capture coding sessions for article generation
+- [x] **CLAUDE.md Pattern** - Persistent instructions per project
+- [x] **Multi-surface Continuity** - Draft Bucket from multiple entry points
+
+**Patterns to Adapt:**
+- [ ] **Auto Memory** - Learn from published articles
+- [ ] **Hooks System** - Automate publishing workflows
+
+**Anti-patterns to Avoid:**
+- [ ] Terminal-only interface (Viblog needs rich visual presentation)
+- [ ] No export formats (Viblog must support Markdown, JSON, HTML)
+
+---
+
+#### 3.2.5 Technical Translation
+
+**Draft Bucket Schema:**
+```sql
+CREATE TABLE draft_buckets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users NOT NULL,
+  session_context JSONB NOT NULL,
+  raw_content JSONB NOT NULL,
+  generated_draft JSONB,
+  status TEXT DEFAULT 'draft',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
 
 ---
 
