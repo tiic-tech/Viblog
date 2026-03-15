@@ -46,7 +46,7 @@ Viblog AI-Native：
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                     Claude Code / Cursor / Windsurf              │
+│         Claude Code / Codex / OpenClaw / Cursor / Windsurf       │
 │                     (MCP Client / Host)                          │
 └───────────────────────────────┬─────────────────────────────────┘
                                 │
