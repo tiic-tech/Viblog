@@ -58,6 +58,22 @@ All notable changes to this project will be documented in this file.
   - Hover interaction patterns (scale 1.02, lift effect)
   - Updated analysis document to v2.0 with 6 new sections
   - Score: 22/25 (Reference implementation for visual-first feeds)
+- Cursor IDE Analysis (Step 9.3):
+  - Full MCP protocol support confirmed (Tools, Prompts, Resources, Roots, Elicitation, Apps)
+  - Transport methods: stdio, SSE, Streamable HTTP with OAuth
+  - Plugin system architecture: Rules, Skills, Agents, Commands, MCP Servers, Hooks
+  - Multi-surface presence: IDE, CLI, Slack, GitHub, GitLab, JetBrains
+  - Agent tools: Semantic search, File ops, Terminal, Browser, Image generation
+  - Checkpoint system for session rollback
+  - Config interpolation with environment variable support
+  - Team marketplaces for enterprise plugin distribution
+  - Playwright screenshots: home hero, agent dashboard, MCP docs
+  - Score: 24/25 (Reference implementation for AI-native IDE)
+  - Login modal design (484px width, 32px radius)
+  - Button state designs (Primary red, Secondary gray)
+  - Hover interaction patterns (scale 1.02, lift effect)
+  - Updated analysis document to v2.0 with 6 new sections
+  - Score: 22/25 (Reference implementation for visual-first feeds)
 
 ---
 
