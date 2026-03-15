@@ -28,21 +28,43 @@ This project uses 9 core documents:
 | `PRD.md` | 产品定位、用户故事、功能范围 | 需要了解产品决策时 |
 | `PRODUCT_COMP_ANALYSIS.md` | 竞品分析、差异化设计 | 需要竞品分析或差异化设计时 |
 
-**CRITICAL: 竞品分析工作流**
+**🔴 CRITICAL: 竞品分析工作流 (MUST READ `PRODUCT_COMP_ANALYSIS.md` Section 0)**
 
-当执行竞品分析时，**必须遵循 `PRODUCT_COMP_ANALYSIS.md` 中的 Section 0 工作流**：
+当执行竞品分析时，**必须严格遵循 `PRODUCT_COMP_ANALYSIS.md` 中的 Section 0 工作流**：
 
 ```
-Step 1: Web Scraping (firecrawl, exa) → 获取原始内容
-Step 2: Screenshots (Playwright) → 捕获视觉界面
-Step 3: Visual Analysis (image-analyzer-*) → 视觉深度分析
-Step 4: Comprehensive Report (glm-5) → 整合撰写报告
+Step 1: Web Scraping (firecrawl, exa) → ⚠️ SAVE TO *.md BEFORE STEP 2
+Step 2: Screenshots (Playwright)     → ⚠️ DEEP EXPLORE, THEN STOP & REPORT
+Step 3: Visual Analysis              → ⚠️ USER CONFIRM, PARALLEL AGENTS
+Step 4: Comprehensive Report         → glm-5 整合撰写
+Step 5: Update Docs & Report         → IMPLEMENTATION_PLAN + CHANGELOG
 ```
 
-**关键规则：**
-- glm-5 是纯文本模型，**不具备视觉理解能力**
-- 截图分析**必须**调用 `image-analyzer-kimi` 或 `image-analyzer-qwen` skill
-- **绝不能**让 glm-5 直接分析图片
+**🔴 6条强制规则 (违反将导致工作流中断):**
+
+| 规则 | 内容 | 违反后果 |
+|------|------|----------|
+| **RULE 1** | Step 1完成后必须立即保存到*.md文件 | 数据丢失需重新爬取 |
+| **RULE 2** | Playwright必须深度探索所有层级，5-8+截图 | 分析不完整 |
+| **RULE 3** | Step 2完成后必须停止，向用户汇报，等待确认 | 工作流中断 |
+| **RULE 4** | 视觉理解必须用多个agent平行处理，每agent一张图 | 效率低下 |
+| **RULE 5** | 所有视觉分析完成后，汇总撰写最终报告 | 信息不完整 |
+| **RULE 6** | 完成报告后自行更新IMPLEMENTATION_PLAN和CHANGELOG | 进度追踪丢失 |
+
+**⚠️ 绝对禁止:**
+```
+❌ glm-5 直接进行视觉分析 (TEXT-ONLY模型，会导致输入错误)
+❌ Playwright只探索2层就结束 (必须深度探索所有典型页面)
+❌ Step 1数据不保存直接进入Step 2 (回滚导致数据丢失)
+❌ 视觉分析不等待用户确认 (破坏工作流)
+```
+
+**✅ 正确的视觉分析方法:**
+```
+使用 image-analyzer-kimi skill (kimi-k2.5模型)
+使用 image-analyzer-qwen skill (qwen3.5-plus模型)
+glm-5 只负责协调和报告撰写，绝不直接分析图片
+```
 | `TECH_STACK.md` | 技术选型、依赖版本 | 需要了解技术细节时 |
 | `FRONTEND_GUIDELINES.md` | 视觉设计、组件规范 | 需要了解 UI 规范时 |
 | `BACKEND_STRUCTURE.md` | 数据库结构、API 端点 | 需要了解后端实现时 |

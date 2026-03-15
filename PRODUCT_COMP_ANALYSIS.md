@@ -8,43 +8,226 @@
 
 ---
 
-## 0. Competitive Analysis Workflow (CRITICAL)
+## 0. Competitive Analysis Workflow (CRITICAL - MUST FOLLOW)
 
-### 0.1 Workflow Overview
+### 0.1 ⚠️ WARNING - READ BEFORE EXECUTION ⚠️
+
+**This workflow was created due to repeated serious errors that caused:**
+- Session rollbacks and data loss
+- Wasted API calls (firecrawl/exa free tier limits)
+- Broken workflow requiring re-exploration
+- Significant productivity loss
+
+**The following errors MUST NEVER happen again:**
+1. ❌ Playwright exploration too shallow (only 2 layers, missing important pages)
+2. ❌ Calling glm-5 for visual analysis (TEXT-ONLY model, causes input errors)
+3. ❌ Step 1 and Step 2 not decoupled (data lost when rollback triggered)
+
+---
+
+### 0.2 Workflow Overview
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                    COMPETITIVE ANALYSIS WORKFLOW                         │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                          │
-│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐              │
-│  │   STEP 1     │    │   STEP 2     │    │   STEP 3     │              │
-│  │  Web Scraping │───▶│ Screenshots  │───▶│Visual Analysis│             │
-│  │  (firecrawl, │    │  (Playwright) │    │(image-analyzer)│            │
-│  │     exa)     │    │              │    │              │              │
-│  └──────────────┘    └──────────────┘    └──────────────┘              │
-│         │                   │                   │                       │
-│         ▼                   ▼                   ▼                       │
+│  ┌──────────────┐         ┌──────────────┐         ┌──────────────┐    │
+│  │   STEP 1     │         │   STEP 2     │         │   STEP 3     │    │
+│  │  Web Scraping │───────▶│ Screenshots  │─────────▶│Visual Analysis│   │
+│  │  (firecrawl, │  MUST   │  (Playwright) │  STOP   │(image-analyzer)│  │
+│  │     exa)     │  SAVE   │              │  REPORT │              │    │
+│  └──────────────┘         └──────────────┘         └──────────────┘    │
+│         │                        │                        │             │
+│         │   ⚠️ DECOUPLE          │   ⚠️ USER              │             │
+│         │   Step 1→2             │   CONFIRM              │             │
+│         ▼                        ▼                        ▼             │
+│  ┌────────────────┐       ┌────────────────┐      ┌────────────────┐   │
+│  │ SAVE TO *.md   │       │ DEEP EXPLORE   │      │ PARALLEL AGENTS│   │
+│  │ BEFORE STEP 2  │       │ ALL LAYERS     │      │ ONE IMG/AGENT  │   │
+│  └────────────────┘       └────────────────┘      └────────────────┘   │
+│                                                                          │
 │  ┌──────────────────────────────────────────────────────────────┐      │
 │  │                        STEP 4                                  │      │
 │  │              Comprehensive Analysis Report                     │      │
 │  │                    (glm-5 orchestrates)                        │      │
 │  └──────────────────────────────────────────────────────────────┘      │
 │                                                                          │
+│  ┌──────────────────────────────────────────────────────────────┐      │
+│  │                        STEP 5                                  │      │
+│  │              Update IMPLEMENTATION_PLAN & CHANGELOG            │      │
+│  │                    (Self-check, then report)                   │      │
+│  └──────────────────────────────────────────────────────────────┘      │
+│                                                                          │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 0.2 Model Responsibilities
+---
 
-| Model | Role | Capabilities | When to Use |
-|-------|------|--------------|-------------|
-| **glm-5** | Main Orchestrator | Agent coordination, complex reasoning, report writing | Always - main model for all tasks |
-| **kimi-k2.5** | Deep Vision Analysis | Complex UI screenshots, design specs, architecture diagrams | When detailed visual analysis needed |
-| **qwen3.5-plus** | Quick Vision Analysis | Simple images, OCR, quick scans | When speed prioritized over depth |
+### 0.3 MANDATORY RULES - MUST FOLLOW EXACTLY
 
-### 0.3 Step-by-Step Workflow
+#### 🔴 RULE 1: Step 1 MUST Save Data Before Step 2
 
-#### Step 1: Web Scraping (DO FIRST)
+```
+Step 1 完成 firecrawl + exa 原始数据爬取后，必须将获得的数据落入 *.md 文档
+与后续步骤解耦，防止重复爬取
+```
+
+**Required Action:**
+1. Complete all firecrawl/exa scraping
+2. **IMMEDIATELY** write results to `.comp_product_assets/[category]/[product]-scraped.md`
+3. Only after saving, proceed to Step 2
+
+**Why:** If Step 2 triggers rollback, Step 1 data is preserved
+
+---
+
+#### 🔴 RULE 2: Playwright MUST Deep Explore
+
+```
+Playwright 必须深度探索一个产品
+在各个层级的典型交互页面必须至少有一张截图
+产品详细页面最好是 full size
+```
+
+**Minimum Exploration Depth:**
+- Homepage (hero, navigation, featured content)
+- User profile pages (self + other users)
+- Detail pages (product/article/shot)
+- Search/filter pages
+- Settings/preferences
+- AI features (if any)
+- Mobile responsive views
+
+**Required Screenshots:**
+- At least 5-8 screenshots per product
+- Full-page screenshots for important pages
+- Detail shots for key UI components
+
+---
+
+#### 🔴 RULE 3: STOP After Playwright - User Confirmation Required
+
+```
+Step 2 Playwright 深度探索，截图完成后
+必须停止任务，向我汇报进度
+问询我是否调用 Agent，使用 image-analyzer skill 进行视觉理解
+```
+
+**Required Report Format:**
+```
+📊 Playwright Exploration Complete
+
+Product: [Product Name]
+Screenshots Captured: [X] screenshots
+- screenshot_1.png - [Description]
+- screenshot_2.png - [Description]
+- ...
+
+Pages Explored:
+- Homepage ✓
+- User Profile ✓
+- Detail Page ✓
+- Settings ✓
+- AI Features ✓/✗
+
+Ready for Step 3 (Visual Analysis)?
+
+Please confirm: Should I proceed with image-analyzer-kimi agents?
+```
+
+**⚠️ NEVER proceed to Step 3 without user confirmation**
+
+---
+
+#### 🔴 RULE 4: Parallel Agents for Visual Analysis
+
+```
+视觉理解阶段，必须调用多个 agent 平行处理
+每个 agent 一张，减少模型 api 负荷，同时提高分析效率
+```
+
+**Implementation:**
+```markdown
+# CORRECT: Parallel agents, one image per agent
+Launch 5 agents in parallel:
+- Agent 1: image-analyzer-kimi on screenshot_1.png
+- Agent 2: image-analyzer-kimi on screenshot_2.png
+- Agent 3: image-analyzer-kimi on screenshot_3.png
+- Agent 4: image-analyzer-kimi on screenshot_4.png
+- Agent 5: image-analyzer-kimi on screenshot_5.png
+
+# WRONG: Single agent processing all images
+# WRONG: glm-5 analyzing images directly
+```
+
+---
+
+#### 🔴 RULE 5: Comprehensive Report After Visual Analysis
+
+```
+视觉理解完全完成之后
+汇总所有得到的情报，进行最终的竞品分析报告撰写
+```
+
+**Report Structure:**
+1. Web scraping summary (from Step 1 saved file)
+2. Screenshot inventory (from Step 2)
+3. Visual analysis findings (from Step 3 agents)
+4. 5-dimension scoring (IA, Visual, Flow, Features, Tech)
+5. Design tokens extraction
+6. Patterns for Viblog (Adopt/Adapt/avoid)
+
+---
+
+#### 🔴 RULE 6: Self-Update and Report
+
+```
+完成竞品分析报告后，自行检查 IMPLEMENTATION_PLAN.md, CHANGELOG.md
+进行 Update。完成后向我汇报
+```
+
+**Update Checklist:**
+- [ ] IMPLEMENTATION_PLAN.md - Mark step as Completed, add key findings
+- [ ] CHANGELOG.md - Add analysis entry with score and findings
+- [ ] Report to user with summary
+
+---
+
+### 0.4 Model Responsibilities
+
+| Model | Role | Capabilities | CRITICAL NOTE |
+|-------|------|--------------|---------------|
+| **glm-5** | Main Orchestrator | Agent coordination, complex reasoning, report writing | ⚠️ **NO VISION** - TEXT ONLY |
+| **kimi-k2.5** | Deep Vision Analysis | Complex UI screenshots, design specs, architecture diagrams | ✅ Use via image-analyzer-kimi skill |
+| **qwen3.5-plus** | Quick Vision Analysis | Simple images, OCR, quick scans | ✅ Use via image-analyzer-qwen skill |
+
+**⚠️ CRITICAL WARNING:**
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                 │
+│   ⚠️ NEVER use glm-5 for visual analysis ⚠️                    │
+│                                                                 │
+│   glm-5 is a TEXT-ONLY model with NO vision capabilities       │
+│                                                                 │
+│   Calling glm-5 on images will cause:                          │
+│   - Input processing errors                                     │
+│   - Session rollback required                                   │
+│   - Data loss from previous steps                               │
+│   - Wasted API calls                                            │
+│                                                                 │
+│   ✅ ALWAYS use image-analyzer-* skills for vision:             │
+│      - image-analyzer-kimi: Deep analysis (PREFERRED)           │
+│      - image-analyzer-qwen: Quick analysis                      │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 0.5 Step-by-Step Workflow (DETAILED)
+
+#### Step 1: Web Scraping (DO FIRST - SAVE BEFORE NEXT STEP)
 
 **Purpose:** Gather raw web content and documentation
 
@@ -54,19 +237,20 @@
 - `mcp__exa-web-search__web_search_exa` - Web search for content
 - `mcp__exa-web-search__get_code_context_exa` - Code/technical content
 
-**Example:**
-```markdown
+**⚠️ MANDATORY SAVE STEP:**
+```
 1. Use firecrawl_map to discover key pages
 2. Use firecrawl_scrape to extract content from each page
 3. Use exa web_search for additional context
-4. Cache results in .comp_product_assets/[category]/
+4. ⚠️ SAVE results to .comp_product_assets/[category]/[product]-scraped.md
+5. ONLY THEN proceed to Step 2
 ```
 
-**Output:** Raw web content in `.comp_product_assets/[category]/[product]-scraped.md`
+**Output:** Raw web content saved to `.comp_product_assets/[category]/[product]-scraped.md`
 
 ---
 
-#### Step 2: Screenshot Capture (AFTER Step 1)
+#### Step 2: Screenshot Capture (AFTER Step 1 SAVED)
 
 **Purpose:** Capture visual UI for analysis
 
@@ -74,33 +258,42 @@
 - `mcp__plugin_playwright_playwright__browser_navigate` - Navigate to URL
 - `mcp__plugin_playwright_playwright__browser_snapshot` - Accessibility snapshot
 - `mcp__plugin_playwright_playwright__browser_take_screenshot` - Visual screenshot
+- `mcp__plugin_playwright_playwright__browser_click` - Navigate deeper
+- `mcp__plugin_playwright_playwright__browser_close` - Close when done
 
-**Process:**
-1. Navigate to target URL
-2. Wait for page load
-3. Take screenshots of key UI elements
-4. Save to `.comp_product_assets/[category]/[product]_snapshot/`
-5. Resize images if needed (keep under 500KB for API limits)
+**⚠️ DEEP EXPLORATION REQUIRED:**
+```
+1. Navigate to target URL (Homepage)
+2. Explore ALL navigation options
+3. Visit user profile pages
+4. Visit detail/product pages
+5. Check for AI features
+6. Check settings/preferences
+7. Test mobile viewport
+8. Take screenshots at EACH layer
+9. Resize images if needed (<500KB)
+```
+
+**⚠️ STOP AND REPORT:**
+```
+After Playwright exploration complete:
+1. Close browser
+2. List all screenshots captured
+3. Report to user with format in Rule 3
+4. WAIT for user confirmation before Step 3
+```
 
 **Output:** Screenshots in `.comp_product_assets/[category]/[product]_snapshot/`
 
 ---
 
-#### Step 3: Visual Analysis (CRITICAL - USE SKILLS)
+#### Step 3: Visual Analysis (USER CONFIRMED - USE SKILLS)
 
 **Purpose:** Extract design patterns and specifications from screenshots
 
-**CRITICAL RULE:**
-```
-⚠️ NEVER use glm-5 for visual analysis ⚠️
-glm-5 is a TEXT-ONLY model with NO vision capabilities
+**⚠️ ONLY START AFTER USER CONFIRMS**
 
-✅ ALWAYS use image-analyzer-* skills:
-   - image-analyzer-kimi: Deep, detailed analysis (PREFERRED for UI)
-   - image-analyzer-qwen: Quick, general analysis
-```
-
-**Tool Selection:**
+**TOOL SELECTION:**
 
 | Scenario | Use This Skill | Why |
 |----------|----------------|-----|
@@ -108,66 +301,107 @@ glm-5 is a TEXT-ONLY model with NO vision capabilities
 | Simple diagrams | `image-analyzer-qwen` | Faster, sufficient detail |
 | Architecture diagrams | `image-analyzer-kimi` | Need structure understanding |
 | OCR / text extraction | `image-analyzer-qwen` | Quick text reading |
-| Multiple screenshots | Both in parallel | Compare analysis quality |
 
-**Example Command:**
+**⚠️ PARALLEL EXECUTION REQUIRED:**
 ```markdown
-# Invoke skill with screenshot path
-Skill: image-analyzer-kimi
-Arguments: /path/to/screenshot.png
-
-# The skill will use kimi-k2.5 model automatically
-# glm-5 orchestrates but does NOT perform vision analysis
+# Launch multiple agents in ONE message
+Agent 1: Skill "image-analyzer-kimi" with args "screenshot_1.png"
+Agent 2: Skill "image-analyzer-kimi" with args "screenshot_2.png"
+Agent 3: Skill "image-analyzer-kimi" with args "screenshot_3.png"
+...
 ```
 
 **Output:** Analysis in `.comp_product_assets/[category]/[product]-analysis_kimi.md`
 
 ---
 
-#### Step 4: Comprehensive Report (FINAL STEP)
+#### Step 4: Comprehensive Report (AFTER ALL VISUAL ANALYSIS)
 
 **Purpose:** Synthesize all findings into actionable report
 
 **Process:**
 1. glm-5 reads all collected materials:
-   - Scraped web content (Step 1)
+   - Scraped web content (Step 1 - from saved file)
    - Screenshots metadata (Step 2)
-   - Visual analysis results (Step 3)
-2. glm-5 writes comprehensive analysis report following Section 10.1 template
-3. Include design tokens, patterns, and technical translations
-4. Score each dimension (1-5) with justification
+   - Visual analysis results (Step 3 - from all agents)
+2. glm-5 writes comprehensive analysis report
+3. Score each dimension (1-5) with justification
+4. Extract design tokens and patterns
+5. Document technical translations
 
-**Output:** Final report section in `PRODUCT_COMP_ANALYSIS.md`
+**Output:** Final report `.comp_product_assets/[category]/[product]-analysis.md`
 
 ---
 
-### 0.4 Common Mistakes to Avoid
+#### Step 5: Update Documents & Report (FINAL)
+
+**Purpose:** Update tracking documents and notify user
+
+**Update Checklist:**
+- [ ] `IMPLEMENTATION_PLAN.md` - Mark step Completed, add key findings summary
+- [ ] `CHANGELOG.md` - Add entry with score and key takeaways
+
+**Report Format:**
+```
+✅ Competitive Analysis Complete
+
+Product: [Product Name]
+Score: [X]/25
+Key Findings:
+- Finding 1
+- Finding 2
+- Finding 3
+
+Documents Updated:
+- IMPLEMENTATION_PLAN.md ✓
+- CHANGELOG.md ✓
+
+Ready for next analysis or synthesis phase.
+```
+
+---
+
+### 0.6 Common Mistakes - NEVER REPEAT
 
 | Mistake | Consequence | Correct Approach |
 |---------|-------------|------------------|
-| Using glm-5 for vision | No analysis results | Use image-analyzer-* skills |
-| Skipping Step 1 | Missing context | Always scrape first |
-| Large screenshots | API errors (>20MB limit) | Resize to <500KB each |
-| Sequential skill calls | Slow analysis | Call skills in parallel |
+| Using glm-5 for vision | Input errors, rollback, data loss | Use image-analyzer-* skills |
+| Not saving Step 1 data | Re-scraping needed, wasted API calls | Save to *.md immediately |
+| Shallow Playwright explore | Incomplete analysis | Explore ALL layers, 5-8+ screenshots |
+| Skipping user report | Broken workflow | STOP and report after Step 2 |
+| Sequential skill calls | Slow, inefficient | Parallel agents, one image each |
+| Not updating docs | Tracking lost | Update IMPLEMENTATION_PLAN + CHANGELOG |
 
-### 0.5 Quick Reference Commands
+---
+
+### 0.7 Quick Reference Commands
 
 ```bash
-# Step 1: Web scraping
+# Step 1: Web scraping + SAVE
 mcp__firecrawl__firecrawl_scrape(url, formats=["markdown"])
 mcp__exa-web-search__web_search_exa(query, numResults=5)
+# ⚠️ THEN SAVE TO *.md FILE
 
-# Step 2: Screenshots
+# Step 2: Deep Playwright exploration
 mcp__plugin_playwright_playwright__browser_navigate(url)
+mcp__plugin_playwright_playwright__browser_click(...)  # Navigate deeper
 mcp__plugin_playwright_playwright__browser_take_screenshot(type="png")
+# ⚠️ STOP AND REPORT TO USER
 
-# Step 3: Visual analysis (CRITICAL)
-Skill(skill="image-analyzer-kimi", args="/path/to/screenshot.png")
-Skill(skill="image-analyzer-qwen", args="/path/to/screenshot.png")
+# Step 3: Visual analysis (AFTER USER CONFIRM)
+# Launch parallel agents, one per image:
+Skill(skill="image-analyzer-kimi", args="/path/to/screenshot_1.png")
+Skill(skill="image-analyzer-kimi", args="/path/to/screenshot_2.png")
+# ...
 
 # Step 4: Report (glm-5 handles this)
 Read all collected materials
 Write comprehensive analysis
+
+# Step 5: Update docs
+Edit IMPLEMENTATION_PLAN.md
+Edit CHANGELOG.md
+Report to user
 ```
 
 ---
@@ -745,7 +979,389 @@ CREATE TABLE draft_buckets (
 
 ---
 
-## 6. Feature Comparison Matrix
+## 6. Comprehensive Synthesis (Step 9.9)
+
+### 6.1 Score Summary Matrix
+
+**Analysis Completion Date:** 2026-03-15
+
+| Product | Category | IA | Visual | Flow | Features | Tech | Total | Key Takeaway |
+|---------|----------|-----|--------|------|----------|------|-------|--------------|
+| **Cursor IDE** | AI Coding | 5 | 4 | 5 | 5 | 5 | **24/25** | Reference for AI-native IDE |
+| **Notion** | Traditional Blog | 5 | 5 | 5 | 4 | 5 | **24/25** | Reference for AI-native content creation |
+| **Claude Code** | AI Coding | 5 | 3 | 5 | 5 | 5 | **23/25** | Reference for MCP protocol |
+| **Pinterest** | Visual Design | 4 | 5 | 5 | 4 | 4 | **22/25** | Reference for visual-first feeds |
+| **Dribbble** | Visual Design | 5 | 5 | 4 | 4 | 4 | **22/25** | Reference for premium visual design |
+| **Awwwards** | Visual Design | 5 | 5 | 4 | 4 | 4 | **22/25** | Reference for premium award platforms |
+| **Medium** | Traditional Blog | 4 | 4 | 5 | 4 | 4 | **21/25** | Reference for reading experience |
+
+**Average Score: 22.7/25** (Reference quality analyses)
+
+---
+
+### 6.2 Feature Comparison Matrix (Comprehensive)
+
+| Feature | Viblog | Claude Code | Cursor | Notion | Medium | Pinterest | Dribbble | Awwwards |
+|---------|--------|-------------|--------|--------|--------|-----------|----------|----------|
+| **MCP Integration** | Planned | Yes | Yes | - | - | - | - | - |
+| **Session Recording** | Planned | Partial | Partial | - | - | - | - | - |
+| **AI Content Generation** | Planned | Yes | Yes | Yes | - | - | - | - |
+| **Code Snippets (Rich)** | Yes | Yes | Yes | Yes | Limited | - | - | - |
+| **Masonry/Card Grid** | Planned | - | - | - | - | Yes | Yes | Yes |
+| **Dark Mode** | Yes | - | Yes | Yes | No | No | No | Yes |
+| **Dual Format (Human+AI)** | Planned | - | - | Yes | - | - | - | - |
+| **Progress Indicator** | Planned | - | - | - | Yes | - | - | - |
+| **Reading Typography** | Planned | - | - | Yes | Yes | - | - | - |
+| **Hover Interactions** | Planned | - | - | - | - | Yes | Yes | Yes |
+| **Awards/Scoring System** | - | - | - | - | - | - | - | Yes |
+| **Marketplace/Services** | - | - | - | - | - | - | Yes | Yes |
+| **Multi-surface Access** | Planned | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| **Team/Enterprise** | - | - | Yes | Yes | - | Yes | Yes | Yes |
+| **API Access** | Planned | MCP | MCP | Yes | Limited | - | - | - |
+
+---
+
+### 6.3 5 Key Differentiation Opportunities
+
+#### Opportunity 1: MCP-Native Blogging Platform (P0 - Critical)
+
+**Gap Identified:** No blogging platform currently offers native MCP integration.
+
+**Competitive Analysis Evidence:**
+- Claude Code (23/25) and Cursor (24/25) both scored highest in Features due to MCP support
+- MCP enables seamless session-to-article transformation
+- Viblog can be the **first mover** in this space
+
+**Implementation Strategy:**
+```typescript
+// Viblog MCP Tools Architecture
+const viblogMCPTools = {
+  // Layer 1: Data Collection
+  create_vibe_session: "Capture coding session context",
+  append_session_context: "Add metadata to ongoing session",
+  upload_session_context: "Upload external context files",
+
+  // Layer 2: Content Generation
+  generate_article_draft: "Transform session into article draft",
+  merge_sessions_to_article: "Combine multiple sessions",
+
+  // Layer 3: Publishing
+  publish_article: "Publish with dual-layer format",
+  get_user_articles: "Retrieve user's published content"
+};
+```
+
+**Success Metric:** First blog platform with Claude Code + Cursor native integration.
+
+---
+
+#### Opportunity 2: Session-to-Article Automation (P0 - Critical)
+
+**Gap Identified:** No platform automatically transforms coding sessions into blog content.
+
+**Competitive Analysis Evidence:**
+- Claude Code has session recording but no export to blog
+- Cursor has session persistence but no content generation
+- Notion has AI generation but requires manual input
+
+**Viblog Solution:**
+```
+Daily Coding Session
+        ↓
+update_vibe_coding_history() [MCP Tool]
+        ↓
+Draft Bucket (auto-populated)
+        ↓
+Developer adds: "Today's insights"
+        ↓
+generate_article_draft() [MCP Tool]
+        ↓
+Review & Edit
+        ↓
+Publish (Dual-layer: Markdown + JSON)
+```
+
+**Differentiation:** 10x faster content creation for developers.
+
+---
+
+#### Opportunity 3: Dual-Layer Content Format (P0 - Critical)
+
+**Gap Identified:** All platforms optimize for human readers only. None optimize for AI agents.
+
+**Competitive Analysis Evidence:**
+- Notion has block-based content but closed API
+- Medium has excellent reading experience but no AI layer
+- All platforms treat code as secondary content
+
+**Viblog Solution:**
+```json
+{
+  "article": {
+    "human_readable": {
+      "format": "markdown",
+      "content": "# Article Title\n\nHuman-focused narrative..."
+    },
+    "ai_readable": {
+      "format": "json",
+      "summary": "Brief overview for AI consumption",
+      "key_decisions": [
+        {"decision": "Use PostgreSQL", "reason": "ACID compliance needed"}
+      ],
+      "code_snippets": [
+        {"purpose": "Auth middleware", "code": "...", "language": "typescript"}
+      ],
+      "lessons_learned": ["Always validate tokens before decode"],
+      "related_topics": ["authentication", "security", "jwt"]
+    }
+  }
+}
+```
+
+**Success Metric:** Articles consumable by AI tools with <5% information loss.
+
+---
+
+#### Opportunity 4: Pinterest-Style Article Cards (P1 - High)
+
+**Gap Identified:** Developer blogs lack visual appeal compared to design platforms.
+
+**Competitive Analysis Evidence:**
+- Pinterest (22/25) - Best masonry grid, card hover effects
+- Dribbble (22/25) - Premium feel with whitespace, hover animations
+- Awwwards (22/25) - High-end typography and visual polish
+
+**Visual Specifications Extracted:**
+```css
+/* Article Card - Synthesized from Dribbble + Pinterest + Awwwards */
+.article-card {
+  /* From Dribbble: Premium feel */
+  border-radius: 12px;
+  background: white;
+  overflow: hidden;
+
+  /* Hover effect: Dribbble + Pinterest */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.article-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 12px 24px -8px rgba(0, 0, 0, 0.1),
+    0 4px 8px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Grid layout: Pinterest-inspired masonry */
+.article-grid {
+  columns: 4 280px;
+  column-gap: 24px;
+}
+
+/* Whitespace: Dribbble philosophy */
+.section-gap {
+  margin: 60px 0; /* Premium breathing room */
+}
+```
+
+**Success Metric:** Visual quality score ≥ Dribbble (22/25).
+
+---
+
+#### Opportunity 5: AI-Native Reading Experience (P1 - High)
+
+**Gap Identified:** Medium's reading experience is best-in-class for text, but lacks code optimization.
+
+**Competitive Analysis Evidence:**
+- Medium (21/25) - Best reading typography: 21px Georgia, 1.6 line-height, 680px width
+- Progress bar indicator improves UX
+- Estimated read time is useful
+
+**Viblog Enhancement for Developers:**
+```css
+/* Reading experience: Medium-inspired + Code-optimized */
+.reader-content {
+  /* From Medium Analysis */
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 21px;
+  line-height: 1.6;
+  max-width: 680px;
+  margin: 0 auto;
+
+  /* Viblog enhancement: Code blocks */
+  --code-font: 'JetBrains Mono', 'Fira Code', monospace;
+  --code-bg: #1e1e1e; /* VS Code dark */
+}
+
+/* Token estimate for AI readers (unique to Viblog) */
+.ai-read-time::before {
+  content: "~" attr(data-tokens) " tokens";
+  /* Display token count for AI consumption estimation */
+}
+```
+
+**Success Metric:** Reading experience ≥ Medium (21/25) with code optimization.
+
+---
+
+### 6.4 Technical Implementation Recommendations
+
+#### 6.4.1 MCP Server Architecture (From Claude Code + Cursor Analysis)
+
+```
+Viblog MCP Server
+├── Transport Layer
+│   ├── stdio (CLI integration)
+│   ├── SSE (HTTP streaming)
+│   └── Streamable HTTP (with OAuth)
+├── Tools Layer
+│   ├── create_vibe_session
+│   ├── append_session_context
+│   ├── generate_article_draft
+│   └── publish_article
+├── Resources Layer
+│   ├── user_articles://
+│   ├── draft_buckets://
+│   └── published_content://
+└── Prompts Layer
+    ├── summarize_session
+    └── suggest_article_structure
+```
+
+#### 6.4.2 Visual Design System (From Pinterest + Dribbble + Awwwards)
+
+**Design Tokens:**
+```css
+/* Synthesized from 3 visual design platforms */
+:root {
+  /* From Dribbble: Pink accent, minimal usage */
+  --accent-primary: #6366f1; /* Indigo - developer aesthetic */
+  --accent-hover: #4f46e5;
+
+  /* From Awwwards: Premium typography */
+  --font-display: 'Inter', system-ui, sans-serif;
+  --font-body: Georgia, serif; /* Medium-inspired reading */
+  --font-code: 'JetBrains Mono', monospace;
+
+  /* From Pinterest: Card grid system */
+  --card-radius: 12px;
+  --card-gap: 24px;
+  --card-width-min: 280px;
+
+  /* Whitespace philosophy (Dribbble) */
+  --space-section: 60px;
+  --space-component: 24px;
+  --space-element: 12px;
+}
+```
+
+#### 6.4.3 Reading Experience (From Medium + Notion Analysis)
+
+**Typography System:**
+```css
+/* Article typography: Medium-inspired with code optimization */
+.article-body {
+  font-family: Georgia, serif;
+  font-size: 21px;
+  line-height: 1.6;
+  max-width: 680px;
+  color: #292929;
+}
+
+/* Code blocks: VS Code-inspired */
+.article-body pre {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  background: #1e1e1e;
+  border-radius: 8px;
+  padding: 16px;
+  overflow-x: auto;
+}
+
+/* Progress indicator: Medium pattern */
+.reading-progress {
+  position: fixed;
+  top: 0;
+  height: 3px;
+  background: var(--accent-primary);
+  z-index: 100;
+}
+```
+
+#### 6.4.4 Card Interaction (From Pinterest + Dribbble Analysis)
+
+**Hover Behavior:**
+```typescript
+// Card hover: Dribbble lift + Pinterest overlay
+const ArticleCard = ({ article }) => {
+  return (
+    <article className="group relative rounded-xl overflow-hidden bg-white
+                        transition-all duration-200 ease-out
+                        hover:-translate-y-1 hover:shadow-xl">
+      {/* Preview image: Pinterest-style */}
+      <div className="aspect-[4/3] bg-gray-100">
+        <img src={article.preview} className="w-full h-full object-cover" />
+      </div>
+
+      {/* Hover overlay: Pinterest pattern */}
+      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40
+                      transition-all duration-200 opacity-0 group-hover:opacity-100">
+        <div className="absolute bottom-4 left-4 right-4 flex gap-2">
+          <button className="btn-primary">Read</button>
+          <button className="btn-secondary">Save</button>
+        </div>
+      </div>
+
+      {/* Attribution: Dribbble pattern */}
+      <div className="p-3 flex items-center gap-2">
+        <img src={article.author.avatar} className="w-6 h-6 rounded-full" />
+        <span className="text-sm font-medium">{article.author.name}</span>
+      </div>
+    </article>
+  );
+};
+```
+
+---
+
+### 6.5 Priority Implementation Roadmap
+
+| Priority | Feature | Source Analysis | Estimated Effort |
+|----------|---------|-----------------|------------------|
+| **P0** | MCP Server (5 tools) | Claude Code + Cursor | 2 weeks |
+| **P0** | Draft Bucket System | Claude Code session recording | 1 week |
+| **P0** | Dual-Layer Content Format | Original innovation | 1 week |
+| **P1** | Pinterest-style Card Grid | Pinterest + Dribbble | 1 week |
+| **P1** | Article Card Hover Effects | Dribbble + Pinterest | 3 days |
+| **P1** | Reading Typography System | Medium + Notion | 3 days |
+| **P1** | Progress Indicator | Medium | 1 day |
+| **P2** | Dark Mode Optimization | Cursor + Awwwards | 2 days |
+| **P2** | Token Estimation Display | Original innovation | 1 day |
+
+---
+
+### 6.6 Key Takeaways from Competitive Analysis
+
+#### For Product Strategy
+1. **First-mover advantage** in MCP-native blogging (no competitors)
+2. **Visual quality gap** exists - developer blogs lack Dribbble/Awwwards polish
+3. **Session-to-article** is unexplored territory (10x faster content creation)
+4. **Dual-layer content** enables AI-native consumption (unique to Viblog)
+
+#### For Technical Implementation
+1. **MCP Protocol** from Claude Code is battle-tested and documented
+2. **Card interactions** from Pinterest/Dribbble are proven patterns
+3. **Reading typography** from Medium is gold standard
+4. **Dark mode** from Cursor/Awwwards is developer-preferred
+
+#### For Visual Design
+1. **12px border radius** for modern, premium feel (Dribbble)
+2. **4:3 card aspect ratio** for code previews (Pinterest adaptation)
+3. **60px section gaps** for breathing room (Dribbble philosophy)
+4. **21px Georgia** for reading comfort (Medium)
+
+---
+
+## 7. Original Feature Comparison Matrix (Legacy)
 
 | Feature | Viblog | Notion | Medium | Cursor | Claude Code | Pinterest |
 |---------|--------|--------|--------|--------|-------------|-----------|
@@ -1029,6 +1645,7 @@ Recommended card implementation:
 
 ---
 
-**Document Version:** 2.0
+**Document Version:** 3.0
 **Last Updated:** 2026-03-15
 **Author:** Viblog Team
+**Completion:** Phase 9 Competitive Analysis Complete (7 products analyzed)
