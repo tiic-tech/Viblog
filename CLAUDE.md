@@ -27,6 +27,22 @@ This project uses 9 core documents:
 |------|------|----------|
 | `PRD.md` | 产品定位、用户故事、功能范围 | 需要了解产品决策时 |
 | `PRODUCT_COMP_ANALYSIS.md` | 竞品分析、差异化设计 | 需要竞品分析或差异化设计时 |
+
+**CRITICAL: 竞品分析工作流**
+
+当执行竞品分析时，**必须遵循 `PRODUCT_COMP_ANALYSIS.md` 中的 Section 0 工作流**：
+
+```
+Step 1: Web Scraping (firecrawl, exa) → 获取原始内容
+Step 2: Screenshots (Playwright) → 捕获视觉界面
+Step 3: Visual Analysis (image-analyzer-*) → 视觉深度分析
+Step 4: Comprehensive Report (glm-5) → 整合撰写报告
+```
+
+**关键规则：**
+- glm-5 是纯文本模型，**不具备视觉理解能力**
+- 截图分析**必须**调用 `image-analyzer-kimi` 或 `image-analyzer-qwen` skill
+- **绝不能**让 glm-5 直接分析图片
 | `TECH_STACK.md` | 技术选型、依赖版本 | 需要了解技术细节时 |
 | `FRONTEND_GUIDELINES.md` | 视觉设计、组件规范 | 需要了解 UI 规范时 |
 | `BACKEND_STRUCTURE.md` | 数据库结构、API 端点 | 需要了解后端实现时 |

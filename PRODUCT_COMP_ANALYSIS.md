@@ -8,6 +8,170 @@
 
 ---
 
+## 0. Competitive Analysis Workflow (CRITICAL)
+
+### 0.1 Workflow Overview
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    COMPETITIVE ANALYSIS WORKFLOW                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐              │
+│  │   STEP 1     │    │   STEP 2     │    │   STEP 3     │              │
+│  │  Web Scraping │───▶│ Screenshots  │───▶│Visual Analysis│             │
+│  │  (firecrawl, │    │  (Playwright) │    │(image-analyzer)│            │
+│  │     exa)     │    │              │    │              │              │
+│  └──────────────┘    └──────────────┘    └──────────────┘              │
+│         │                   │                   │                       │
+│         ▼                   ▼                   ▼                       │
+│  ┌──────────────────────────────────────────────────────────────┐      │
+│  │                        STEP 4                                  │      │
+│  │              Comprehensive Analysis Report                     │      │
+│  │                    (glm-5 orchestrates)                        │      │
+│  └──────────────────────────────────────────────────────────────┘      │
+│                                                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### 0.2 Model Responsibilities
+
+| Model | Role | Capabilities | When to Use |
+|-------|------|--------------|-------------|
+| **glm-5** | Main Orchestrator | Agent coordination, complex reasoning, report writing | Always - main model for all tasks |
+| **kimi-k2.5** | Deep Vision Analysis | Complex UI screenshots, design specs, architecture diagrams | When detailed visual analysis needed |
+| **qwen3.5-plus** | Quick Vision Analysis | Simple images, OCR, quick scans | When speed prioritized over depth |
+
+### 0.3 Step-by-Step Workflow
+
+#### Step 1: Web Scraping (DO FIRST)
+
+**Purpose:** Gather raw web content and documentation
+
+**Tools:**
+- `mcp__firecrawl__firecrawl_scrape` - Single page scraping
+- `mcp__firecrawl__firecrawl_map` - Discover URLs on a site
+- `mcp__exa-web-search__web_search_exa` - Web search for content
+- `mcp__exa-web-search__get_code_context_exa` - Code/technical content
+
+**Example:**
+```markdown
+1. Use firecrawl_map to discover key pages
+2. Use firecrawl_scrape to extract content from each page
+3. Use exa web_search for additional context
+4. Cache results in .comp_product_assets/[category]/
+```
+
+**Output:** Raw web content in `.comp_product_assets/[category]/[product]-scraped.md`
+
+---
+
+#### Step 2: Screenshot Capture (AFTER Step 1)
+
+**Purpose:** Capture visual UI for analysis
+
+**Tools:**
+- `mcp__plugin_playwright_playwright__browser_navigate` - Navigate to URL
+- `mcp__plugin_playwright_playwright__browser_snapshot` - Accessibility snapshot
+- `mcp__plugin_playwright_playwright__browser_take_screenshot` - Visual screenshot
+
+**Process:**
+1. Navigate to target URL
+2. Wait for page load
+3. Take screenshots of key UI elements
+4. Save to `.comp_product_assets/[category]/[product]_snapshot/`
+5. Resize images if needed (keep under 500KB for API limits)
+
+**Output:** Screenshots in `.comp_product_assets/[category]/[product]_snapshot/`
+
+---
+
+#### Step 3: Visual Analysis (CRITICAL - USE SKILLS)
+
+**Purpose:** Extract design patterns and specifications from screenshots
+
+**CRITICAL RULE:**
+```
+⚠️ NEVER use glm-5 for visual analysis ⚠️
+glm-5 is a TEXT-ONLY model with NO vision capabilities
+
+✅ ALWAYS use image-analyzer-* skills:
+   - image-analyzer-kimi: Deep, detailed analysis (PREFERRED for UI)
+   - image-analyzer-qwen: Quick, general analysis
+```
+
+**Tool Selection:**
+
+| Scenario | Use This Skill | Why |
+|----------|----------------|-----|
+| Complex UI screenshots | `image-analyzer-kimi` | Detailed measurements, design tokens |
+| Simple diagrams | `image-analyzer-qwen` | Faster, sufficient detail |
+| Architecture diagrams | `image-analyzer-kimi` | Need structure understanding |
+| OCR / text extraction | `image-analyzer-qwen` | Quick text reading |
+| Multiple screenshots | Both in parallel | Compare analysis quality |
+
+**Example Command:**
+```markdown
+# Invoke skill with screenshot path
+Skill: image-analyzer-kimi
+Arguments: /path/to/screenshot.png
+
+# The skill will use kimi-k2.5 model automatically
+# glm-5 orchestrates but does NOT perform vision analysis
+```
+
+**Output:** Analysis in `.comp_product_assets/[category]/[product]-analysis_kimi.md`
+
+---
+
+#### Step 4: Comprehensive Report (FINAL STEP)
+
+**Purpose:** Synthesize all findings into actionable report
+
+**Process:**
+1. glm-5 reads all collected materials:
+   - Scraped web content (Step 1)
+   - Screenshots metadata (Step 2)
+   - Visual analysis results (Step 3)
+2. glm-5 writes comprehensive analysis report following Section 10.1 template
+3. Include design tokens, patterns, and technical translations
+4. Score each dimension (1-5) with justification
+
+**Output:** Final report section in `PRODUCT_COMP_ANALYSIS.md`
+
+---
+
+### 0.4 Common Mistakes to Avoid
+
+| Mistake | Consequence | Correct Approach |
+|---------|-------------|------------------|
+| Using glm-5 for vision | No analysis results | Use image-analyzer-* skills |
+| Skipping Step 1 | Missing context | Always scrape first |
+| Large screenshots | API errors (>20MB limit) | Resize to <500KB each |
+| Sequential skill calls | Slow analysis | Call skills in parallel |
+
+### 0.5 Quick Reference Commands
+
+```bash
+# Step 1: Web scraping
+mcp__firecrawl__firecrawl_scrape(url, formats=["markdown"])
+mcp__exa-web-search__web_search_exa(query, numResults=5)
+
+# Step 2: Screenshots
+mcp__plugin_playwright_playwright__browser_navigate(url)
+mcp__plugin_playwright_playwright__browser_take_screenshot(type="png")
+
+# Step 3: Visual analysis (CRITICAL)
+Skill(skill="image-analyzer-kimi", args="/path/to/screenshot.png")
+Skill(skill="image-analyzer-qwen", args="/path/to/screenshot.png")
+
+# Step 4: Report (glm-5 handles this)
+Read all collected materials
+Write comprehensive analysis
+```
+
+---
+
 ## 1. Analysis Framework
 
 ### 1.1 Analysis Dimensions
