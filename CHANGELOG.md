@@ -14,6 +14,42 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- **Chief UI Designer Agent (2026-03-16):**
+  - Created `~/.claude/agents/chief-ui-designer.md` - A top-tier design critic agent
+  - Mission: Make Viblog the #1 AI-Native Blog Platform globally through design excellence
+  - Evaluates 10 Design Metrics (100 points total):
+    1. Visual Hierarchy (10pts) - Focal points, scanning patterns
+    2. Balance & Layout (10pts) - Grid system, centering, whitespace
+    3. Typography (10pts) - Font choices, type scale, line height
+    4. Color Harmony (10pts) - Palette, contrast, accent usage
+    5. Spacing System (10pts) - 8px grid, consistent gaps
+    6. Component Design (10pts) - Buttons, cards, inputs polish
+    7. Micro-interactions (10pts) - Hover, focus, loading states
+    8. Responsive Design (10pts) - Breakpoints, mobile adaptation
+    9. Brand Identity (10pts) - Memorability, differentiation
+    10. Premium Feel (10pts) - Awwwards-worthy quality
+  - Grade scale: S (90-100), A (80-89), B (70-79), C (60-69), D (50-59), F (<50)
+  - Target: Every page must achieve Grade A (80+)
+  - Critical mindset: Deep thinking, push back, self-review, redesign, refine
+  - Outputs specific CSS fixes with reference to top products
+  - Integrated into develop_reviewer workflow (Phase 4B)
+
+### Changed
+- **develop_reviewer Agent - Enhanced with Design Review (2026-03-16):**
+  - Step 4 now has dual phases:
+    - Phase 4A: Functional Analysis (image-analyzer)
+    - Phase 4B: Design Critique (chief-ui-designer)
+  - Blog structure now has THREE sections (was two):
+    - Engineering Development Record
+    - UI/UX Test Analysis (Functional)
+    - Design Review (Aesthetic/Professional)
+  - New Design Quality Gate in Step 6:
+    - Grade C or below: Block publish, document known issues
+    - Grade B: Publish allowed, P0 issues documented
+    - Grade A: Publish approved, celebrate
+  - Verification checklist expanded to include design metrics
+
 ### Fixed
 - **Image Analyzer Skills - Execution Capability (2026-03-16):**
   - Fixed image-analyzer-kimi and image-analyzer-qwen skills to be executable
