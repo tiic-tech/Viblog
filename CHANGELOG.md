@@ -14,6 +14,19 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- **Agent Architecture Decoupling (2026-03-16):**
+  - Created `design_reviewer` agent - Independent UI/UX design analysis
+  - Simplified `develop_reviewer` agent - Now focuses purely on engineering
+  - **Key Change:** Agents now work in parallel, publish separately:
+    - `develop_reviewer` → Engineering blog (code, APIs, architecture)
+    - `design_reviewer` → Design blog (UI/UX, visual analysis, design metrics)
+  - **Workflow Benefits:**
+    - Independent execution schedules
+    - Separate article publishing
+    - Can run concurrently for efficiency
+    - Clear responsibility boundaries
+
 ### Added
 - **Chief UI Designer Agent (2026-03-16):**
   - Created `~/.claude/agents/chief-ui-designer.md` - A top-tier design critic agent
@@ -33,22 +46,14 @@ All notable changes to this project will be documented in this file.
   - Target: Every page must achieve Grade A (80+)
   - Critical mindset: Deep thinking, push back, self-review, redesign, refine
   - Outputs specific CSS fixes with reference to top products
-  - Integrated into develop_reviewer workflow (Phase 4B)
+  - Invoked by design_reviewer for professional evaluation
 
-### Changed
-- **develop_reviewer Agent - Enhanced with Design Review (2026-03-16):**
-  - Step 4 now has dual phases:
-    - Phase 4A: Functional Analysis (image-analyzer)
-    - Phase 4B: Design Critique (chief-ui-designer)
-  - Blog structure now has THREE sections (was two):
-    - Engineering Development Record
-    - UI/UX Test Analysis (Functional)
-    - Design Review (Aesthetic/Professional)
-  - New Design Quality Gate in Step 6:
-    - Grade C or below: Block publish, document known issues
-    - Grade B: Publish allowed, P0 issues documented
-    - Grade A: Publish approved, celebrate
-  - Verification checklist expanded to include design metrics
+- **Design Reviewer Agent (2026-03-16):**
+  - Created `~/.claude/agents/design_reviewer.md` - Independent design review agent
+  - Own workflow: 8 steps from screenshot capture to blog publish
+  - Publishes separate design review articles
+  - Invokes chief-ui-designer for metric-based evaluation
+  - Independent from develop_reviewer (parallel execution)
 
 ### Fixed
 - **Image Analyzer Skills - Execution Capability (2026-03-16):**
