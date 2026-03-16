@@ -2,156 +2,276 @@
 
 **Viblog** - An AI-Native Blogging Platform for Vibe Coders.
 
-**Mission:** Help Vibe Coders effortlessly capture, share, and grow from their AI-assisted development experiences.
+**Mission:** Make Viblog the #1 AI-Native Blog Platform globally.
 
 **Core Values:**
 - Record - Capture the authentic vibe coding context
 - Share - Transform experiences into beautiful content
 - Grow - Build a personal knowledge base
 
-## Documentation
+---
 
-This project uses 9 core documents:
+## Agent Team Architecture
 
-### 必读文档 (每会话必读)
-
-| 文档 | 功能 | 阅读顺序 |
-|------|------|----------|
-| `DEVELOPLOG.md` | 项目历史、教训、坏案例 | **1 - 首先阅读** |
-| `CHANGELOG.md` | 最新变更、当前版本状态 | **2 - 其次阅读** |
-| `IMPLEMENTATION_PLAN.md` | 当前任务、下一步工作 | **3 - 第三阅读** |
-
-### 按需阅读文档 (根据任务需要)
-
-| 文档 | 功能 | 阅读时机 |
-|------|------|----------|
-| `PRD.md` | 产品定位、用户故事、功能范围 | 需要了解产品决策时 |
-| `PRODUCT_COMP_ANALYSIS.md` | 竞品分析、差异化设计 | 需要竞品分析或差异化设计时 |
-
-**🔴 CRITICAL: 竞品分析工作流 (MUST READ `PRODUCT_COMP_ANALYSIS.md` Section 0)**
-
-当执行竞品分析时，**必须严格遵循 `PRODUCT_COMP_ANALYSIS.md` 中的 Section 0 工作流**：
-
-**👉 推荐：使用 `competitive-analyzer` agent 自动执行完整工作流**
+### Executive Layer
 
 ```
-Step 1: Web Scraping (firecrawl, exa) → ⚠️ SAVE TO *.md BEFORE STEP 2
-Step 2: Screenshots (Playwright)     → ⚠️ DEEP EXPLORE, THEN STOP & REPORT
-Step 3: Visual Analysis              → ⚠️ USER CONFIRM, PARALLEL AGENTS
-Step 4: Comprehensive Report         → glm-5 整合撰写
-Step 5: Update Docs & Report         → IMPLEMENTATION_PLAN + CHANGELOG
-```
-
-**🔴 6条强制规则 (违反将导致工作流中断):**
-
-| 规则 | 内容 | 违反后果 |
-|------|------|----------|
-| **RULE 1** | Step 1完成后必须立即保存到*.md文件 | 数据丢失需重新爬取 |
-| **RULE 2** | Playwright必须深度探索所有层级，5-8+截图 | 分析不完整 |
-| **RULE 3** | Step 2完成后必须停止，向用户汇报，等待确认 | 工作流中断 |
-| **RULE 4** | 视觉理解必须用sequential batch处理，每张图单独处理后保存到tmp file | 上下文溢出 |
-| **RULE 5** | 所有视觉分析完成后，汇总撰写最终报告 | 信息不完整 |
-| **RULE 6** | 完成报告后自行更新IMPLEMENTATION_PLAN和CHANGELOG | 进度追踪丢失 |
-
-**⚠️ 绝对禁止:**
-```
-❌ glm-5 直接进行视觉分析 (TEXT-ONLY模型，会导致输入错误)
-❌ Playwright只探索2层就结束 (必须深度探索所有典型页面)
-❌ Step 1数据不保存直接进入Step 2 (回滚导致数据丢失)
-❌ 视觉分析不等待用户确认 (破坏工作流)
-```
-
-**✅ 正确的视觉分析方法:**
-```
-⚠️ CRITICAL: kimi-k2.5 上下文限制 - 禁止并行处理多图
-
-SEQUENTIAL BATCH PROCESSING (MANDATORY):
 ┌─────────────────────────────────────────────────────────────────┐
-│   FOR EACH screenshot (ONE AT A TIME):                          │
+│                    VIBLOG EXECUTIVE TEAM                        │
+├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│   1. Invoke image-analyzer-kimi skill with ONE screenshot       │
-│   2. Receive visual analysis result                             │
-│   3. SAVE result to tmp file immediately                        │
-│   4. Clear context before next image                            │
-│   5. Repeat for next screenshot                                 │
+│   Chief Technology Officer      Chief UI Designer               │
+│   ========================      ==================               │
 │                                                                 │
-│   After ALL screenshots processed:                              │
-│   6. Read all tmp files                                         │
-│   7. Compile comprehensive report                               │
+│   10 Technical Metrics          10 Design Metrics               │
+│   ├── Architecture Alignment    ├── Visual Hierarchy            │
+│   ├── Code Quality              ├── Balance & Layout            │
+│   ├── Performance Impact        ├── Typography                  │
+│   ├── Security Posture          ├── Color Harmony               │
+│   ├── Test Coverage             ├── Spacing System              │
+│   ├── Error Handling            ├── Component Design            │
+│   ├── Maintainability           ├── Micro-interactions          │
+│   ├── Scalability               ├── Responsive Design           │
+│   ├── Documentation             ├── Brand Identity              │
+│   └── Technical Debt            └── Premium Feel                │
 │                                                                 │
-│   ❌ NEVER process multiple images in parallel                   │
-│   ❌ NEVER accumulate outputs in single context                 │
+│   Target: Grade A (80+)         Target: Grade A (80+)           │
+│   Grade C or below = BLOCK      Grade C or below = BLOCK        │
+│                                                                 │
+│   Sub-Agents:                                                   │
+│   ├── code-reviewer                                             │
+│   ├── security-reviewer                                         │
+│   ├── database-reviewer                                         │
+│   └── architect                                                 │
+│                                                                 │
 └─────────────────────────────────────────────────────────────────┘
-
-使用 image-analyzer-kimi skill (kimi-k2.5模型)
-使用 image-analyzer-qwen skill (qwen3.5-plus模型)
-glm-5 只负责协调和报告撰写，绝不直接分析图片
 ```
-| `TECH_STACK.md` | 技术选型、依赖版本 | 需要了解技术细节时 |
-| `FRONTEND_GUIDELINES.md` | 视觉设计、组件规范 | 需要了解 UI 规范时 |
-| `BACKEND_STRUCTURE.md` | 数据库结构、API 端点 | 需要了解后端实现时 |
-| `APP_FLOW.md` | 页面结构、用户流程 | 需要了解用户流程时 |
 
-### MVP 文档归档
+### Full Agent Roster
 
-MVP 阶段的文档已归档到 `mvp_docs/` 文件夹，供历史参考。
+| Agent | Role | Level | Focus |
+|-------|------|-------|-------|
+| `chief-technology-officer` | Technical Executive | Executive | System quality, architecture |
+| `chief-ui-designer` | Design Executive | Executive | Visual quality, aesthetics |
+| `develop_reviewer` | Engineering Publisher | Independent | Tech blog, functional testing |
+| `design_reviewer` | Design Publisher | Independent | Design blog, UI analysis |
+| `planner` | Implementation Planner | Engineer | Task breakdown, dependencies |
+| `architect` | System Architect | Architect | Architecture decisions |
+| `code-reviewer` | Code Quality Specialist | Specialist | PEP8, idioms, patterns |
+| `security-reviewer` | Security Specialist | Specialist | OWASP, secrets, injection |
+| `database-reviewer` | Database Specialist | Specialist | Queries, indexes, RLS |
+| `tdd-guide` | Test-Driven Development | Engineer | 80%+ coverage |
+| `e2e-runner` | E2E Testing | Engineer | Playwright tests |
 
 ---
 
-### Session Startup Checklist
+## Dual-Track Development
 
-**第一步：文档导航扫描 (每次会话必须)**
+### Backend/Frontend Split
 
-执行 `head -15 *.md` 快速扫描所有文档头部，建立文档导航：
+Every Phase/Step is split into TWO independent tracks:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│   DUAL-TRACK PLANNING                                           │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   BACKEND TRACK                 FRONTEND TRACK                  │
+│   =============                ================                 │
+│   - Database schema            - UI components                  │
+│   - API endpoints              - Page layouts                   │
+│   - Server logic               - Client state                   │
+│   - Migrations                 - Styling                        │
+│   - Tests (API/Unit)           - Tests (E2E)                    │
+│                                                                 │
+│   Independent execution         Independent execution           │
+│   Can be parallelized           Can be parallelized             │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Parallel Development with Git Worktrees
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│   PARALLEL DEVELOPMENT WORKFLOW                                 │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   Main Repository                                               │
+│   ├── branch: feature/phaseX-backend                           │
+│   │   └── worktree: .claude/worktrees/backend/                 │
+│   │       └── Agent: backend-developer                         │
+│   │                                                            │
+│   └── branch: feature/phaseX-frontend                          │
+│       └── worktree: .claude/worktrees/frontend/                │
+│           └── Agent: frontend-developer                        │
+│                                                                 │
+│   Benefits:                                                     │
+│   - No context switching between backend/frontend              │
+│   - True parallel development                                  │
+│   - Isolated testing environments                              │
+│   - Independent commit histories                               │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Worktree Commands
 
 ```bash
-head -15 DEVELOPLOG.md CHANGELOG.md IMPLEMENTATION_PLAN.md PRD.md PRODUCT_COMP_ANALYSIS.md TECH_STACK.md FRONTEND_GUIDELINES.md BACKEND_STRUCTURE.md APP_FLOW.md
+# Create backend worktree
+git worktree add .claude/worktrees/backend -b feature/phase10-backend
+
+# Create frontend worktree
+git worktree add .claude/worktrees/frontend -b feature/phase10-frontend
+
+# List worktrees
+git worktree list
+
+# Remove after merge
+git worktree remove .claude/worktrees/backend
+git worktree remove .claude/worktrees/frontend
 ```
-
-**目的：**
-1. 通过每个文档的"文档信息"部分，快速了解各文档功能
-2. 根据当前任务，判断需要深入阅读哪些文档
-3. 建立上下文导航，避免遗漏关键信息
-
-**第二步：深入阅读 (根据任务需要)**
-
-根据扫描结果和当前任务，选择深入阅读：
-
-| 任务类型 | 推荐深入阅读 |
-|----------|-------------|
-| 了解项目状态 | `DEVELOPLOG.md` → `CHANGELOG.md` → `IMPLEMENTATION_PLAN.md` |
-| 产品功能开发 | `PRD.md` + 任务相关技术文档 |
-| 竞品分析 | `PRODUCT_COMP_ANALYSIS.md` → `PRD.md` |
-| 前端开发 | `FRONTEND_GUIDELINES.md` → `APP_FLOW.md` |
-| 后端开发 | `BACKEND_STRUCTURE.md` → `TECH_STACK.md` |
-| 技术决策 | `TECH_STACK.md` + `BACKEND_STRUCTURE.md` |
-
-**第三步：验证环境**
-- [ ] Verify environment variables are set
 
 ---
 
-### Document Responsibilities
+## Quality Gates
 
-| Document | Purpose | Update Timing | Content |
-|----------|---------|---------------|---------|
-| **IMPLEMENTATION_PLAN.md** | Implementation plan | When designing plans | Phase→Step tasks, technical details, dependencies, current status |
-| **CHANGELOG.md** | Change log | After each Step completion | Added/Changed/Fixed/Deprecated (Keep a Changelog format) |
-| **DEVELOPLOG.md** | Development log | After each Phase completion | What I Did/What Went Well/What Could Be Better/Bad Cases |
-| **PRODUCT_COMP_ANALYSIS.md** | Competitive analysis | When analyzing competitors | Product analysis, differentiation opportunities |
+### Technical Review Gate (CTO)
 
-### Update Priority
+```
+┌─────────────────────────────────────────────────────────────────┐
+│   TECHNICAL QUALITY GATE                                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   Grade A (80-89):  APPROVE merge                              │
+│   Grade B (70-79):  CONDITIONAL (fix P0 issues first)          │
+│   Grade C (60-69):  REJECT, substantial rework needed          │
+│   Grade D/F (<60):  REJECT, redesign required                   │
+│                                                                 │
+│   P0 issues BLOCK merge regardless of score                    │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
 
-**When designing a plan:** Update `IMPLEMENTATION_PLAN.md` first
+### Design Review Gate (Chief UI Designer)
 
-**When completing a Step:** Update `CHANGELOG.md`
+```
+┌─────────────────────────────────────────────────────────────────┐
+│   DESIGN QUALITY GATE                                           │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   Grade A (80-89):  APPROVE for production                     │
+│   Grade B (70-79):  Publish with P0 documented                 │
+│   Grade C (60-69):  Block, document as design debt             │
+│   Grade D/F (<60):  Block, needs redesign                       │
+│                                                                 │
+│   Target: Grade A for every page                               │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
 
-**When completing a Phase:** Update `DEVELOPLOG.md`
+---
 
-**CRITICAL: Document Boundaries**
-- NEVER mix Progress Tracking in CHANGELOG.md (belongs in IMPLEMENTATION_PLAN.md)
-- NEVER mix Urgent Tasks in DEVELOPLOG.md (belongs in IMPLEMENTATION_PLAN.md)
-- NEVER mix Session Logs in CHANGELOG.md (belongs in DEVELOPLOG.md)
+## Independent Blog Publishing
+
+### develop_reviewer → Engineering Blog
+
+**Focus:** Technical implementation
+**Output:** `[Step X.Y] Feature - Development Log`
+
+**Content Structure:**
+```markdown
+## Engineering Development Record
+- What I Built
+- Technical Approach
+- Key Files Changed
+- Challenges & Solutions
+- Functional Testing Results
+```
+
+### design_reviewer → Design Blog
+
+**Focus:** UI/UX analysis
+**Output:** `[Page/Feature] - Design Review`
+
+**Content Structure:**
+```markdown
+## Design Review
+- Overall Score (XX/100, Grade X)
+- 10 Metrics Score Breakdown
+- P0/P1/P2 Issues
+- Specific CSS Fixes
+- Competitive Comparison
+```
+
+### Parallel Publishing Workflow
+
+```
+Step Completed
+    │
+    ├── develop_reviewer (PARALLEL)
+    │   ├── Gathers git context
+    │   ├── Documents engineering analysis
+    │   └── Publishes: "Step X.Y - Development Log"
+    │
+    └── design_reviewer (PARALLEL)
+        ├── Captures screenshots
+        ├── Invokes chief-ui-designer
+        └── Publishes: "Page - Design Review"
+
+BOTH run independently and concurrently
+```
+
+---
+
+## Documentation
+
+### Required Reading (Every Session)
+
+| Document | Purpose | Order |
+|----------|---------|-------|
+| `DEVELOPLOG.md` | Project history, lessons, bad cases | **1 - First** |
+| `CHANGELOG.md` | Latest changes, current status | **2 - Second** |
+| `IMPLEMENTATION_PLAN.md` | Current tasks, next steps | **3 - Third** |
+
+### On-Demand Reading
+
+| Document | Purpose | When to Read |
+|----------|---------|--------------|
+| `PRD.md` | Product positioning, user stories | Product decisions |
+| `PRODUCT_COMP_ANALYSIS.md` | Competitive analysis | Differentiation design |
+| `TECH_STACK.md` | Technology choices | Technical details |
+| `FRONTEND_GUIDELINES.md` | Visual design, components | UI work |
+| `BACKEND_STRUCTURE.md` | Database, APIs | Backend work |
+| `APP_FLOW.md` | Page structure, user flows | User journey |
+
+---
+
+## Session Startup Checklist
+
+### 1. Document Navigation Scan (MANDATORY)
+
+```bash
+head -15 DEVELOPLOG.md CHANGELOG.md IMPLEMENTATION_PLAN.md
+```
+
+### 2. Deep Reading (Based on Task)
+
+| Task Type | Read These |
+|-----------|------------|
+| Project status | DEVELOPLOG → CHANGELOG → IMPLEMENTATION_PLAN |
+| Feature development | PRD + relevant technical docs |
+| Competitive analysis | PRODUCT_COMP_ANALYSIS → PRD |
+| Frontend work | FRONTEND_GUIDELINES → APP_FLOW |
+| Backend work | BACKEND_STRUCTURE → TECH_STACK |
+
+### 3. Environment Verification
+
+- [ ] Environment variables set
+- [ ] Dependencies installed
+- [ ] Database connected
+
+---
 
 ## Critical Rules
 
@@ -186,131 +306,76 @@ head -15 DEVELOPLOG.md CHANGELOG.md IMPLEMENTATION_PLAN.md PRD.md PRODUCT_COMP_A
 - Parameterized queries only
 - CSRF protection enabled
 
-## File Structure
+### 5. Quality Gates
 
-```
-src/
-|-- app/              # Next.js app router
-|-- components/       # Reusable UI components
-|-- hooks/            # Custom React hooks
-|-- lib/              # Utility libraries
-|-- types/            # TypeScript definitions
-```
-
-## Key Patterns
-
-### API Response Format
-
-```typescript
-interface ApiResponse<T> {
-  success: boolean
-  data?: T
-  error?: string
-}
-```
-
-### Error Handling
-
-```typescript
-try {
-  const result = await operation()
-  return { success: true, data: result }
-} catch (error) {
-  console.error('Operation failed:', error)
-  return { success: false, error: 'User-friendly message' }
-}
-```
-
-## Environment Variables
-
-```bash
-# Required
-DATABASE_URL=
-API_KEY=
-
-# Optional
-DEBUG=false
-```
-
-## Available Commands
-
-- `/tdd` - Test-driven development workflow
-- `/plan` - Create implementation plan
-- `/code-review` - Review code quality
-- `/build-fix` - Fix build errors
-
-## Git Workflow
-
-- Conventional commits: `feat:`, `fix:`, `refactor:`, `docs:`, `test:`
-- Never commit to main directly
-- PRs require review
-- All tests must pass before merge
+- Technical review: Grade A required for merge
+- Design review: Grade A target for every page
+- P0 issues block merge/publish
 
 ---
 
-## Development Workflow Rules
+## Agent Invocation Rules
 
-### Agent & Skill Usage
+### Mandatory Agent Usage
 
-**MUST proactively use appropriate agents and skills:**
+| Scenario | Agent | Trigger |
+|----------|-------|---------|
+| Complex feature planning | `planner` | Before implementation |
+| Step completion | `develop_reviewer` | After git commit |
+| UI/UX analysis | `design_reviewer` | After frontend changes |
+| Technical review | `chief-technology-officer` | Before merge |
+| Design critique | `chief-ui-designer` | Via design_reviewer |
+| Code quality | `code-reviewer` | Via CTO |
+| Security audit | `security-reviewer` | Via CTO |
+| Database optimization | `database-reviewer` | SQL/migrations |
+| TDD development | `tdd-guide` | When writing features |
+| Competitive analysis | `competitive-analyzer` | Analyzing competitors |
 
-| Scenario | Agent/Skill | Trigger |
-|----------|-------------|---------|
-| Complex feature planning | `planner` agent | Before implementation |
-| Code quality check | `code-reviewer` agent | After writing code |
-| TDD development | `tdd-guide` agent / `/tdd` | When writing features |
-| Security analysis | `security-reviewer` agent | Before commits |
-| Build errors | `build-error-resolver` agent | When build fails |
-| E2E testing | `e2e-runner` agent | Critical user flows |
-| Database operations | `database-reviewer` agent | SQL/migrations |
-| Documentation | `doc-updater` agent | After changes |
-| **Competitive analysis** | **`competitive-analyzer` agent** | **When analyzing competitor products** |
-| **Step completion blog** | **`develop_reviewer` agent** | **After each Step is committed** |
+### Proactive Agent Invocation
 
----
+**After Step completion, invoke in parallel:**
 
-### 🔴 CRITICAL: Mandatory Step Completion Blog (NEW)
-
-**After completing ANY Step and committing to git, you MUST:**
-
-1. **Invoke `develop_reviewer` agent** to help create a Viblog blog post
-2. **Blog must contain two sections:**
-   - **Engineering Development Record** - What was built, technical approach, challenges
-   - **User Experience Testing** - Playwright testing of deployed features, screenshots, feedback
-3. **Publish the blog on Viblog** before moving to the next Step
-
-**Standard Workflow:**
 ```
-Complete Step → Update CHANGELOG.md → Commit to Git →
-Invoke develop_reviewer agent → Publish Blog to Viblog →
-Update IMPLEMENTATION_PLAN.md → Proceed to Next Step
-```
-
-**Why This Matters:**
-- Viblog is its own first user - dogfooding is essential
-- Step-level documentation is more granular than Phase-level DEVELOPLOG.md
-- Real-world UX testing catches issues early
-- Creates content habit and demonstrates platform value
-
-**Blog Post Format:**
-```
-Title: [Step X.Y] Feature Name - Development Log
-
-Content:
-- What I Built
-- Technical Details
-- Challenges & Solutions
-- User Experience Testing (with screenshots)
-- Recommendations
+1. develop_reviewer → Engineering blog
+2. design_reviewer → Design blog
+3. chief-technology-officer → Technical review (optional, for major changes)
 ```
 
 ---
 
-### 🔴 Competitive Analysis Workflow (CRITICAL - READ BEFORE EXECUTION)
+## Step Completion Workflow
 
-**When performing competitive analysis, MUST use `competitive-analyzer` agent OR follow these rules:**
+### Standard Flow
 
-#### Model Capabilities (CRITICAL)
+```
+Complete Step
+    │
+    ├── Update CHANGELOG.md
+    ├── Commit to Git
+    │
+    ├── develop_reviewer (PARALLEL)
+    │   └── Publish Engineering Blog
+    │
+    ├── design_reviewer (PARALLEL)
+    │   └── Publish Design Blog
+    │
+    └── Update IMPLEMENTATION_PLAN.md
+```
+
+### Quality Gate Enforcement
+
+```
+Before Merge:
+├── Technical Review (CTO)
+│   └── Grade A required, or fix P0 issues
+│
+└── Design Review (Chief UI Designer)
+    └── Grade A target, or document P0 issues
+```
+
+---
+
+## Model Capabilities (CRITICAL)
 
 | Model | Vision? | CRITICAL NOTE |
 |-------|---------|---------------|
@@ -326,269 +391,124 @@ Content:
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-#### 6 MANDATORY RULES
-
-| Rule | Requirement | Consequence of Violation |
-|------|-------------|--------------------------|
-| **RULE 1** | Save Step 1 data to *.md BEFORE Step 2 | Data loss on rollback |
-| **RULE 2** | Playwright deep explore (5-8+ screenshots) | Incomplete analysis |
-| **RULE 3** | STOP after Playwright, wait for user confirm | Broken workflow |
-| **RULE 4** | Sequential batch vision (NOT parallel) | Context overflow errors |
-| **RULE 5** | Report only after ALL visual analysis | Incomplete report |
-| **RULE 6** | Update IMPLEMENTATION_PLAN + CHANGELOG | Lost tracking |
-
-**Full workflow:** See `PRODUCT_COMP_ANALYSIS.md` Section 0
-
 ---
 
-### Context Management
+## Visual Analysis Workflow
 
-**MUST manage context length proactively:**
+### Sequential Batch Processing (MANDATORY)
 
-1. **Read CHANGELOG.md** at the start of each session
-2. **Update CHANGELOG.md** after completing tasks
-3. **Use `/compact`** when context approaches limits
-4. **Save session state** before major context switches
-
-### Development Isolation
-
-**Use isolation modes appropriately:**
-
-| Mode | When to Use |
-|------|-------------|
-| `/sandbox` | Testing uncertain code, experiments |
-| `git worktree` | Parallel feature development |
-| `claude --worktrees` | Multiple independent features |
-
-**Worktree workflow:**
-```bash
-# Create worktree for new feature
-git worktree add .claude/worktrees/feature-name -b feature/feature-name
-
-# Work in isolated environment
-cd .claude/worktrees/feature-name
-
-# After completion, merge and clean up
-git worktree remove .claude/worktrees/feature-name
 ```
-
-### Environment Setup
-
-**Use appropriate package managers:**
-
-| Dependency Type | Tool | Command |
-|-----------------|------|---------|
-| Node.js packages | `pnpm` | `pnpm add package-name` |
-| Python packages | `uv` | `uv add package-name` |
-| System packages | `brew` | `brew install package-name` |
-| Containerization | `docker` | `docker compose up` |
-
-**Global dependencies via Homebrew:**
-```bash
-# Node.js
-brew install node@20
-
-# pnpm
-brew install pnpm
-
-# Python/uv
-brew install python
-brew install uv
-```
-
-### CI/CD Configuration
-
-**Docker-based CI/CD setup:**
-```bash
-# Build
-docker compose build
-
-# Test
-docker compose run --rm app pnpm test
-
-# Deploy preparation
-docker compose -f docker-compose.prod.yml up --build
+┌─────────────────────────────────────────────────────────────────┐
+│   FOR EACH screenshot (ONE AT A TIME):                          │
+│                                                                 │
+│   1. Invoke image-analyzer-kimi skill with ONE screenshot       │
+│   2. Receive visual analysis result                             │
+│   3. SAVE result to tmp file immediately                        │
+│   4. Clear context before next image                            │
+│   5. Repeat for next screenshot                                 │
+│                                                                 │
+│   ❌ NEVER process multiple images in parallel                   │
+│   ❌ NEVER accumulate outputs in single context                 │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Step & Phase Completion Workflow
+## Context Management
 
-### After Completing Each Step:
+### Token Thresholds
 
-1. **Update CHANGELOG.md**
-   - Add entry to appropriate section (Added/Changed/Fixed)
-   - Describe the change briefly
-   - Commit with message: `docs: update CHANGELOG for Step X.Y`
+| Model | Warning Threshold |
+|-------|-------------------|
+| glm-5 | ~59,000 tokens |
+| MiniMax-M2.5 | ~90,000 tokens |
+| qwen3.5-plus | ~59,000 tokens |
 
-2. **Update IMPLEMENTATION_PLAN.md**
-   - Mark Step status as "Completed"
-   - Update any relevant notes
+### Context Overflow Protocol
 
-### After Completing Each Phase:
-
-1. **Update DEVELOPLOG.md**
-   - Add "What I Did" section
-   - Add "What Went Well" section
-   - Add "What Could Be Better" section
-   - Document any new Bad Cases if mistakes occurred
-
-2. **Update IMPLEMENTATION_PLAN.md**
-   - Mark Phase as "Completed"
-   - Update current phase indicator
-
-3. **Create PR and Merge**
-   - Push branch to remote
-   - Create PR with summary
-   - Merge to main when approved
+1. Update CHANGELOG.md with current state
+2. Commit: `docs: context overflow - update CHANGELOG`
+3. Execute `/strategic-compact`
+4. Repeat if still approaching threshold
+5. Notify user for `/clear` if needed
 
 ---
 
-## Model Context Window Limits
+## Git Workflow
 
-**CRITICAL: Prevent context overflow by monitoring token usage.**
-
-### Context Window Specifications (from official docs)
-
-| Model | Max Context (tokens) | Available (50%) | Warning (90% of Available) |
-|-------|---------------------|-----------------|---------------------------|
-| **glm-5** | 131,072 (128K) | 65,536 (64K) | 58,982 (~59K) |
-| **glm-4.7** | 131,072 (128K) | 65,536 (64K) | 58,982 (~59K) |
-| **glm-4.6** | 131,072 (128K) | 65,536 (64K) | 58,982 (~59K) |
-| **glm-4.5** | 98,304 (96K) | 49,152 (48K) | 44,237 (~44K) |
-| **MiniMax-M2.5** | 200,000 (200K) | 100,000 (100K) | 90,000 (90K) |
-| **qwen3.5-plus** | 131,072 (128K) | 65,536 (64K) | 58,982 (~59K) |
-
-**Sources:**
-- GLM: https://docs.z.ai/guides/overview/concept-param
-- MiniMax: https://platform.minimax.io/docs/coding-plan/best-practices
-- Qwen: https://qwenlm.github.io/blog/qwen2.5-turbo/
-
-### Context Management Rules
-
-**Available Context = 50% of Max Context Window**
-
-Why 50%? Because:
-1. System prompts consume ~10-15K tokens
-2. Extended thinking reserves up to 32K tokens
-3. Output generation needs headroom
-4. Safety margin prevents abrupt truncation
-
-### Step-Level Context Check Protocol
-
-**After completing EACH Step (not Phase):**
-
-1. **Check current token usage** via `~/.claude.json`:
-   - Look for `lastTotalInputTokens` and `lastTotalOutputTokens`
-   - Calculate: `current_usage = inputTokens + outputTokens`
-
-2. **Compare against thresholds:**
-   - If `current_usage >= Warning Threshold` (90% of Available):
-     - STOP and execute Context Overflow Protocol
-
-3. **Context Overflow Protocol:**
-   a. Update CHANGELOG.md immediately:
-      - Mark current step status
-      - List completed files
-      - Note any pending work
-      - Add session notes for next session
-   b. Commit all changes with message: `docs: context overflow - update CHANGELOG`
-   c. **Auto-compact:** Execute `/strategic-compact` to compress context
-   d. **Repeat compact** if still approaching threshold after first compression
-   e. **Notify user for /clear** only when:
-      - Multiple compacts failed to reduce context below threshold
-      - AND CHANGELOG.md + git status provide complete recovery information:
-        - All completed steps documented
-        - All pending work clearly listed
-        - File changes committed or staged
-        - Next step clearly identified
-
-### Token Usage Detection Method
-
-Check `~/.claude.json` at project path:
-```json
-{
-  "projects": {
-    "/Volumes/Workspace/StartUp/TiicBlog": {
-      "lastTotalInputTokens": XXXXX,
-      "lastTotalOutputTokens": XXXXX,
-      "lastModelUsage": {
-        "glm-5[1m]": {
-          "inputTokens": XXXXX,
-          "outputTokens": XXXXX
-        }
-      }
-    }
-  }
-}
-```
-
-**Calculation:** `total_tokens = lastTotalInputTokens + lastTotalOutputTokens`
-
----
-
-## Context Compaction Strategy
-
-**Compact at Phase boundaries, NOT Step boundaries:**
-
-| Timing | Action | Reason |
-|--------|--------|--------|
-| After Step | Check tokens, update CHANGELOG if near limit | Preserve context for related steps |
-| After Phase | Strategic compact | Phases are independent units |
-
-**Why compact after Phase completion:**
-- Steps within a Phase are tightly coupled
-- Compacting mid-Phase loses shared context
-- Phase boundaries are natural stopping points
-- CHANGELOG.md preserves all progress details
-
-**Compact trigger:** When a Phase is marked complete in CHANGELOG.md OR when approaching context limit
+- Conventional commits: `feat:`, `fix:`, `refactor:`, `docs:`, `test:`
+- Never commit to main directly
+- PRs require Grade A technical review
+- All tests must pass before merge
 
 ---
 
 ## Session Checklist
 
-### At the start of each session (文档导航):
-- [ ] Execute `head -15 *.md` to scan all document headers
-- [ ] Identify which documents to read in depth based on current task
-- [ ] Verify environment variables are set
+### Start of Session
+- [ ] Scan document headers: `head -15 *.md`
+- [ ] Read DEVELOPLOG → CHANGELOG → IMPLEMENTATION_PLAN
+- [ ] Verify environment variables
 
-### During development (按需深入阅读):
-- [ ] Reference `PRD.md` when making product decisions
-- [ ] Reference `PRODUCT_COMP_ANALYSIS.md` for competitive insights
-- [ ] Reference `FRONTEND_GUIDELINES.md` for UI patterns
-- [ ] Reference `BACKEND_STRUCTURE.md` for API/database questions
-- [ ] Reference `DEVELOPLOG.md` "Bad Cases" to avoid repeat mistakes
-- [ ] Use appropriate agents/skills proactively
-- [ ] Monitor context length (check tokens after each Step)
+### During Development
+- [ ] Use appropriate agents proactively
+- [ ] Monitor context length
+- [ ] Reference relevant documentation
 
-### After completing each Step:
-- [ ] Update `CHANGELOG.md` with changes
-- [ ] Update `IMPLEMENTATION_PLAN.md` step status
-- [ ] Check token usage in `~/.claude.json`
-- [ ] If approaching 90% of Available Context:
-  - [ ] Commit changes: `docs: step X.Y complete`
-  - [ ] Execute `/strategic-compact` to compress context
+### After Step Completion
+- [ ] Update CHANGELOG.md
+- [ ] Commit to Git
+- [ ] Invoke develop_reviewer (engineering blog)
+- [ ] Invoke design_reviewer (design blog)
+- [ ] Update IMPLEMENTATION_PLAN.md
 
-### After completing each Phase:
-- [ ] Update `DEVELOPLOG.md` with lessons learned
-- [ ] Update `IMPLEMENTATION_PLAN.md` phase status
-- [ ] Commit changes with conventional commits
-- [ ] Note any blockers for next session
-
-### At the end of each session:
-- [ ] Ensure all completed steps are documented
-- [ ] Ensure `IMPLEMENTATION_PLAN.md` reflects current state
-- [ ] Commit all pending changes
+### After Phase Completion
+- [ ] Update DEVELOPLOG.md
+- [ ] Create PR and merge
+- [ ] Strategic compact if needed
 
 ---
 
-## Quick Reference: Token Thresholds
+## Quick Reference
 
-| Model | Stop & Update CHANGELOG at |
-|-------|---------------------------|
-| glm-5 | ~59,000 tokens |
-| MiniMax-M2.5 | ~90,000 tokens |
-| qwen3.5-plus | ~59,000 tokens |
+### 10 Technical Metrics (CTO)
 
-**Current session model:** Check your model and use the corresponding threshold.
+1. Architecture Alignment
+2. Code Quality
+3. Performance Impact
+4. Security Posture
+5. Test Coverage
+6. Error Handling
+7. Maintainability
+8. Scalability
+9. Documentation
+10. Technical Debt
+
+### 10 Design Metrics (Chief UI Designer)
+
+1. Visual Hierarchy
+2. Balance & Layout
+3. Typography
+4. Color Harmony
+5. Spacing System
+6. Component Design
+7. Micro-interactions
+8. Responsive Design
+9. Brand Identity
+10. Premium Feel
+
+### Grade Scale
+
+| Score | Grade | Action |
+|-------|-------|--------|
+| 90-100 | S | Reference implementation |
+| 80-89 | A | Approve merge/publish |
+| 70-79 | B | Conditional (fix P0) |
+| 60-69 | C | Reject, rework needed |
+| <60 | D/F | Redesign required |
+
+---
+
+**Document Version:** 3.0
+**Last Updated:** 2026-03-16
+**Mission:** Make Viblog the #1 AI-Native Blog Platform globally
