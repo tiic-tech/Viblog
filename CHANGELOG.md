@@ -14,6 +14,26 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- **Phase 10.1: Database Infrastructure (2026-03-16):**
+  - Enabled pgvector extension for vector similarity search
+  - Created 11 new AI-Data-Native tables with RLS policies:
+    - `graph_nodes`, `graph_edges` - JSONB-based knowledge graph fallback
+    - `external_links` - User external link citations with embeddings
+    - `user_insights` - User reflections with vector embeddings
+    - `insight_links` - Insight-source associations
+    - `article_paragraphs` - Paragraph-level content for retrieval
+    - `annotations` - Medium-style highlights and margin notes
+    - `user_interactions` - Behavioral analytics (time-series)
+    - `user_credits`, `credit_transactions` - Credits system
+    - `authorization_tokens` - MCP API and authorization tokens
+  - Created token generation utility (`src/lib/token-generator.ts`)
+  - Created token verification utility (`src/lib/token-verification.ts`)
+  - Created MCP API Keys endpoint (`/api/user/mcp-keys`)
+  - Created Authorization Tokens endpoint (`/api/user/authorization-tokens`)
+  - Updated TypeScript types for all new tables
+  - Documented All-in-One PostgreSQL architecture with microservice migration paths
+
 ### Changed
 - **CLAUDE.md Complete Rewrite (2026-03-16):**
   - Version 3.0 - Complete team architecture documentation

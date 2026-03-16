@@ -16,16 +16,20 @@ export interface DecryptedApiKeys {
 /**
  * Get decrypted API keys for the current user
  */
-export async function getDecryptedApiKeys(): Promise<DecryptedApiKeys> {
+export async function getDecryptedApiKeys(): Promise<DecryptedApiKeys | null> {
   try {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
     if (!user) return null
 
     const { data: settings, error } = await supabase
       .from('user_settings')
-      .select('llm_provider, llm_model, llm_api_key_encrypted, database_type, database_url_encrypted')
+      .select(
+        'llm_provider, llm_model, llm_api_key_encrypted, database_type, database_url_encrypted'
+      )
       .eq('user_id', user.id)
       .single()
 
@@ -54,12 +58,14 @@ export async function getDecryptedApiKeys(): Promise<DecryptedApiKeys> {
     }
 
     return {
-      llm: settings.llm_provider || settings.llm_model || decryptedApiKey
-        ? { provider: settings.llm_provider, model: settings.llm_model, apiKey: decryptedApiKey }
-        : null,
-      database: settings.database_type || decryptedDbUrl
-        ? { type: settings.database_type, connectionString: decryptedDbUrl }
-        : null,
+      llm:
+        settings.llm_provider || settings.llm_model || decryptedApiKey
+          ? { provider: settings.llm_provider, model: settings.llm_model, apiKey: decryptedApiKey }
+          : null,
+      database:
+        settings.database_type || decryptedDbUrl
+          ? { type: settings.database_type, connectionString: decryptedDbUrl }
+          : null,
     }
   } catch {
     return null

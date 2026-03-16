@@ -751,58 +751,53 @@ Rationale:
 
 ### Phase 10.1: Database Infrastructure (Week 1-2)
 
-#### Step 10.1.1: Enable Vector and Graph Extensions
-**Status:** Pending
+**Status:** COMPLETED (2026-03-16)
 
-**Deliverable:** PostgreSQL extensions enabled
+#### Step 10.1.1: Enable Vector and Graph Extensions
+**Status:** Completed
+
+**Deliverable:** PostgreSQL extensions enabled (pgvector), fallback implementations for AGE/TimescaleDB
 
 **Tasks:**
-- [ ] Enable pgvector extension
-- [ ] Enable Apache AGE extension (or evaluate alternatives)
-- [ ] Configure TimescaleDB extension
-- [ ] Test extension functionality
-
-```sql
--- Enable extensions
-CREATE EXTENSION IF NOT EXISTS vector;
-CREATE EXTENSION IF NOT EXISTS age;
-CREATE EXTENSION IF NOT EXISTS timescaledb;
-```
+- [x] Enable pgvector extension
+- [x] Create JSONB-based graph storage (graph_nodes, graph_edges) as Apache AGE fallback
+- [x] Create time-optimized indices as TimescaleDB fallback
+- [x] Document microservice migration paths for future extraction
 
 ---
 
 #### Step 10.1.2: Create AI-Data-Native Tables
-**Status:** Pending
+**Status:** Completed
 
 **Deliverable:** All new tables with RLS policies
 
 **Tasks:**
-- [ ] Create `external_links` table (User DB)
-- [ ] Create `user_insights` table (User DB)
-- [ ] Create `insight_links` table (User DB)
-- [ ] Create `article_paragraphs` table (Platform DB)
-- [ ] Create `annotations` table (Platform DB)
-- [ ] Create `user_interactions` table (Platform DB)
-- [ ] Create `user_credits` table (Platform DB)
-- [ ] Create `credit_transactions` table (Platform DB)
-- [ ] Create `authorization_tokens` table (Platform DB)
-- [ ] Add RLS policies for all tables
-- [ ] Generate TypeScript types
+- [x] Create `external_links` table (User DB)
+- [x] Create `user_insights` table (User DB)
+- [x] Create `insight_links` table (User DB)
+- [x] Create `article_paragraphs` table (Platform DB)
+- [x] Create `annotations` table (Platform DB)
+- [x] Create `user_interactions` table (Platform DB)
+- [x] Create `user_credits` table (Platform DB)
+- [x] Create `credit_transactions` table (Platform DB)
+- [x] Create `authorization_tokens` table (Platform DB)
+- [x] Add RLS policies for all tables
+- [x] Generate TypeScript types
 
 ---
 
 #### Step 10.1.3: MCP API Key and Authorization Token System
-**Status:** Pending
+**Status:** Completed
 
 **Deliverable:** Secure key/token generation and management
 
 **Tasks:**
-- [ ] Create API key generation endpoint
-- [ ] Create authorization token generation endpoint
-- [ ] Implement secure key hashing (SHA-256)
-- [ ] Add key/token display in settings page (masked)
-- [ ] Implement key/token revocation endpoints
-- [ ] Add last-used tracking
+- [x] Create API key generation endpoint
+- [x] Create authorization token generation endpoint
+- [x] Implement secure key hashing (SHA-256)
+- [x] Add key/token display in settings page (masked)
+- [x] Implement key/token revocation endpoints
+- [x] Add last-used tracking
 
 **Key Format:**
 - MCP API Key: `vb_xxxxxxxxxxxxxxxxxxxxxxxx`

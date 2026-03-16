@@ -295,25 +295,51 @@ USING hnsw (embedding vector_cosine_ops);
 
 ### 10.2 Knowledge Graph
 
-| Option | Version | Purpose | Notes |
-|--------|---------|---------|-------|
-| Apache AGE | 1.5.0 | Graph extension for PostgreSQL | Recommended for MVP |
-| Neo4j | 5.x | Dedicated graph database | Future consideration |
-| RedisGraph | 2.x | In-memory graph | Performance-critical scenarios |
+**Current Status (MVP):** Supabase does not support Apache AGE extension. Using JSONB-based fallback.
 
-**Apache AGE Configuration:**
+| Option | Version | Purpose | Status |
+|--------|---------|---------|--------|
+| Apache AGE | 1.5.0 | Graph extension for PostgreSQL | NOT AVAILABLE on Supabase |
+| **JSONB Graph Tables** | N/A | Fallback implementation | **IMPLEMENTED** |
+| Neo4j | 5.x | Dedicated graph database | Future microservice |
+
+**Fallback Implementation (graph_nodes + graph_edges):**
 ```sql
--- Enable Apache AGE extension
-CREATE EXTENSION IF NOT EXISTS age;
+-- Graph Nodes Table (fallback for Apache AGE)
+CREATE TABLE graph_nodes (
+  id UUID PRIMARY KEY,
+  user_id UUID NOT NULL,
+  node_type TEXT NOT NULL CHECK (node_type IN ('user', 'article', 'topic', 'technology', 'insight', 'external_link')),
+  node_data JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
 
--- Create graph
-SELECT create_graph('viblog_knowledge');
+-- Graph Edges Table (fallback for Apache AGE)
+CREATE TABLE graph_edges (
+  id UUID PRIMARY KEY,
+  user_id UUID NOT NULL,
+  source_node_id UUID NOT NULL REFERENCES graph_nodes(id),
+  target_node_id UUID NOT NULL REFERENCES graph_nodes(id),
+  edge_type TEXT NOT NULL CHECK (edge_type IN ('wrote', 'cites', 'related_to', 'uses', 'inspired_by', 'follows')),
+  edge_data JSONB DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
 
--- Example: Create user-article relationship
-SELECT * FROM cypher('viblog_knowledge', $$
-  CREATE (u:User {id: 'user-uuid'})-[:WROTE]->(a:Article {id: 'article-uuid'})
-  RETURN u, a
-$$) as (u agtype, a agtype);
+**Future Migration to Neo4j (Microservice Architecture):**
+```
+Migration Path:
+1. Create graph_sync_service (Node.js/Go)
+2. Implement CDC (Change Data Capture) from PostgreSQL
+3. Sync graph_nodes/edges to Neo4j in real-time
+4. Update API layer to query Neo4j for graph operations
+5. PostgreSQL tables remain as source-of-truth
+
+Technical Reserve:
+- Abstract graph operations behind IGraphRepository interface
+- Use dependency injection for easy swapping
+- Document Cypher query equivalents in comments
 ```
 
 **Graph Schema:**
@@ -337,32 +363,40 @@ Edge Types:
 
 ### 10.3 Time Series Database
 
-| Package | Version | Purpose |
-|---------|---------|---------|
-| TimescaleDB | 2.x | PostgreSQL extension for time series |
-| PostgreSQL Partitioning | 15+ | Native table partitioning (alternative) |
+**Current Status (MVP):** Supabase does not support TimescaleDB extension. Using native PostgreSQL indexing and partitioning.
 
-**TimescaleDB Configuration:**
+| Package | Version | Purpose | Status |
+|---------|---------|---------|--------|
+| TimescaleDB | 2.x | PostgreSQL extension for time series | NOT AVAILABLE on Supabase |
+| **PostgreSQL Native Indexing** | 15+ | Time-based indices | **IMPLEMENTED** |
+| InfluxDB | 3.x | Dedicated time series database | Future microservice |
+
+**Fallback Implementation (user_interactions table):**
 ```sql
--- Enable TimescaleDB extension
-CREATE EXTENSION IF NOT EXISTS timescaledb;
+-- Time-optimized indices (fallback for TimescaleDB)
+CREATE INDEX idx_user_interactions_user ON public.user_interactions(user_id);
+CREATE INDEX idx_user_interactions_created_at ON public.user_interactions(created_at DESC);
+CREATE INDEX idx_user_interactions_type ON public.user_interactions(interaction_type);
 
--- Create hypertable for user interactions
-SELECT create_hypertable(
-  'user_interactions',
-  'created_at',
-  chunk_time_interval => INTERVAL '1 month'
-);
+-- Future: Native partitioning for large datasets
+-- CREATE TABLE user_interactions_y2026m03 PARTITION OF user_interactions
+--   FOR VALUES FROM ('2026-03-01') TO ('2026-04-01');
+```
 
--- Create continuous aggregate for daily stats
-CREATE MATERIALIZED VIEW daily_interactions
-WITH (timescaledb.continuous) AS
-SELECT
-  time_bucket('1 day', created_at) AS day,
-  interaction_type,
-  COUNT(*) as count
-FROM user_interactions
-GROUP BY day, interaction_type;
+**Future Migration to TimescaleDB/InfluxDB (Microservice Architecture):**
+```
+Migration Path:
+1. Create analytics_service (Go/Rust for high throughput)
+2. Implement event streaming (Kafka/Redis Streams)
+3. Dual-write to PostgreSQL (source-of-truth) and TimescaleDB
+4. Add read replicas for analytics queries
+5. Implement data retention policies
+
+Technical Reserve:
+- Abstract time-series operations behind ITimeSeriesRepository interface
+- Use event sourcing pattern for replay capability
+- Document aggregation queries in separate module
+- Design API endpoints to support both real-time and batch queries
 ```
 
 ### 10.4 AI Data Access Protocol
@@ -380,6 +414,70 @@ GROUP BY day, interaction_type;
 | Embedding generation | ~500 tokens | $0.00002 | ~$10 for 500K tokens |
 | Vector search | ~100 tokens | $0.00002 | ~$5 for 250K queries |
 | Structured data API | ~1000 tokens | $0.003 (Sonnet) | ~$30 for 10K requests |
+
+### 10.5 All-in-One PostgreSQL Architecture (MVP)
+
+**Design Principle:** Use PostgreSQL as the single data store for MVP, with clear abstraction layers for future microservice extraction.
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                     CURRENT MVP ARCHITECTURE                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   PostgreSQL (Supabase)                                                     │
+│   ├── Relational Data (profiles, articles, projects, etc.)                  │
+│   ├── Vector Data (pgvector - article_paragraphs, user_insights)            │
+│   ├── Graph Data (JSONB - graph_nodes, graph_edges)                        │
+│   └── Time Series Data (indexed - user_interactions)                        │
+│                                                                             │
+│   Benefits:                                                                 │
+│   - Single database to manage                                               │
+│   - Simplified deployment                                                   │
+│   - Lower operational costs                                                 │
+│   - ACID transactions across all data types                                 │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Future Microservice Extraction Points:**
+
+| Service | Extract From | Trigger Condition | Target Technology |
+|---------|--------------|-------------------|-------------------|
+| Graph Service | graph_nodes, graph_edges | >1M nodes | Neo4j / AWS Neptune |
+| Analytics Service | user_interactions | >100M rows | TimescaleDB / ClickHouse |
+| Vector Service | article_paragraphs embeddings | >10M vectors | Pinecone / Weaviate |
+| Search Service | Full-text search | Complex queries | Elasticsearch / Meilisearch |
+
+**Abstraction Layer Requirements:**
+```typescript
+// Repository interfaces for future decoupling
+interface IGraphRepository {
+  createNode(type: NodeType, data: NodeData): Promise<Node>
+  createEdge(source: string, target: string, type: EdgeType): Promise<Edge>
+  queryGraph(cypher: string): Promise<GraphResult>
+}
+
+interface ITimeSeriesRepository {
+  insert(metric: Metric): Promise<void>
+  queryRange(start: Date, end: Date): Promise<Metric[]>
+  aggregate(interval: string): Promise<Aggregation[]>
+}
+
+interface IVectorRepository {
+  upsert(id: string, embedding: number[]): Promise<void>
+  search(query: number[], k: number): Promise<SearchResult[]>
+}
+```
+
+**Migration Checklist (when extracting):**
+- [ ] Create repository interface
+- [ ] Implement PostgreSQL adapter (current)
+- [ ] Implement target service adapter
+- [ ] Add feature flag for switching
+- [ ] Implement data sync mechanism
+- [ ] Run dual-write period
+- [ ] Verify consistency
+- [ ] Cut over to new service
 
 ---
 
