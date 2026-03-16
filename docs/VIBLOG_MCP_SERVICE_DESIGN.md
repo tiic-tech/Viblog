@@ -1,10 +1,17 @@
 # Viblog MCP Service - Design Document
 
 ## Document Information
-- **Version:** 1.0
+- **Version:** 4.0
 - **Created:** 2026-03-15
+- **Updated:** 2026-03-16
 - **Status:** Draft for Review
 - **Author:** Viblog Team
+
+**Version History:**
+- v4.0: Added Layer 6/7/8 MCP tools, AIDataSchema v2.0, Credits System
+- v3.0: Added AI-Data-Native Architecture (Section 10)
+- v2.0: Added Draft Bucket tools and knowledge graph integration
+- v1.0: Initial design with 5-layer architecture
 
 ---
 
@@ -1440,7 +1447,366 @@ Personal Settings > AI Authorization
 
 ---
 
-## 11. References
+## 12. MCP Tool Layers Extension (Added 2026-03-16)
+
+### 12.1 Overview
+
+Extended from the original 5 layers to 8 layers, adding:
+
+- **Layer 6:** Multimedia Management - Images, videos, media assets
+- **Layer 7:** Social Distribution - Cross-platform sharing and viral growth
+- **Layer 8:** MCP Governance - Third-party MCP marketplace and management
+
+### 12.2 Layer 6: Multimedia Management
+
+```typescript
+// Tool: upload_media_asset
+{
+  name: "upload_media_asset",
+  description: "Upload image or video asset to article",
+  inputSchema: {
+    type: "object",
+    properties: {
+      article_id: { type: "string" },
+      file_type: { type: "string", enum: ["image", "video_thumbnail"] },
+      file_data: { type: "string", description: "Base64 encoded file" },
+      file_name: { type: "string" },
+      alt_text: { type: "string" }
+    },
+    required: ["article_id", "file_type", "file_data", "file_name"]
+  }
+}
+
+// Tool: link_video_to_article
+{
+  name: "link_video_to_article",
+  description: "Link external video platform video to article",
+  inputSchema: {
+    type: "object",
+    properties: {
+      article_id: { type: "string" },
+      platform: { type: "string", enum: ["youtube", "tiktok", "bilibili", "douyin", "vimeo"] },
+      video_url: { type: "string" }
+    },
+    required: ["article_id", "platform", "video_url"]
+  }
+}
+
+// Tool: sync_video_metadata
+{
+  name: "sync_video_metadata",
+  description: "Sync video metadata from platform API",
+  inputSchema: {
+    type: "object",
+    properties: {
+      video_link_id: { type: "string" }
+    },
+    required: ["video_link_id"]
+  }
+}
+```
+
+### 12.3 Layer 7: Social Distribution
+
+```typescript
+// Tool: bind_social_account
+{
+  name: "bind_social_account",
+  description: "Initiate OAuth flow to bind social platform account",
+  inputSchema: {
+    type: "object",
+    properties: {
+      platform: {
+        type: "string",
+        enum: ["facebook", "x", "linkedin", "instagram", "xiaohongshu", "weibo", "zhihu"]
+      },
+      redirect_url: { type: "string" }
+    },
+    required: ["platform"]
+  }
+}
+
+// Tool: configure_platform_prompt
+{
+  name: "configure_platform_prompt",
+  description: "Configure AI prompt for platform-specific content adaptation",
+  inputSchema: {
+    type: "object",
+    properties: {
+      platform: { type: "string" },
+      prompt: { type: "string", description: "Prompt for content adaptation" },
+      tone: { type: "string", enum: ["professional", "casual", "humorous", "inspirational", "educational"] },
+      include_hashtags: { type: "boolean" },
+      max_length: { type: "integer" }
+    },
+    required: ["platform", "prompt"]
+  }
+}
+
+// Tool: generate_share_content
+{
+  name: "generate_share_content",
+  description: "Generate platform-adapted content using LLM",
+  inputSchema: {
+    type: "object",
+    properties: {
+      article_id: { type: "string" },
+      platform: { type: "string" },
+      use_custom_prompt: { type: "boolean" }
+    },
+    required: ["article_id", "platform"]
+  }
+}
+
+// Tool: one_click_share
+{
+  name: "one_click_share",
+  description: "Share article to all connected platforms",
+  inputSchema: {
+    type: "object",
+    properties: {
+      article_id: { type: "string" },
+      platforms: {
+        type: "array",
+        items: { type: "string" },
+        description: "Platforms to share to (empty = all connected)"
+      }
+    },
+    required: ["article_id"]
+  }
+}
+
+// Tool: get_share_analytics
+{
+  name: "get_share_analytics",
+  description: "Get cross-platform share performance analytics",
+  inputSchema: {
+    type: "object",
+    properties: {
+      article_id: { type: "string" },
+      platform: { type: "string" },
+      date_range: { type: "object" }
+    },
+    required: ["article_id"]
+  }
+}
+```
+
+### 12.4 Layer 8: MCP Governance
+
+```typescript
+// Tool: browse_mcp_market
+{
+  name: "browse_mcp_market",
+  description: "Browse available third-party MCPs in marketplace",
+  inputSchema: {
+    type: "object",
+    properties: {
+      category: { type: "string", enum: ["productivity", "analytics", "integration", "content", "development", "general"] },
+      search_query: { type: "string" },
+      sort_by: { type: "string", enum: ["popular", "rating", "recent"] },
+      limit: { type: "integer", default: 20 }
+    }
+  }
+}
+
+// Tool: install_mcp
+{
+  name: "install_mcp",
+  description: "Install third-party MCP to user's Viblog environment",
+  inputSchema: {
+    type: "object",
+    properties: {
+      mcp_id: { type: "string" },
+      auto_update: { type: "boolean", default: true }
+    },
+    required: ["mcp_id"]
+  }
+}
+
+// Tool: configure_mcp
+{
+  name: "configure_mcp",
+  description: "Configure installed MCP settings",
+  inputSchema: {
+    type: "object",
+    properties: {
+      mcp_install_id: { type: "string" },
+      config: { type: "object", description: "MCP-specific configuration" }
+    },
+    required: ["mcp_install_id", "config"]
+  }
+}
+
+// Tool: sync_local_mcp
+{
+  name: "sync_local_mcp",
+  description: "Sync MCP configuration from local development platform",
+  inputSchema: {
+    type: "object",
+    properties: {
+      local_platform: { type: "string", enum: ["claude-code", "cursor", "windsurf", "zed", "vscode"] },
+      mcps_to_sync: { type: "array", items: { type: "string" } }
+    },
+    required: ["local_platform"]
+  }
+}
+
+// Tool: invoke_mcp_tool
+{
+  name: "invoke_mcp_tool",
+  description: "Execute tool from installed third-party MCP",
+  inputSchema: {
+    type: "object",
+    properties: {
+      mcp_install_id: { type: "string" },
+      tool_name: { type: "string" },
+      parameters: { type: "object" }
+    },
+    required: ["mcp_install_id", "tool_name"]
+  }
+}
+```
+
+---
+
+## 13. AIDataSchema v2.0 Interface
+
+### 13.1 Updated Interface
+
+```typescript
+interface AIDataSchema {
+  version: "2.0";  // Upgraded from 1.0
+
+  // Data source definitions
+  datasources: {
+    name: string;
+    location: "user_db" | "platform_db";
+    access: "public" | "authorized" | "private";
+    description: string;
+  }[];
+
+  // NEW: Social platform connections
+  socialPlatforms: {
+    name: string;  // 'facebook', 'x', 'linkedin', etc.
+    connected: boolean;
+    canPost: boolean;  // Has publish permission
+  }[];
+
+  // NEW: Installed MCP tools
+  installedMCPs: {
+    name: string;
+    capabilities: string[];
+    enabled: boolean;
+  }[];
+
+  // NEW: Media assets summary
+  mediaAssets: {
+    type: "image" | "video";
+    count: number;
+    storageUsed: number;  // bytes
+  };
+
+  // Structured data schemas (from v1.0)
+  schemas: {
+    name: string;
+    jsonSchema: JSONSchema;
+    endpoints: {
+      read: string;
+      write?: string;
+    };
+  }[];
+
+  // Vector stores (from v1.0)
+  vectorStores: {
+    name: string;
+    dimension: number;
+    metric: "cosine" | "euclidean";
+    searchEndpoint: string;
+    description: string;
+  }[];
+
+  // Knowledge graphs (from v1.0)
+  knowledgeGraphs: {
+    name: string;
+    nodeTypes: string[];
+    edgeTypes: string[];
+    queryEndpoint: string;
+    description: string;
+  }[];
+
+  // Time series (from v1.0)
+  timeSeries: {
+    name: string;
+    metrics: string[];
+    granularity: "hour" | "day" | "week";
+    queryEndpoint: string;
+    description: string;
+  }[];
+
+  // Authorization status (from v1.0)
+  authorization: {
+    granted: string[];
+    pending: string[];
+    unavailable: string[];
+  };
+}
+```
+
+---
+
+## 14. Credits System Design
+
+### 14.1 Credit Economy
+
+```
+Baseline: 100 credits = 1 month subscription ($9.9 value)
+
+Earning Opportunities:
+├── Share to platform: 1 credit/platform (verified)
+├── High-quality article (100+ stars): 10 credits
+├── Session data contribution: 50 credits (authorized)
+├── Referral signup: 5 credits
+└── Early adopter bonus: 20 credits
+
+Redemption Options:
+├── 1 month Pro: 100 credits
+├── Featured placement: 50 credits (7 days)
+└── Custom domain: 200 credits (annual)
+```
+
+### 14.2 Credit Transaction MCP Tool
+
+```typescript
+// Tool: get_credit_status
+{
+  name: "get_credit_status",
+  description: "Get user's credit balance and earning opportunities",
+  inputSchema: {
+    type: "object",
+    properties: {}
+  }
+}
+
+// Tool: claim_credits
+{
+  name: "claim_credits",
+  description: "Claim pending credits from completed actions",
+  inputSchema: {
+    type: "object",
+    properties: {
+      reward_ids: {
+        type: "array",
+        items: { type: "string" }
+      }
+    }
+  }
+}
+```
+
+---
+
+## 15. References
 
 - [MCP Specification](https://modelcontextprotocol.io/specification/2025-11-25)
 - [Claude Code MCP Integration](https://code.claude.com/docs/en/mcp)

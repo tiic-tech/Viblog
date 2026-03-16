@@ -300,6 +300,173 @@ So that I can control MCP tool permissions
 
 ---
 
+### 5.4 Multimedia User Stories (US-213 to US-215)
+
+**US-213: Image Upload and Display**
+```
+As a Vibe Coder
+I want to upload and embed images in my articles
+So that I can create visually rich technical tutorials
+```
+**Acceptance Criteria:**
+- [ ] Drag-and-drop image upload
+- [ ] Automatic image optimization (WebP, responsive)
+- [ ] Alt text support for accessibility
+- [ ] Image gallery view in article editor
+- [ ] Image alignment and sizing controls
+
+**US-214: Video Link Integration**
+```
+As a content creator
+I want to link my YouTube/TikTok/Bilibili videos to my articles
+So that my blog complements my video content
+```
+**Acceptance Criteria:**
+- [ ] Auto-detect video platform from URL
+- [ ] Fetch video metadata (title, thumbnail, duration)
+- [ ] Embedded video preview in article
+- [ ] Click to play inline or open platform
+- [ ] Support for YouTube, TikTok, Bilibili, Douyin, Vimeo
+
+**US-215: Video-Article Synchronization**
+```
+As a multi-platform creator
+I want my video and article content to stay synchronized
+So that my audience gets consistent information
+```
+**Acceptance Criteria:**
+- [ ] Display video view count in article dashboard
+- [ ] Auto-update video metadata
+- [ ] Cross-reference video chapters and article sections
+- [ ] Notification when video is updated
+
+---
+
+### 5.5 Social Distribution User Stories (US-216 to US-220)
+
+**US-216: Social Account Binding**
+```
+As a Vibe Coder
+I want to connect my social media accounts
+So that I can share content across platforms easily
+```
+**Acceptance Criteria:**
+- [ ] OAuth flow for Facebook, X, LinkedIn, Instagram
+- [ ] OAuth flow for Xiaohongshu, Weibo, Zhihu (China platforms)
+- [ ] Show connected account status
+- [ ] Revoke access at any time
+- [ ] Display platform username/avatar
+
+**US-217: Platform-Specific Prompt Configuration**
+```
+As a content creator
+I want to configure how my blog content adapts for each platform
+So that my posts feel native to each audience
+```
+**Acceptance Criteria:**
+- [ ] Default prompts per platform (editable)
+- [ ] Tone selection (professional, casual, humorous)
+- [ ] Hashtag inclusion toggle
+- [ ] Character limit awareness
+- [ ] Preview generated content before posting
+
+**US-218: AI-Powered Content Adaptation**
+```
+As a busy creator
+I want AI to adapt my article for each platform automatically
+So that I can post to multiple platforms without manual rewriting
+```
+**Acceptance Criteria:**
+- [ ] One-click content generation for all connected platforms
+- [ ] Maintain core message while adapting tone
+- [ ] Auto-generate platform-appropriate hashtags
+- [ ] Include article link and author attribution
+- [ ] Edit generated content before posting
+
+**US-219: One-Click Cross-Platform Sharing**
+```
+As a creator
+I want to share my article to all platforms with one click
+So that I maximize reach with minimal effort
+```
+**Acceptance Criteria:**
+- [ ] Select multiple platforms
+- [ ] Preview posts for each platform
+- [ ] Schedule posting time
+- [ ] Confirm and post
+- [ ] See posting status (success/failed)
+
+**US-220: Share Analytics and Credits**
+```
+As a creator
+I want to see how my shared content performs and earn credits
+So that I'm motivated to share more
+```
+**Acceptance Criteria:**
+- [ ] Track likes, comments, shares per platform
+- [ ] Aggregate performance dashboard
+- [ ] Earn 1 credit per platform share
+- [ ] Credits history for sharing activities
+- [ ] Notification when credits are earned
+
+---
+
+### 5.6 MCP Governance User Stories (US-221 to US-224)
+
+**US-221: Browse MCP Marketplace**
+```
+As a Viblog user
+I want to discover and install third-party MCPs
+So that I can extend Viblog's capabilities
+```
+**Acceptance Criteria:**
+- [ ] Browse MCPs by category
+- [ ] Search by name or capability
+- [ ] See ratings and installation count
+- [ ] Read descriptions and documentation
+- [ ] Publisher information
+
+**US-222: Install and Configure MCP**
+```
+As a user
+I want to install an MCP and configure it for my needs
+So that I can use new capabilities immediately
+```
+**Acceptance Criteria:**
+- [ ] One-click install
+- [ ] Configuration wizard for MCP-specific settings
+- [ ] Test connection before saving
+- [ ] Enable/disable installed MCPs
+- [ ] Auto-update option
+
+**US-223: Sync Local Development MCPs**
+```
+As a developer
+I want to sync my local MCP configuration to Viblog
+So that I don't have to configure twice
+```
+**Acceptance Criteria:**
+- [ ] Connect from Claude Code, Cursor, Windsurf
+- [ ] View detected MCPs from local environment
+- [ ] Select which MCPs to sync
+- [ ] Automatic sync on configuration change
+- [ ] Conflict resolution
+
+**US-224: Invoke Third-Party MCP Tools**
+```
+As a user
+I want to use tools from installed MCPs
+So that I can leverage extended capabilities
+```
+**Acceptance Criteria:**
+- [ ] List available tools from installed MCPs
+- [ ] Execute tools with parameter input
+- [ ] View execution results
+- [ ] Save frequently used tool configurations
+- [ ] Rate MCP tools after use
+
+---
+
 ## 6. Success Criteria
 
 ### 6.1 Post-MVP Success Metrics
@@ -325,7 +492,7 @@ So that I can control MCP tool permissions
 
 ## 7. Scope Definition
 
-### 7.1 In Scope (Post-MVP Phase 2)
+### 7.1 In Scope (Phase 10: AI-Data-Native Platform)
 
 | Feature | Priority | Notes |
 |---------|----------|-------|
@@ -333,17 +500,23 @@ So that I can control MCP tool permissions
 | MCP Session Recording | P0 | Primary content source |
 | Draft Bucket System | P0 | Bridge between sessions and articles |
 | Dual-Layer Publishing | P0 | AI-Native content format |
+| AI-Data-Native Architecture | P0 | Four data protocols, AIDataSchema |
+| User Insights & External Links | P0 | Knowledge management layer |
+| Annotation System | P1 | Medium-style highlighting |
+| Credits System | P1 | Contribution incentives |
+| **Multimedia Support** | P1 | NEW: Images, video links |
+| **Social Distribution** | P1 | NEW: Cross-platform sharing |
+| **MCP Marketplace** | P1 | NEW: Third-party MCP ecosystem |
 | Premium Visual Design | P0 | Brand differentiation |
 | Article Card Redesign | P1 | Pinterest-style aesthetics |
 
-### 7.2 Out of Scope (Phase 2)
+### 7.2 Out of Scope (Phase 10)
 
 | Feature | Reason | Planned Phase |
 |---------|--------|---------------|
-| Third-party OAuth | Not critical | Phase 3 |
-| Paid Article Transactions | Payment complexity | Phase 3 |
-| Comments System | Engagement feature | Phase 3 |
-| Cross-platform Publishing | Integration complexity | Phase 3 |
+| Paid Article Transactions | Payment complexity | Phase 11 |
+| Comments System | Engagement feature | Phase 11 |
+| Team Collaboration | Enterprise feature | Phase 12 |
 
 ---
 
@@ -376,7 +549,11 @@ So that I can control MCP tool permissions
 
 ---
 
-**Document Version:** 3.0
+**Document Version:** 4.0
 **Last Updated:** 2026-03-16
 **Author:** Viblog Team
-**Key Updates:** Added Human user experience user stories (Markdown input, Annotations, Link citations, Credits system)
+**Key Updates:**
+- v4.0: Added Multimedia (US-213~215), Social Distribution (US-216~220), MCP Governance (US-221~224) user stories
+- v3.0: Added Human user experience user stories (US-200~212)
+- v2.0: Added AI-Native definition and dual-track users
+- v1.0: MVP requirements

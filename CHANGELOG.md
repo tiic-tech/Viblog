@@ -15,6 +15,25 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Supplemental Decision Points Documentation (2026-03-16 - Phase 9.6):**
+  - BACKEND_STRUCTURE.md v4.0 - Added 10 new tables for extended features:
+    - Multimedia: media_assets, video_links
+    - Social Integration: social_accounts, social_prompts, share_history, credit_rewards
+    - MCP Governance: mcp_registry, user_mcp_installs, mcp_configurations, local_mcp_sync
+    - Credits System Design with earning rules and redemption options
+  - VIBLOG_MCP_SERVICE_DESIGN.md v4.0 - Extended MCP tools to 8 layers:
+    - Layer 6: Multimedia Management (upload_media_asset, link_video_to_article, sync_video_metadata)
+    - Layer 7: Social Distribution (bind_social_account, configure_platform_prompt, generate_share_content, one_click_share, get_share_analytics)
+    - Layer 8: MCP Governance (browse_mcp_market, install_mcp, configure_mcp, sync_local_mcp, invoke_mcp_tool)
+    - AIDataSchema v2.0 interface with social platforms and installed MCPs
+  - PRD.md v4.0 - Added 12 new user stories:
+    - US-213~215: Multimedia Support (image upload, video links, sync)
+    - US-216~220: Social Distribution (account binding, prompts, sharing, analytics, credits)
+    - US-221~224: MCP Governance (marketplace, install, sync, invoke)
+  - Key design decisions:
+    - Credits baseline: 100 credits = 1 month subscription
+    - Share incentive: 1 credit per platform
+    - MCP marketplace with ratings and installation tracking
 - **AI-Data-Native Architecture Documentation (2026-03-16):**
   - VIBLOG_MCP_SERVICE_DESIGN.md v3.0 - Added AI Data Access Protocol (Section 10)
     - AIDataSchema interface for AI self-discovery

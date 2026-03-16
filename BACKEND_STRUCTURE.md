@@ -739,7 +739,396 @@ CREATE INDEX idx_auth_tokens_prefix ON public.authorization_tokens(token_prefix)
 
 ---
 
-## 11. Row Level Security (RLS) for New Tables
+## 11. Multimedia & Social Integration Tables (New - 2026-03-16)
+
+### 11.1 Overview
+
+These tables support multimedia content, social platform integration, and viral growth mechanisms:
+- **Media assets** - Images and video links associated with articles
+- **Social accounts** - OAuth-connected third-party platforms
+- **Social prompts** - Platform-specific content adaptation prompts
+- **Share history** - Cross-platform sharing tracking and credits
+
+### 11.2 Media Assets (User Private Database)
+
+```sql
+-- Images and media files uploaded by users
+CREATE TABLE public.media_assets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  article_id UUID REFERENCES public.articles(id) ON DELETE SET NULL,
+
+  -- Asset information
+  asset_type TEXT NOT NULL
+    CHECK (asset_type IN ('image', 'video_thumbnail')),
+  file_name TEXT NOT NULL,
+  file_size INT,                  -- Bytes
+  mime_type TEXT,
+
+  -- Storage
+  storage_path TEXT NOT NULL,     -- Supabase Storage path
+  public_url TEXT NOT NULL,
+  thumbnail_url TEXT,             -- For videos
+
+  -- Metadata
+  width INT,
+  height INT,
+  alt_text TEXT,
+  metadata JSONB DEFAULT '{}',    -- {exif, compression, etc.}
+
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_media_assets_user ON public.media_assets(user_id);
+CREATE INDEX idx_media_assets_article ON public.media_assets(article_id);
+```
+
+### 11.3 Video Links (User Private Database)
+
+```sql
+-- Video platform links associated with articles
+CREATE TABLE public.video_links (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  article_id UUID REFERENCES public.articles(id) ON DELETE CASCADE NOT NULL,
+
+  -- Platform information
+  platform TEXT NOT NULL
+    CHECK (platform IN ('youtube', 'tiktok', 'bilibili', 'douyin', 'vimeo', 'other')),
+  platform_video_id TEXT NOT NULL,
+
+  -- URLs
+  video_url TEXT NOT NULL,        -- Original video URL
+  embed_url TEXT,                 -- Embed URL for preview
+  thumbnail_url TEXT,             -- Video thumbnail
+
+  -- Metadata
+  title TEXT,
+  description TEXT,
+  duration_seconds INT,
+  view_count INT,
+
+  -- Sync status
+  last_synced_at TIMESTAMPTZ,
+  sync_status TEXT DEFAULT 'pending'
+    CHECK (sync_status IN ('pending', 'synced', 'failed')),
+
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+
+  UNIQUE(article_id, platform, platform_video_id)
+);
+
+CREATE INDEX idx_video_links_user ON public.video_links(user_id);
+CREATE INDEX idx_video_links_article ON public.video_links(article_id);
+CREATE INDEX idx_video_links_platform ON public.video_links(platform);
+```
+
+### 11.4 Social Accounts (Platform Database)
+
+```sql
+-- OAuth-connected social media accounts
+CREATE TABLE public.social_accounts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+
+  -- Platform information
+  platform TEXT NOT NULL
+    CHECK (platform IN ('facebook', 'x', 'linkedin', 'instagram', 'xiaohongshu', 'weibo', 'zhihu', 'whatsapp', 'threads')),
+  platform_user_id TEXT,          -- Third-party user ID
+  platform_username TEXT,
+
+  -- OAuth tokens (encrypted)
+  access_token TEXT,              -- Encrypted with AES-256-GCM
+  refresh_token TEXT,             -- Encrypted
+  token_expires_at TIMESTAMPTZ,
+
+  -- Permissions
+  granted_scopes TEXT[],          -- ['publish', 'read', 'profile']
+  can_post BOOLEAN DEFAULT FALSE,
+
+  -- Status
+  is_active BOOLEAN DEFAULT TRUE,
+  last_used_at TIMESTAMPTZ,
+
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+
+  UNIQUE(user_id, platform)
+);
+
+CREATE INDEX idx_social_accounts_user ON public.social_accounts(user_id);
+CREATE INDEX idx_social_accounts_platform ON public.social_accounts(platform);
+```
+
+### 11.5 Social Prompts (Platform Database)
+
+```sql
+-- Platform-specific content adaptation prompts
+CREATE TABLE public.social_prompts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+
+  -- Platform
+  platform TEXT NOT NULL,
+
+  -- Prompt configuration
+  prompt TEXT NOT NULL,           -- "Rewrite my blog for X platform..."
+  tone TEXT DEFAULT 'professional',
+    CHECK (tone IN ('professional', 'casual', 'humorous', 'inspirational', 'educational')),
+  include_hashtags BOOLEAN DEFAULT TRUE,
+  include_link BOOLEAN DEFAULT TRUE,
+  max_length INT,                 -- Character limit for platform
+
+  -- Template variables
+  variables JSONB DEFAULT '{}',   -- {tone_hints, preferred_hashtags, call_to_action}
+
+  -- Status
+  is_default BOOLEAN DEFAULT FALSE,
+
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+
+  UNIQUE(user_id, platform)
+);
+
+CREATE INDEX idx_social_prompts_user ON public.social_prompts(user_id);
+```
+
+### 11.6 Share History (Platform Database)
+
+```sql
+-- Cross-platform sharing history
+CREATE TABLE public.share_history (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  article_id UUID REFERENCES public.articles(id) ON DELETE CASCADE NOT NULL,
+
+  -- Platform information
+  platform TEXT NOT NULL,
+  platform_post_id TEXT,          -- Post ID on third-party platform
+  platform_post_url TEXT,         -- URL to the shared post
+
+  -- Generated content
+  generated_content TEXT,         -- AI-generated share text
+  used_prompt_id UUID REFERENCES public.social_prompts(id),
+
+  -- Metrics
+  platform_likes INT DEFAULT 0,
+  platform_comments INT DEFAULT 0,
+  platform_shares INT DEFAULT 0,
+  platform_views INT DEFAULT 0,
+  last_metric_sync TIMESTAMPTZ,
+
+  -- Credits
+  credits_earned INT DEFAULT 0,   -- Credits from this share
+
+  -- Status
+  status TEXT DEFAULT 'success'
+    CHECK (status IN ('success', 'failed', 'pending', 'deleted')),
+
+  shared_at TIMESTAMPTZ DEFAULT NOW(),
+
+  UNIQUE(user_id, article_id, platform)
+);
+
+CREATE INDEX idx_share_history_user ON public.share_history(user_id);
+CREATE INDEX idx_share_history_article ON public.share_history(article_id);
+CREATE INDEX idx_share_history_platform ON public.share_history(platform);
+CREATE INDEX idx_share_history_shared ON public.share_history(shared_at);
+```
+
+### 11.7 Credit Rewards (Platform Database)
+
+```sql
+-- Credit earning rules and history
+CREATE TABLE public.credit_rewards (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+
+  -- Reward type
+  reward_type TEXT NOT NULL
+    CHECK (reward_type IN (
+      'share_platform', 'high_quality_article', 'session_contribution',
+      'referral', 'early_adopter', 'community_contribution'
+    )),
+
+  -- Related entity
+  reference_id UUID,              -- share_history.id, article.id, etc.
+  reference_type TEXT,
+
+  -- Credits
+  credits INT NOT NULL,           -- Credits earned
+
+  -- Verification
+  verification_status TEXT DEFAULT 'verified'
+    CHECK (verification_status IN ('pending', 'verified', 'rejected')),
+  verified_at TIMESTAMPTZ,
+
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_credit_rewards_user ON public.credit_rewards(user_id);
+CREATE INDEX idx_credit_rewards_type ON public.credit_rewards(reward_type);
+CREATE INDEX idx_credit_rewards_created ON public.credit_rewards(created_at);
+```
+
+---
+
+## 12. MCP Governance Tables (New - 2026-03-16)
+
+### 12.1 Overview
+
+These tables support the MCP ecosystem:
+- **MCP Registry** - Catalog of available third-party MCPs
+- **User MCP Installs** - User's installed MCPs
+- **MCP Configurations** - User-specific MCP settings
+- **Local MCP Sync** - Sync between local dev platforms and Viblog
+
+### 12.2 MCP Registry (Platform Database)
+
+```sql
+-- Public MCP marketplace catalog
+CREATE TABLE public.mcp_registry (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  -- MCP information
+  name TEXT NOT NULL UNIQUE,
+  display_name TEXT NOT NULL,
+  description TEXT,
+  category TEXT DEFAULT 'general'
+    CHECK (category IN ('productivity', 'analytics', 'integration', 'content', 'development', 'general')),
+
+  -- Publisher
+  publisher_id UUID REFERENCES public.profiles(id),
+  publisher_name TEXT NOT NULL,
+
+  -- Version and source
+  version TEXT NOT NULL,
+  repository_url TEXT,
+  documentation_url TEXT,
+
+  -- Capabilities (declared)
+  capabilities JSONB DEFAULT '[]', -- [{name, description, inputSchema}]
+
+  -- Stats
+  installation_count INT DEFAULT 0,
+  rating_avg DECIMAL(3,2) DEFAULT 0.0,
+  rating_count INT DEFAULT 0,
+
+  -- Moderation
+  status TEXT DEFAULT 'active'
+    CHECK (status IN ('active', 'deprecated', 'removed', 'pending_review')),
+
+  -- Pricing
+  is_free BOOLEAN DEFAULT TRUE,
+  price_credits INT DEFAULT 0,
+
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_mcp_registry_category ON public.mcp_registry(category);
+CREATE INDEX idx_mcp_registry_publisher ON public.mcp_registry(publisher_id);
+CREATE INDEX idx_mcp_registry_installations ON public.mcp_registry(installation_count DESC);
+CREATE INDEX idx_mcp_registry_rating ON public.mcp_registry(rating_avg DESC);
+```
+
+### 12.3 User MCP Installs (Platform Database)
+
+```sql
+-- User's installed MCPs
+CREATE TABLE public.user_mcp_installs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  mcp_id UUID REFERENCES public.mcp_registry(id) ON DELETE CASCADE NOT NULL,
+
+  -- Installation details
+  installed_version TEXT NOT NULL,
+
+  -- Status
+  enabled BOOLEAN DEFAULT TRUE,
+  auto_update BOOLEAN DEFAULT TRUE,
+
+  -- Usage stats
+  total_calls INT DEFAULT 0,
+  last_used_at TIMESTAMPTZ,
+
+  installed_at TIMESTAMPTZ DEFAULT NOW(),
+
+  UNIQUE(user_id, mcp_id)
+);
+
+CREATE INDEX idx_user_mcp_installs_user ON public.user_mcp_installs(user_id);
+CREATE INDEX idx_user_mcp_installs_mcp ON public.user_mcp_installs(mcp_id);
+```
+
+### 12.4 MCP Configurations (User Private Database)
+
+```sql
+-- User-specific MCP configurations
+CREATE TABLE public.mcp_configurations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+  mcp_id UUID REFERENCES public.mcp_registry(id) ON DELETE CASCADE NOT NULL,
+
+  -- Configuration
+  config JSONB DEFAULT '{}',      -- MCP-specific settings
+  -- {
+  --   "api_keys": {"encrypted": "..."},
+  --   "preferences": {...},
+  --   "custom_prompts": [...]
+  -- }
+
+  -- Privacy
+  share_with_platform BOOLEAN DEFAULT FALSE,
+
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+
+  UNIQUE(user_id, mcp_id)
+);
+
+CREATE INDEX idx_mcp_configurations_user ON public.mcp_configurations(user_id);
+```
+
+### 12.5 Local MCP Sync (User Private Database)
+
+```sql
+-- Sync between local dev platforms and Viblog
+CREATE TABLE public.local_mcp_sync (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+
+  -- Local platform
+  local_platform TEXT NOT NULL
+    CHECK (local_platform IN ('claude-code', 'cursor', 'windsurf', 'zed', 'vscode')),
+
+  -- Sync configuration
+  sync_token TEXT,                -- Encrypted authentication token
+  sync_enabled BOOLEAN DEFAULT TRUE,
+
+  -- MCP list to sync
+  mcps_to_sync TEXT[] DEFAULT '{}',
+
+  -- Sync status
+  last_sync_at TIMESTAMPTZ,
+  sync_status TEXT DEFAULT 'not_configured'
+    CHECK (sync_status IN ('not_configured', 'active', 'error', 'paused')),
+  last_error TEXT,
+
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+
+  UNIQUE(user_id, local_platform)
+);
+
+CREATE INDEX idx_local_mcp_sync_user ON public.local_mcp_sync(user_id);
+```
+
+---
+
+## 13. Row Level Security (RLS) for New Tables
 
 ### 11.1 External Links RLS
 
@@ -793,9 +1182,141 @@ CREATE POLICY "Anyone can insert interactions"
   WITH CHECK (true);
 ```
 
+### 13.5 Media Assets RLS
+
+```sql
+ALTER TABLE public.media_assets ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users manage own media assets"
+  ON public.media_assets FOR ALL
+  USING (user_id = auth.uid());
+
+-- Public read for images in published articles
+CREATE POLICY "Public images viewable"
+  ON public.media_assets FOR SELECT
+  USING (
+    article_id IN (SELECT id FROM public.articles WHERE status = 'published')
+  );
+```
+
+### 13.6 Video Links RLS
+
+```sql
+ALTER TABLE public.video_links ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users manage own video links"
+  ON public.video_links FOR ALL
+  USING (user_id = auth.uid());
+
+-- Public read for videos in published articles
+CREATE POLICY "Public videos viewable"
+  ON public.video_links FOR SELECT
+  USING (
+    article_id IN (SELECT id FROM public.articles WHERE status = 'published')
+  );
+```
+
+### 13.7 Social Accounts RLS
+
+```sql
+ALTER TABLE public.social_accounts ENABLE ROW LEVEL SECURITY;
+
+-- Users manage own social accounts
+CREATE POLICY "Users manage own social accounts"
+  ON public.social_accounts FOR ALL
+  USING (user_id = auth.uid());
+```
+
+### 13.8 Social Prompts RLS
+
+```sql
+ALTER TABLE public.social_prompts ENABLE ROW LEVEL SECURITY;
+
+-- Users manage own social prompts
+CREATE POLICY "Users manage own social prompts"
+  ON public.social_prompts FOR ALL
+  USING (user_id = auth.uid());
+```
+
+### 13.9 Share History RLS
+
+```sql
+ALTER TABLE public.share_history ENABLE ROW LEVEL SECURITY;
+
+-- Users see own share history
+CREATE POLICY "Users see own share history"
+  ON public.share_history FOR SELECT
+  USING (user_id = auth.uid());
+
+-- Users insert own shares
+CREATE POLICY "Users create own shares"
+  ON public.share_history FOR INSERT
+  WITH CHECK (user_id = auth.uid());
+```
+
+### 13.10 Credit Rewards RLS
+
+```sql
+ALTER TABLE public.credit_rewards ENABLE ROW LEVEL SECURITY;
+
+-- Users see own credit rewards
+CREATE POLICY "Users see own credit rewards"
+  ON public.credit_rewards FOR SELECT
+  USING (user_id = auth.uid());
+```
+
+### 13.11 MCP Registry RLS
+
+```sql
+ALTER TABLE public.mcp_registry ENABLE ROW LEVEL SECURITY;
+
+-- Public MCPs viewable by all
+CREATE POLICY "Active MCPs viewable by all"
+  ON public.mcp_registry FOR SELECT
+  USING (status = 'active');
+
+-- Only publishers can manage their MCPs
+CREATE POLICY "Publishers manage own MCPs"
+  ON public.mcp_registry FOR ALL
+  USING (publisher_id = auth.uid());
+```
+
+### 13.12 User MCP Installs RLS
+
+```sql
+ALTER TABLE public.user_mcp_installs ENABLE ROW LEVEL SECURITY;
+
+-- Users manage own MCP installs
+CREATE POLICY "Users manage own MCP installs"
+  ON public.user_mcp_installs FOR ALL
+  USING (user_id = auth.uid());
+```
+
+### 13.13 MCP Configurations RLS
+
+```sql
+ALTER TABLE public.mcp_configurations ENABLE ROW LEVEL SECURITY;
+
+-- Users manage own MCP configurations
+CREATE POLICY "Users manage own MCP configurations"
+  ON public.mcp_configurations FOR ALL
+  USING (user_id = auth.uid());
+```
+
+### 13.14 Local MCP Sync RLS
+
+```sql
+ALTER TABLE public.local_mcp_sync ENABLE ROW LEVEL SECURITY;
+
+-- Users manage own local MCP sync
+CREATE POLICY "Users manage own local MCP sync"
+  ON public.local_mcp_sync FOR ALL
+  USING (user_id = auth.uid());
+```
+
 ---
 
-## 12. API Endpoints for AI-Data-Native Features
+## 14. API Endpoints for AI-Data-Native Features
 
 ### 12.1 External Links Endpoints
 
@@ -836,7 +1357,7 @@ CREATE POLICY "Anyone can insert interactions"
 | DELETE | `/api/auth/tokens/[id]` | Revoke token |
 | PUT | `/api/auth/tokens/[id]` | Update token permissions |
 
-### 12.5 Credits Endpoints
+### 14.5 Credits Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -847,7 +1368,149 @@ CREATE POLICY "Anyone can insert interactions"
 
 ---
 
-**Document Version:** 3.0
+## 15. API Endpoints for Multimedia Features
+
+### 15.1 Media Assets Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/media` | Upload media asset |
+| GET | `/api/media` | List user's media assets |
+| GET | `/api/media/[id]` | Get media asset details |
+| DELETE | `/api/media/[id]` | Delete media asset |
+
+### 15.2 Video Links Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/articles/[id]/videos` | Link video to article |
+| GET | `/api/articles/[id]/videos` | Get article's video links |
+| DELETE | `/api/videos/[id]` | Remove video link |
+| POST | `/api/videos/[id]/sync` | Sync video metadata |
+
+---
+
+## 16. API Endpoints for Social Integration
+
+### 16.1 Social Accounts Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/social/accounts` | List connected accounts |
+| POST | `/api/social/connect/[platform]` | Initiate OAuth flow |
+| DELETE | `/api/social/accounts/[id]` | Disconnect account |
+| GET | `/api/social/callback/[platform]` | OAuth callback handler |
+
+### 16.2 Social Prompts Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/social/prompts` | List user's prompts |
+| POST | `/api/social/prompts` | Create platform prompt |
+| PUT | `/api/social/prompts/[id]` | Update prompt |
+| DELETE | `/api/social/prompts/[id]` | Delete prompt |
+
+### 16.3 Share Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/articles/[id]/share` | Generate share content |
+| POST | `/api/articles/[id]/share/[platform]` | Share to specific platform |
+| POST | `/api/articles/[id]/share-all` | One-click share to all platforms |
+| GET | `/api/articles/[id]/shares` | Get share history |
+| GET | `/api/share/[id]/analytics` | Get share analytics |
+
+### 16.4 Credit Rewards Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/rewards` | List user's rewards |
+| GET | `/api/rewards/summary` | Get rewards summary |
+| POST | `/api/rewards/claim` | Claim pending rewards |
+
+---
+
+## 17. API Endpoints for MCP Governance
+
+### 17.1 MCP Market Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/mcp/market` | Browse MCP market |
+| GET | `/api/mcp/market/[id]` | Get MCP details |
+| GET | `/api/mcp/market/search` | Search MCPs |
+| POST | `/api/mcp/market` | Publish new MCP (publishers) |
+| PUT | `/api/mcp/market/[id]` | Update MCP listing |
+| POST | `/api/mcp/market/[id]/review` | Submit review |
+
+### 17.2 User MCP Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/mcp/installed` | List installed MCPs |
+| POST | `/api/mcp/install/[id]` | Install MCP |
+| DELETE | `/api/mcp/installed/[id]` | Uninstall MCP |
+| PUT | `/api/mcp/installed/[id]` | Update MCP settings |
+
+### 17.3 MCP Configuration Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/mcp/config/[id]` | Get MCP configuration |
+| PUT | `/api/mcp/config/[id]` | Update MCP configuration |
+| POST | `/api/mcp/config/[id]/validate` | Validate configuration |
+
+### 17.4 Local MCP Sync Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/mcp/sync` | List sync configurations |
+| POST | `/api/mcp/sync` | Setup platform sync |
+| PUT | `/api/mcp/sync/[platform]` | Update sync settings |
+| POST | `/api/mcp/sync/[platform]/now` | Trigger immediate sync |
+| DELETE | `/api/mcp/sync/[platform]` | Remove sync |
+
+---
+
+## 18. Credits System Design
+
+### 18.1 Credit Earning Rules
+
+| Action | Credits | Verification | Notes |
+|--------|---------|--------------|-------|
+| Share to platform | 1 credit | Auto-verified | Per platform share |
+| High-quality article (100+ stars) | 10 credits | Auto-verified | One-time per article |
+| Session data contribution | 50 credits | Manual review | User authorization required |
+| Referral signup | 5 credits | Auto-verified | When referral completes onboarding |
+| Early adopter bonus | 20 credits | Auto-verified | First 1000 users |
+
+### 18.2 Credit Redemption
+
+| Redemption | Credits Required | Notes |
+|------------|------------------|-------|
+| 1 month Pro subscription | 100 credits | Standard redemption |
+| Featured article placement | 50 credits | 7-day featured spot |
+| Custom domain (annual) | 200 credits | One domain per year |
+
+### 18.3 Credit Transaction Flow
+
+```
+User Action → System Check → Credit Calculation → Verification → Balance Update
+
+1. User shares article to X
+2. System checks: platform connected? article owned? not already shared?
+3. Calculate: 1 credit for X share
+4. Verify: API confirms post exists
+5. Update: user_credits.balance += 1
+6. Record: credit_rewards + credit_transactions
+```
+
+---
+
+**Document Version:** 4.0
 **Last Updated:** 2026-03-16
 **Author:** Viblog Team
-**Key Updates:** Added AI-Data-Native tables, RLS policies, and API endpoints
+**Key Updates:**
+- v4.0: Added Multimedia, Social Integration, MCP Governance tables (10 new tables)
+- v3.0: Added AI-Data-Native tables, RLS policies, and API endpoints
+- v2.0: Added Draft Buckets, MCP API schemas

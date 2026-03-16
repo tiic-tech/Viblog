@@ -245,6 +245,44 @@ DEBUG=false
 | Database operations | `database-reviewer` agent | SQL/migrations |
 | Documentation | `doc-updater` agent | After changes |
 | **Competitive analysis** | **`competitive-analyzer` agent** | **When analyzing competitor products** |
+| **Step completion blog** | **`develop_reviewer` agent** | **After each Step is committed** |
+
+---
+
+### 🔴 CRITICAL: Mandatory Step Completion Blog (NEW)
+
+**After completing ANY Step and committing to git, you MUST:**
+
+1. **Invoke `develop_reviewer` agent** to help create a Viblog blog post
+2. **Blog must contain two sections:**
+   - **Engineering Development Record** - What was built, technical approach, challenges
+   - **User Experience Testing** - Playwright testing of deployed features, screenshots, feedback
+3. **Publish the blog on Viblog** before moving to the next Step
+
+**Standard Workflow:**
+```
+Complete Step → Update CHANGELOG.md → Commit to Git →
+Invoke develop_reviewer agent → Publish Blog to Viblog →
+Update IMPLEMENTATION_PLAN.md → Proceed to Next Step
+```
+
+**Why This Matters:**
+- Viblog is its own first user - dogfooding is essential
+- Step-level documentation is more granular than Phase-level DEVELOPLOG.md
+- Real-world UX testing catches issues early
+- Creates content habit and demonstrates platform value
+
+**Blog Post Format:**
+```
+Title: [Step X.Y] Feature Name - Development Log
+
+Content:
+- What I Built
+- Technical Details
+- Challenges & Solutions
+- User Experience Testing (with screenshots)
+- Recommendations
+```
 
 ---
 
