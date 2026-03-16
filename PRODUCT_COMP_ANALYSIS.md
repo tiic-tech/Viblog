@@ -140,25 +140,71 @@ Please confirm: Should I proceed with image-analyzer-kimi agents?
 
 ---
 
-#### 🔴 RULE 4: Parallel Agents for Visual Analysis
+#### 🔴 RULE 4: Sequential Batch Processing for Visual Analysis
 
 ```
-视觉理解阶段，必须调用多个 agent 平行处理
-每个 agent 一张，减少模型 api 负荷，同时提高分析效率
+视觉理解阶段，必须使用 Sequential Batch Processing
+每张图片单独处理，处理完保存到 tmp file，清空上下文后再处理下一张
+```
+
+**⚠️ CRITICAL: kimi-k2.5 Context Limit Issue**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│   ⚠️ PARALLEL PROCESSING WILL FAIL ⚠️                          │
+│                                                                 │
+│   kimi-k2.5 Context Limits:                                     │
+│   - Input: 128K tokens                                          │
+│   - Output: 8K tokens                                           │
+│                                                                 │
+│   Processing multiple images in parallel causes:                │
+│   - Output overflow (>8K tokens combined)                       │
+│   - Context contamination between images                        │
+│   - Analysis quality degradation                                │
+│                                                                 │
+│   ✅ SOLUTION: Sequential Batch Processing                      │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 **Implementation:**
 ```markdown
-# CORRECT: Parallel agents, one image per agent
-Launch 5 agents in parallel:
-- Agent 1: image-analyzer-kimi on screenshot_1.png
-- Agent 2: image-analyzer-kimi on screenshot_2.png
-- Agent 3: image-analyzer-kimi on screenshot_3.png
-- Agent 4: image-analyzer-kimi on screenshot_4.png
-- Agent 5: image-analyzer-kimi on screenshot_5.png
+# CORRECT: Sequential batch processing (ONE IMAGE AT A TIME)
 
+FOR EACH screenshot:
+  1. Invoke image-analyzer-kimi skill with ONE screenshot
+  2. Receive visual analysis result
+  3. SAVE result to tmp file: .comp_product_assets/{product}/visual_analysis_{N}.md
+  4. Clear context (do not accumulate in single call)
+  5. Proceed to next screenshot
+
+AFTER ALL screenshots processed:
+  6. Read all tmp files
+  7. Compile comprehensive visual analysis section
+
+# WRONG: Parallel agents processing multiple images
 # WRONG: Single agent processing all images
 # WRONG: glm-5 analyzing images directly
+```
+
+**Example Workflow:**
+```markdown
+# Sequential processing for 5 screenshots:
+
+Screenshot 1:
+  → Skill: image-analyzer-kimi with screenshot_1.png
+  → Save to: .comp_product_assets/product/visual_analysis_1.md
+  → Clear context
+
+Screenshot 2:
+  → Skill: image-analyzer-kimi with screenshot_2.png
+  → Save to: .comp_product_assets/product/visual_analysis_2.md
+  → Clear context
+
+... (continue for each screenshot)
+
+Final:
+  → Read all visual_analysis_*.md files
+  → Integrate into comprehensive report
 ```
 
 ---
@@ -302,13 +348,23 @@ After Playwright exploration complete:
 | Architecture diagrams | `image-analyzer-kimi` | Need structure understanding |
 | OCR / text extraction | `image-analyzer-qwen` | Quick text reading |
 
-**⚠️ PARALLEL EXECUTION REQUIRED:**
+**⚠️ SEQUENTIAL BATCH PROCESSING REQUIRED:**
 ```markdown
-# Launch multiple agents in ONE message
-Agent 1: Skill "image-analyzer-kimi" with args "screenshot_1.png"
-Agent 2: Skill "image-analyzer-kimi" with args "screenshot_2.png"
-Agent 3: Skill "image-analyzer-kimi" with args "screenshot_3.png"
-...
+# Process ONE image at a time, save results, then clear context
+
+FOR EACH screenshot (SEQUENTIAL):
+  1. Skill "image-analyzer-kimi" with args "screenshot_N.png"
+  2. Receive visual analysis result
+  3. Write result to: .comp_product_assets/[category]/visual_analysis_N.md
+  4. Clear context (do not accumulate)
+  5. Proceed to next screenshot
+
+AFTER ALL screenshots:
+  6. Read all visual_analysis_*.md files
+  7. Compile into: .comp_product_assets/[category]/[product]-analysis_kimi.md
+
+# ❌ NEVER process multiple images in parallel (causes context overflow)
+# ❌ NEVER accumulate outputs in single context
 ```
 
 **Output:** Analysis in `.comp_product_assets/[category]/[product]-analysis_kimi.md`

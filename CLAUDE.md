@@ -49,7 +49,7 @@ Step 5: Update Docs & Report         → IMPLEMENTATION_PLAN + CHANGELOG
 | **RULE 1** | Step 1完成后必须立即保存到*.md文件 | 数据丢失需重新爬取 |
 | **RULE 2** | Playwright必须深度探索所有层级，5-8+截图 | 分析不完整 |
 | **RULE 3** | Step 2完成后必须停止，向用户汇报，等待确认 | 工作流中断 |
-| **RULE 4** | 视觉理解必须用多个agent平行处理，每agent一张图 | 效率低下 |
+| **RULE 4** | 视觉理解必须用sequential batch处理，每张图单独处理后保存到tmp file | 上下文溢出 |
 | **RULE 5** | 所有视觉分析完成后，汇总撰写最终报告 | 信息不完整 |
 | **RULE 6** | 完成报告后自行更新IMPLEMENTATION_PLAN和CHANGELOG | 进度追踪丢失 |
 
@@ -63,6 +63,26 @@ Step 5: Update Docs & Report         → IMPLEMENTATION_PLAN + CHANGELOG
 
 **✅ 正确的视觉分析方法:**
 ```
+⚠️ CRITICAL: kimi-k2.5 上下文限制 - 禁止并行处理多图
+
+SEQUENTIAL BATCH PROCESSING (MANDATORY):
+┌─────────────────────────────────────────────────────────────────┐
+│   FOR EACH screenshot (ONE AT A TIME):                          │
+│                                                                 │
+│   1. Invoke image-analyzer-kimi skill with ONE screenshot       │
+│   2. Receive visual analysis result                             │
+│   3. SAVE result to tmp file immediately                        │
+│   4. Clear context before next image                            │
+│   5. Repeat for next screenshot                                 │
+│                                                                 │
+│   After ALL screenshots processed:                              │
+│   6. Read all tmp files                                         │
+│   7. Compile comprehensive report                               │
+│                                                                 │
+│   ❌ NEVER process multiple images in parallel                   │
+│   ❌ NEVER accumulate outputs in single context                 │
+└─────────────────────────────────────────────────────────────────┘
+
 使用 image-analyzer-kimi skill (kimi-k2.5模型)
 使用 image-analyzer-qwen skill (qwen3.5-plus模型)
 glm-5 只负责协调和报告撰写，绝不直接分析图片
@@ -313,7 +333,7 @@ Content:
 | **RULE 1** | Save Step 1 data to *.md BEFORE Step 2 | Data loss on rollback |
 | **RULE 2** | Playwright deep explore (5-8+ screenshots) | Incomplete analysis |
 | **RULE 3** | STOP after Playwright, wait for user confirm | Broken workflow |
-| **RULE 4** | Parallel agents + vision models only | Errors & rollback |
+| **RULE 4** | Sequential batch vision (NOT parallel) | Context overflow errors |
 | **RULE 5** | Report only after ALL visual analysis | Incomplete report |
 | **RULE 6** | Update IMPLEMENTATION_PLAN + CHANGELOG | Lost tracking |
 

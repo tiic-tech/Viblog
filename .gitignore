@@ -40,3 +40,6 @@ next-env.d.ts
 
 # competitive analysis assets (screenshots, cached data)
 .comp_product_assets/
+
+# UI/UX experience test screenshots
+.ui_ux_experience_test/

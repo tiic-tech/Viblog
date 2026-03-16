@@ -14,6 +14,34 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- **Image Analyzer Skills - Execution Capability (2026-03-16):**
+  - Fixed image-analyzer-kimi and image-analyzer-qwen skills to be executable
+  - Previous version: Skills returned documentation instead of performing analysis
+  - New version: Skills now contain execution instructions for vision models
+  - Both skills now:
+    - Read image using Read tool automatically
+    - Perform structured UI/UX analysis
+    - Output markdown-formatted results
+  - Updated files:
+    - ~/.claude/skills/image-analyzer-kimi/SKILL.md
+    - ~/.claude/skills/image-analyzer-qwen/SKILL.md
+
+### Changed
+- **Visual Analysis Workflow - Sequential Batch Processing (2026-03-16):**
+  - CRITICAL FIX: Changed from parallel agents to sequential batch processing
+  - Root cause: kimi-k2.5 context limits (Input: 128K, Output: 8K)
+  - Parallel processing multiple images causes output overflow
+  - New workflow: Process ONE image at a time → Save to tmp file → Clear context → Repeat
+  - Updated files:
+    - CLAUDE.md - RULE 4 updated to sequential batch processing
+    - PRODUCT_COMP_ANALYSIS.md - RULE 4 and Step 3 updated
+    - develop_reviewer.md v4.0 - Complete rewrite with:
+      - Step 0: Initialize Checkpoint Tasks (SequentialThinking MCP)
+      - Step 4: Sequential Batch Processing for visual analysis
+      - TaskCreate/TaskUpdate integration for progress tracking
+      - Recovery Mode updated for sequential processing
+
 ### Added
 - **Supplemental Decision Points Documentation (2026-03-16 - Phase 9.6):**
   - BACKEND_STRUCTURE.md v4.0 - Added 10 new tables for extended features:
