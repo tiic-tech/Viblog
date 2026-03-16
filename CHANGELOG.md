@@ -15,6 +15,13 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Changed
+- **Implementation Plan Structure (2026-03-16):**
+  - Added "Planning Principles" section to IMPLEMENTATION_PLAN.md
+  - Every Phase/Step now split into BACKEND and FRONTEND tracks
+  - Enabled git worktrees for parallel development
+  - Backend and Frontend can be developed by separate agents simultaneously
+  - Independent blog publishing per track
+
 - **Agent Architecture Decoupling (2026-03-16):**
   - Created `design_reviewer` agent - Independent UI/UX design analysis
   - Simplified `develop_reviewer` agent - Now focuses purely on engineering

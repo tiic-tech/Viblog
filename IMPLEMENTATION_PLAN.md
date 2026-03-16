@@ -16,6 +16,108 @@ This document provides a step-by-step build sequence for Viblog post-MVP develop
 
 ---
 
+## 1.1 Planning Principles (CRITICAL)
+
+### Backend/Frontend Split
+
+Every Phase/Step plan MUST be split into TWO tracks:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│   DUAL-TRACK PLANNING                                           │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   BACKEND DEVELOP PLAN          FRONTEND DEVELOP PLAN          │
+│   ===================          ====================            │
+│   - Database schema            - UI components                  │
+│   - API endpoints              - Page layouts                   │
+│   - Server logic               - Client state                   │
+│   - Migrations                 - Styling                        │
+│   - Tests (API)                - Tests (E2E)                    │
+│                                                                 │
+│   Independent execution         Independent execution           │
+│   Can be parallelized           Can be parallelized             │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Parallel Development with Git Worktrees
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│   PARALLEL DEVELOPMENT WORKFLOW                                 │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   Main Repository                                               │
+│   ├── branch: feature/phaseX-backend                           │
+│   │   └── worktree: .claude/worktrees/backend/                 │
+│   │       └── Agent: backend-developer                         │
+│   │                                                            │
+│   └── branch: feature/phaseX-frontend                          │
+│       └── worktree: .claude/worktrees/frontend/                │
+│           └── Agent: frontend-developer                        │
+│                                                                 │
+│   Benefits:                                                     │
+│   - No context switching between backend/frontend              │
+│   - True parallel development                                  │
+│   - Isolated testing environments                              │
+│   - Independent commit histories                               │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Worktree Commands
+
+```bash
+# Create backend worktree
+git worktree add .claude/worktrees/backend -b feature/phase10-backend
+
+# Create frontend worktree
+git worktree add .claude/worktrees/frontend -b feature/phase10-frontend
+
+# List worktrees
+git worktree list
+
+# Remove after merge
+git worktree remove .claude/worktrees/backend
+git worktree remove .claude/worktrees/frontend
+```
+
+### Independent Agent Publishing
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│   INDEPENDENT BLOG PUBLISHING                                   │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   Backend Completion:                                           │
+│   → develop_reviewer publishes "Step X.Y Backend - Dev Log"    │
+│                                                                 │
+│   Frontend Completion:                                          │
+│   → develop_reviewer publishes "Step X.Y Frontend - Dev Log"   │
+│   → design_reviewer publishes "Page - Design Review"           │
+│                                                                 │
+│   Both can publish independently and concurrently               │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 1.2 Agent Assignment
+
+| Track | Primary Agent | Support Agents |
+|-------|---------------|----------------|
+| Backend | `planner` + general-purpose | `database-reviewer`, `security-reviewer` |
+| Frontend | `planner` + general-purpose | `chief-ui-designer`, `design_reviewer` |
+
+**Parallel Execution:**
+- Backend and Frontend can be developed simultaneously
+- Each has its own worktree and branch
+- Merge to main after both complete and tests pass
+
+---
+
 ## 2. Development Phases
 
 ```
@@ -555,6 +657,32 @@ Post-MVP Phase 2 (Current)
 **Dependencies:** Phase 9 completion
 
 **Strategic Context:** Phase 10 implements the AI-Data-Native architecture designed in brainstorming sessions (2026-03-16)
+
+---
+
+### Phase 10 Dual-Track Planning
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│   PHASE 10: BACKEND/FRONTEND SPLIT                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   BACKEND TRACK                 FRONTEND TRACK                  │
+│   =============                ================                 │
+│   - Database migrations         - UI components                 │
+│   - API endpoints               - Page layouts                  │
+│   - MCP server                  - Design system                 │
+│   - Vector search               - User interactions             │
+│   - Tests (API/Unit)            - Tests (E2E)                   │
+│                                                                 │
+│   Worktree: backend/            Worktree: frontend/             │
+│   Branch: feature/phase10-be    Branch: feature/phase10-fe      │
+│   Agent: backend-developer      Agent: frontend-developer       │
+│                                                                 │
+│   PARALLEL DEVELOPMENT ENABLED                                  │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
