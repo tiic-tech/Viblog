@@ -546,246 +546,462 @@ Post-MVP Phase 2 (Current)
 
 ---
 
-## 4. Phase 10: MCP Server Development
+## 4. Phase 10: AI-Data-Native MCP Platform
 
-**Goal:** Build MCP server that integrates with Claude Code and Cursor
+**Goal:** Build AI-Data-Native MCP platform with complete data architecture
 
-**Estimated Effort:** 2-3 weeks
+**Estimated Effort:** 6-8 weeks
 
 **Dependencies:** Phase 9 completion
 
+**Strategic Context:** Phase 10 implements the AI-Data-Native architecture designed in brainstorming sessions (2026-03-16)
+
 ---
 
-### Step 10.1: MCP SDK Setup
+### Architecture Decisions (From Brainstorming 2026-03-16)
+
+#### Decision 1: Hybrid Data Architecture
+```
+User Database (Supabase/Local)          Viblog Platform Database
+├── vibe_sessions (raw session)         ├── published_articles (public copy)
+├── session_fragments                   ├── article_paragraphs (for retrieval)
+├── articles (draft/private)            ├── annotations (public)
+├── external_links (user citations)     ├── user_interactions (analytics)
+├── user_insights (reflections)         ├── user_credits (incentives)
+├── insight_links (associations)        └── authorization_tokens
+└── knowledge_graph (personal)
+
+Core Principle: Private data stays in user database;
+published content syncs to platform with user authorization.
+```
+
+#### Decision 2: AI-Data-Native = Four Data Protocols
+```
+1. Structured Data (JSON Schema)    → MCP tool param parsing, Article JSON
+2. Vector Embeddings (pgvector)     → Semantic retrieval, Similarity search
+3. Knowledge Graph (Apache AGE)     → Association reasoning, Citation discovery
+4. Time Series (TimescaleDB)        → Interest evolution, Trend analysis
+```
+
+#### Decision 3: AI Data Access Protocol
+```typescript
+// AI obtains this when accessing Viblog
+interface AIDataSchema {
+  datasources: DataSource[];
+  schemas: JSONSchema[];
+  vectorStores: VectorStore[];
+  knowledgeGraphs: KnowledgeGraph[];
+  timeSeries: TimeSeries[];
+  authorization: AuthorizationStatus;
+}
+```
+
+#### Decision 4: Authorization Model
+```
+Three-Level Privacy:
+├── Level 1: Sensitive fields desensitized (default)
+├── Level 2: Fully transparent (user confirmation required)
+└── Level 3: Training authorization (+50 credits/month)
+
+Data Source Authorization:
+├── user_insights → [ ] Authorize
+├── external_links → [ ] Authorize
+├── vibe_sessions → [ ] Authorize (contribute training data)
+└── knowledge_graph → [ ] Authorize
+```
+
+#### Decision 5: Draft Bucket Model
+**Chosen: Independent drafts table (Option B)**
+
+Rationale:
+- Clear separation: sessions = raw data, drafts = processed content
+- Better query performance for draft management
+- Enables multiple drafts per session
+- Cleaner status workflow (raw → structured → draft → published)
+
+---
+
+### Phase 10.1: Database Infrastructure (Week 1-2)
+
+#### Step 10.1.1: Enable Vector and Graph Extensions
 **Status:** Pending
 
-**Deliverable:** Working MCP server skeleton
+**Deliverable:** PostgreSQL extensions enabled
 
 **Tasks:**
-- [ ] Initialize MCP server project
-- [ ] Set up build and publish pipeline
-- [ ] Create basic server with health check
+- [ ] Enable pgvector extension
+- [ ] Enable Apache AGE extension (or evaluate alternatives)
+- [ ] Configure TimescaleDB extension
+- [ ] Test extension functionality
+
+```sql
+-- Enable extensions
+CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS age;
+CREATE EXTENSION IF NOT EXISTS timescaledb;
+```
 
 ---
 
-### Step 10.2: Implement update_vibe_coding_history Tool
+#### Step 10.1.2: Create AI-Data-Native Tables
 **Status:** Pending
 
-**Deliverable:** MCP tool for session recording
+**Deliverable:** All new tables with RLS policies
 
 **Tasks:**
-- [ ] Define input schema
-- [ ] Implement API client
-- [ ] Add error handling
-- [ ] Write unit tests
-
----
-
-### Step 10.3: Implement get_recent_sessions Tool
-**Status:** Pending
-
-**Deliverable:** MCP tool for retrieving sessions
-
-**Tasks:**
-- [ ] Define output schema
-- [ ] Implement pagination
-- [ ] Add filtering options
-
----
-
-### Step 10.4: MCP API Key Management
-**Status:** Pending
-
-**Deliverable:** API key generation and management
-
-**Tasks:**
-- [ ] Create MCP API key generation endpoint
-- [ ] Add key display in settings
-- [ ] Implement key revocation
-
----
-
-### Step 10.5: Documentation and Testing
-**Status:** Pending
-
-**Deliverable:** MCP server documentation and tests
-
-**Tasks:**
-- [ ] Write README with setup instructions
-- [ ] Create Claude Code config example
-- [ ] Add integration tests
-
----
-
-## 5. Phase 11: Draft Bucket System
-
-**Goal:** Build the draft bucket UI and article generation pipeline
-
-**Estimated Effort:** 2 weeks
-
-**Dependencies:** Phase 10 completion
-
----
-
-### Step 11.1: Database Migration
-**Status:** Pending
-
-**Deliverable:** draft_buckets table with RLS
-
-**Tasks:**
-- [ ] Create migration file
-- [ ] Add RLS policies
+- [ ] Create `external_links` table (User DB)
+- [ ] Create `user_insights` table (User DB)
+- [ ] Create `insight_links` table (User DB)
+- [ ] Create `article_paragraphs` table (Platform DB)
+- [ ] Create `annotations` table (Platform DB)
+- [ ] Create `user_interactions` table (Platform DB)
+- [ ] Create `user_credits` table (Platform DB)
+- [ ] Create `credit_transactions` table (Platform DB)
+- [ ] Create `authorization_tokens` table (Platform DB)
+- [ ] Add RLS policies for all tables
 - [ ] Generate TypeScript types
 
 ---
 
-### Step 11.2: Draft Bucket API
+#### Step 10.1.3: MCP API Key and Authorization Token System
 **Status:** Pending
 
-**Deliverable:** REST API for draft buckets
+**Deliverable:** Secure key/token generation and management
 
 **Tasks:**
-- [ ] Implement CRUD endpoints
-- [ ] Add filtering and pagination
-- [ ] Write API tests
+- [ ] Create API key generation endpoint
+- [ ] Create authorization token generation endpoint
+- [ ] Implement secure key hashing (SHA-256)
+- [ ] Add key/token display in settings page (masked)
+- [ ] Implement key/token revocation endpoints
+- [ ] Add last-used tracking
+
+**Key Format:**
+- MCP API Key: `vb_xxxxxxxxxxxxxxxxxxxxxxxx`
+- Authorization Token: `vat_xxxxxxxxxxxxxxxxxxxxxxxx`
 
 ---
 
-### Step 11.3: Draft Bucket UI
+### Phase 10.2: Core MCP Tools Implementation (Week 2-4)
+
+#### Step 10.2.1: Implement create_vibe_session Tool
 **Status:** Pending
 
-**Deliverable:** Draft bucket list and detail pages
+**Deliverable:** MCP tool for creating new vibe coding sessions
 
 **Tasks:**
-- [ ] Create list page with cards
-- [ ] Create detail page with human input form
-- [ ] Add status indicators
+- [ ] Define Zod schema for input validation
+- [ ] Implement API client call to Viblog backend
+- [ ] Handle error responses
+- [ ] Return session_id for subsequent calls
 
 ---
 
-### Step 11.4: Article Generation Pipeline
+#### Step 10.2.2: Implement append_session_context Tool
 **Status:** Pending
 
-**Deliverable:** AI article generation from draft buckets
+**Deliverable:** MCP tool for incremental session data append
 
 **Tasks:**
-- [ ] Create generation endpoint
-- [ ] Implement LLM integration
-- [ ] Add progress tracking
-- [ ] Handle generation failures
+- [ ] Implement client-side rate limiting buffer
+- [ ] Define context type schemas
+- [ ] Implement buffer flush logic (max 50 items or 5 seconds)
+- [ ] Add retry logic on failure
 
 ---
 
-## 6. Phase 12: Dual-Layer Publishing
-
-**Goal:** Implement dual-format (Markdown + JSON) publishing
-
-**Estimated Effort:** 1 week
-
-**Dependencies:** Phase 11 completion
-
----
-
-### Step 12.1: JSON Content Schema
+#### Step 10.2.3: Implement upload_session_context Tool
 **Status:** Pending
 
-**Deliverable:** JSON schema for AI-consumable content
-
-**Tasks:**
-- [ ] Define JSON structure
-- [ ] Add validation
-- [ ] Document schema
+**Deliverable:** MCP tool for batch upload of complete session context
 
 ---
 
-### Step 12.2: JSON Generation
+#### Step 10.2.4: Implement generate_structured_context Tool
 **Status:** Pending
 
-**Deliverable:** Auto-generate JSON from article content
+**Deliverable:** MCP tool for transforming raw data into structured JSON
 
 **Tasks:**
-- [ ] Create generation logic
-- [ ] Add extraction for code snippets
-- [ ] Add key decision extraction
+- [ ] Implement model routing logic (local-first)
+- [ ] Define StructuredVibeContext output schema
+- [ ] Integrate with LLM API (Opus for extraction)
+- [ ] Handle model fallback scenarios
 
 ---
 
-### Step 12.3: JSON API Endpoint
+#### Step 10.2.5: Implement generate_article_draft Tool
 **Status:** Pending
 
-**Deliverable:** Public API for JSON content
-
-**Tasks:**
-- [ ] Create JSON endpoint
-- [ ] Add caching
-- [ ] Document API
+**Deliverable:** MCP tool for generating article draft from structured session
 
 ---
 
-## 7. Phase 13: Visual Redesign
+### Phase 10.3: AI Data Access Protocol (Week 3-4)
+
+#### Step 10.3.1: Implement AIDataSchema Endpoint
+**Status:** Pending
+
+**Deliverable:** Endpoint returning available data sources and schemas
+
+**Tasks:**
+- [ ] Create `/api/v1/ai/schema` endpoint
+- [ ] Implement datasource discovery based on authorization
+- [ ] Return JSON Schema definitions
+- [ ] Return vector store configurations
+- [ ] Return knowledge graph configurations
+
+---
+
+#### Step 10.3.2: Implement Vector Search API
+**Status:** Pending
+
+**Deliverable:** Vector similarity search endpoints
+
+**Tasks:**
+- [ ] Create `/api/v1/ai/vectors/{store}/search` endpoint
+- [ ] Implement embedding generation (OpenAI API)
+- [ ] Configure pgvector indexes (IVFFlat/HNSW)
+- [ ] Add search result ranking
+
+**Vector Stores:**
+| Store | Content | Dimension | Storage |
+|-------|---------|-----------|---------|
+| article_paragraphs | Article paragraphs | 1536 | Platform DB |
+| user_insights | User insights | 1536 | User DB |
+| external_links | Link snapshots | 1536 | User DB |
+| articles | Article overall | 1536 | Platform DB |
+
+---
+
+#### Step 10.3.3: Implement Knowledge Graph API
+**Status:** Pending
+
+**Deliverable:** Graph query endpoints for AI
+
+**Tasks:**
+- [ ] Create `/api/v1/ai/graph/{graph}/query` endpoint
+- [ ] Define node types and edge types
+- [ ] Implement Cypher query execution
+- [ ] Add graph visualization data export
+
+---
+
+#### Step 10.3.4: Implement Time Series API
+**Status:** Pending
+
+**Deliverable:** Behavioral analytics endpoints
+
+**Tasks:**
+- [ ] Create `/api/v1/ai/timeseries/{metric}` endpoint
+- [ ] Configure TimescaleDB hypertables
+- [ ] Implement aggregation queries
+- [ ] Add trend analysis functions
+
+---
+
+### Phase 10.4: Human User Experience Features (Week 4-6)
+
+#### Step 10.4.1: Smart Markdown Editor
+**Status:** Pending
+
+**Deliverable:** AI-assisted Markdown editor
+
+**Tasks:**
+- [ ] Create editor component with live preview
+- [ ] Implement AI formatting suggestions
+- [ ] Add auto heading level detection
+- [ ] Implement code block language detection
+- [ ] Add table of contents generation
+
+---
+
+#### Step 10.4.2: External Link Citation System
+**Status:** Pending
+
+**Deliverable:** Link aggregation and citation features
+
+**Tasks:**
+- [ ] Create link paste and fetch UI
+- [ ] Implement page snapshot with authorization
+- [ ] Create insight-link association UI
+- [ ] Add citation preview in editor
+- [ ] Implement article generation from insights
+
+---
+
+#### Step 10.4.3: Annotation System
+**Status:** Pending
+
+**Deliverable:** Article highlighting and margin notes
+
+**Tasks:**
+- [ ] Create text selection and highlight UI
+- [ ] Implement annotation creation modal
+- [ ] Add annotation sidebar for reading
+- [ ] Implement discussion/reply functionality
+- [ ] Add annotation dashboard view
+- [ ] Handle article edit detection for annotations
+
+---
+
+#### Step 10.4.4: Credits System
+**Status:** Pending
+
+**Deliverable:** Complete credits earning and redemption flow
+
+**Tasks:**
+- [ ] Create credits dashboard
+- [ ] Implement earning opportunities UI
+- [ ] Add transaction history view
+- [ ] Implement credits redemption flow
+- [ ] Add Pro bonus calculation
+
+---
+
+#### Step 10.4.5: Authorization Settings UI
+**Status:** Pending
+
+**Deliverable:** User control panel for AI data access
+
+**Tasks:**
+- [ ] Create data source toggle UI
+- [ ] Implement privacy level selection
+- [ ] Add token management interface
+- [ ] Create authorization status dashboard
+
+---
+
+### Phase 10.5: Testing & Documentation (Week 6-8)
+
+#### Step 10.5.1: MCP Server Unit Tests
+**Status:** Pending
+
+**Deliverable:** Comprehensive unit tests for MCP tools
+
+**Tasks:**
+- [ ] Test tool input validation (100% coverage)
+- [ ] Test API client calls (90% coverage)
+- [ ] Test error handling (100% coverage)
+- [ ] Test rate limiting (90% coverage)
+
+---
+
+#### Step 10.5.2: Integration Tests
+**Status:** Pending
+
+**Deliverable:** Integration tests for all new features
+
+**Tasks:**
+- [ ] Test full session lifecycle
+- [ ] Test vector search flows
+- [ ] Test annotation system end-to-end
+- [ ] Test credits earning and redemption
+- [ ] Test authorization flows
+
+---
+
+#### Step 10.5.3: Documentation
+**Status:** Pending
+
+**Deliverable:** Comprehensive MCP server documentation
+
+**Tasks:**
+- [ ] Write installation and setup guide
+- [ ] Document all available tools and parameters
+- [ ] Create Claude Code integration guide
+- [ ] Create Cursor integration guide
+- [ ] Document AI-Data-Schema protocol
+- [ ] Add troubleshooting guide
+
+---
+
+### Success Criteria
+
+- [ ] MCP server installable via `npx @viblog/mcp-server`
+- [ ] All 5 core tools implemented and tested
+- [ ] AI-Data-Schema endpoint returns correct metadata
+- [ ] Vector search returns relevant results (>75% precision)
+- [ ] Annotation system handles article edits correctly
+- [ ] Credits system tracks earnings accurately
+- [ ] Authorization tokens control data access correctly
+- [ ] Response time < 500ms for 95th percentile
+- [ ] Unit test coverage >= 80%
+- [ ] Integration tests pass for all critical flows
+- [ ] Security review completed
+
+---
+
+## 5. Phase 11: Visual Redesign (Updated)
 
 **Goal:** Implement Pinterest-style card layout and premium visual design
 
 **Estimated Effort:** 2 weeks
 
-**Dependencies:** Phase 9 completion (analysis)
+**Dependencies:** Phase 10 completion (uses new data structures)
 
 ---
 
-### Step 13.1: Card Component Redesign
+### Step 11.1: Card Component Redesign
 **Status:** Pending
 
-**Deliverable:** New article card component
+**Deliverable:** New article card component with Pinterest-style design
 
 **Tasks:**
 - [ ] Design new card in Figma
-- [ ] Implement card component
-- [ ] Add hover animations
+- [ ] Implement card component with hover effects
+- [ ] Add masonry grid layout
+- [ ] Optimize for performance
+- [ ] Add responsive breakpoints
 
 ---
 
-### Step 13.2: Masonry Grid Layout
+### Step 11.2: Masonry Grid Layout
 **Status:** Pending
 
 **Deliverable:** Pinterest-style grid layout
 
 **Tasks:**
-- [ ] Implement masonry grid
-- [ ] Add responsive breakpoints
-- [ ] Optimize for performance
+- [ ] Implement masonry grid with CSS Grid
+- [ ] Add lazy loading for images
+- [ ] Implement infinite scroll
+- [ ] Optimize for mobile
 
 ---
 
-### Step 13.3: Visual Polish
+### Step 11.3: Visual Polish
 **Status:** Pending
 
 **Deliverable:** Premium visual design throughout
 
 **Tasks:**
-- [ ] Update color system
-- [ ] Add micro-interactions
-- [ ] Improve typography
+- [ ] Update color system (from Dribbble analysis)
+- [ ] Add micro-interactions (from Pinterest analysis)
+- [ ] Improve typography (from Medium analysis)
 - [ ] Add loading animations
+- [ ] Implement dark-first design
 
 ---
 
-## 8. Dependency Graph
+## 6. Dependency Graph (Updated)
 
 ```
-Phase 9: Competitive Analysis
+Phase 9: Competitive Analysis ✅ COMPLETED
     │
-    ├── Phase 10: MCP Server
+    ├── Phase 10: AI-Data-Native MCP Platform
     │       │
-    │       └── Phase 11: Draft Buckets
-    │               │
-    │               └── Phase 12: Dual-Layer Publishing
+    │       ├── 10.1: Database Infrastructure
+    │       ├── 10.2: Core MCP Tools
+    │       ├── 10.3: AI Data Access Protocol
+    │       ├── 10.4: Human User Experience Features
+    │       └── 10.5: Testing & Documentation
     │
-    └── Phase 13: Visual Redesign (can run parallel with 10-12)
+    └── Phase 11: Visual Redesign (can run parallel with 10)
 ```
 
 ---
 
-## 9. Environment Setup Checklist
+## 7. Environment Setup Checklist (Updated)
 
 - [x] Node.js 20+ installed
 - [x] pnpm installed
@@ -795,9 +1011,14 @@ Phase 9: Competitive Analysis
 - [x] CI/CD pipeline active
 - [ ] MCP SDK documentation reviewed
 - [ ] LLM API keys configured for article generation
+- [ ] **NEW:** pgvector extension enabled
+- [ ] **NEW:** Apache AGE extension enabled (or Neo4j)
+- [ ] **NEW:** TimescaleDB extension enabled
+- [ ] **NEW:** OpenAI API key for embeddings
 
 ---
 
-**Document Version:** 3.0
-**Last Updated:** 2026-03-15
+**Document Version:** 4.0
+**Last Updated:** 2026-03-16
 **Author:** Viblog Team
+**Key Updates:** Restructured Phase 10 with AI-Data-Native architecture, merged phases 11-13, added Human User Experience features

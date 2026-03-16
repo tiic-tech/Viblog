@@ -974,46 +974,490 @@ create_project_assistant({
 
 ---
 
-## 8. Technical Decisions
+## 8. Technical Decisions (Updated 2026-03-16)
 
-### 8.1 MCP Protocol
-- **Transport:** HTTP/SSE (for remote access)
+### 8.1 Hybrid Data Architecture
+
+**Decision from Brainstorming:** Data is split between user database and platform database.
+
+```
+User Database (Supabase/Local)          Viblog Platform Database
+├── vibe_sessions (raw session)         ├── published_articles (public copy)
+├── session_fragments                   ├── public_knowledge_nodes
+├── articles (draft/private)            └── global_search_index
+└── knowledge_graph (personal)
+
+Core Principle:
+- Private data stays in user database
+- Published content syncs to platform with user authorization
+- Platform data is a copy; user can revoke sync anytime
+```
+
+**Implementation:**
+- User's Supabase instance stores all raw sessions and drafts
+- On publish, user authorizes sync of article summary to platform
+- Platform maintains search index and public knowledge graph
+- Revocation removes platform copy, preserves user's original
+
+### 8.2 Model Routing Strategy
+
+**Decision from Brainstorming:** Local-first with platform fallback.
+
+```
+Strategy: local_first
+
+MCP Tool                  Model Required         Routing
+─────────────────────────────────────────────────────────
+generate_structured_context  Opus/Sonnet        Local → Fallback
+generate_article_draft       Sonnet             Local → Fallback
+learn_from_articles          Sonnet             Local → Fallback
+analyze_project_health       Opus               Local → Fallback
+
+Token Consumption:
+├── Default: User's local LLM (Claude Code/Cursor)
+├── Fallback: User's Viblog API Key (when local insufficient)
+└── Pro Users: Platform-provided model quota
+```
+
+**Implementation:**
+```typescript
+interface ModelRouterConfig {
+  preferLocal: true;
+  localModel: 'claude-opus' | 'claude-sonnet' | 'local-llm';
+  fallbackToCloud: true;
+  fallbackApiKey: string;  // User's Viblog API key
+}
+```
+
+### 8.3 MCP Protocol
+- **Transport:** stdio (CLI) + SSE (HTTP) for flexibility
 - **Protocol Version:** 2025-11-25
 - **Message Format:** JSON-RPC 2.0
 
-### 8.2 AI Model Routing
-- **Opus:** Structure extraction, complex analysis
-- **Sonnet:** Content generation, learning tasks
-- **Haiku:** Quick operations, formatting
-
-### 8.3 Data Storage
-- **Primary:** Supabase PostgreSQL
+### 8.4 Data Storage
+- **Primary:** User's Supabase PostgreSQL
+- **Platform:** Viblog Platform PostgreSQL (for published content)
 - **JSONB:** Flexible schema for context data
-- **Full-text Search:** Supabase pg_trgm for article search
+- **Full-text Search:** Platform pg_trgm for public article search
 
 ---
 
-## 9. Open Questions
+## 9. Resolved Technical Questions (From Brainstorming)
 
-1. **Rate Limiting:** How to handle high-frequency `append_session_context` calls?
-2. **Privacy:** How to handle community article search while respecting privacy?
-3. **Model Selection:** Should user be able to choose which model processes their data?
-4. **Caching:** How to cache `learn_from_articles` results for common queries?
+### 9.1 Rate Limiting Implementation ✅
+
+**Solution:** Client buffer + batch upload; Server queue + async processing.
+
+**Client-Side:**
+```typescript
+interface BufferConfig {
+  maxSize: 50;           // Max items before forced flush
+  maxWaitMs: 5000;       // Max time before auto-flush (5 seconds)
+  retryAttempts: 3;      // Retry count on failure
+}
+
+// Buffer accumulates append_session_context calls
+// Flushes when: 50 items OR 5 seconds elapsed
+```
+
+**Server-Side:**
+```typescript
+interface RateLimitConfig {
+  create_session: { limit: 10, window: '1h' };
+  append_context: { limit: 1000, window: '1h' };
+  upload_context: { limit: 50, window: '1h' };
+  generate_draft: { limit: 20, window: '1h' };
+}
+
+// Heavy operations (generate_structured_context) go to queue
+// Worker processes with concurrency: 5
+```
+
+### 9.2 Data Sync Protocol ✅
+
+**Solution:** User-authorized sync with granular control.
+
+```typescript
+interface SyncGranularity {
+  full: 'Complete article + metadata';
+  summary_only: 'AI-generated summary only';
+  ai_metadata_only: 'Structured JSON only, no content';
+}
+
+// Sync flow:
+// 1. User publishes article
+// 2. User selects sync granularity
+// 3. Platform receives authorized copy
+// 4. Search index updated
+// 5. User can revoke sync anytime
+```
+
+**Conflict Resolution:**
+- Last-Write-Wins for simple fields (timestamps, status)
+- Merge Strategy for arrays (tags, snippets) - union with deduplication
+- User Authority for human input fields (reflections, notes)
+
+### 9.3 Draft Bucket Model ✅
+
+**Decision:** Independent `draft_buckets` table (Option B).
+
+**Rationale:**
+- Clear separation: sessions = raw data, drafts = processed content
+- Better query performance for draft management
+- Enables multiple drafts per session
+- Cleaner status workflow (raw → structured → draft → published)
 
 ---
 
-## 10. References
+## 10. AI-Data-Native Architecture (Added 2026-03-16)
+
+### 10.1 Core Insight
+
+**AI-Native = AI-Data-Native**
+
+数据结构的设计才能将AI-Native彻底打通。关键问题：**如何设计数据Protocol，让AI访问Viblog时自动知道如何I/O？**
+
+### 10.2 AI Data Requirements Matrix
+
+| Data Type | A2A Scenario | Human Writing | Platform Monitoring | Storage Location | Tech Stack |
+|-----------|--------------|---------------|---------------------|------------------|------------|
+| **Structured Data** | MCP tool param parsing | Article JSON format | Statistics reports | User DB + Platform DB | JSON Schema |
+| **Vector Embeddings** | Semantic retrieval learning | Annotation association recommendation | Similarity analysis | Platform DB | pgvector |
+| **Knowledge Graph** | Association reasoning learning | Citation relationship discovery | Knowledge network analysis | User DB + Platform DB | Graph DB |
+| **Behavioral Time Series** | User interest evolution | Personalized recommendation | Trend analysis | Platform DB | TimescaleDB |
+
+### 10.3 AI Data Access Protocol Design
+
+#### 10.3.1 Core Principles
+
+**Principle 1: Authorized Access**
+```
+User chooses authorization → Clearly informed of trade-off → AI obtains access permission
+
+Trade-off Examples:
+├── Authorize insights access → AI recommendations more precise, but privacy partially exposed
+├── Authorize session data → Earn credits, but data used for training
+└── No authorization of any private data → Only use platform public data, limited experience
+```
+
+**Principle 2: Protocol Self-Description**
+```
+When AI accesses Viblog, it automatically obtains:
+├── Accessible data list (based on authorization status)
+├── Data Schema definitions
+├── Access endpoints and authentication methods
+└── Data usage constraints (read-only/read-write/training permission)
+```
+
+#### 10.3.2 AI-Data-Schema Interface
+
+```typescript
+// Metadata obtained when AI first accesses Viblog
+interface AIDataSchema {
+  version: "1.0";
+
+  // Data source definitions
+  datasources: {
+    name: string;           // Data source name
+    location: "user_db" | "platform_db";
+    access: "public" | "authorized" | "private";
+    description: string;    // AI-understandable data description
+  }[];
+
+  // Structured data schemas
+  schemas: {
+    name: string;
+    jsonSchema: JSONSchema;
+    endpoints: {
+      read: string;         // GET endpoint
+      write?: string;       // POST endpoint (if write permission exists)
+    };
+  }[];
+
+  // Vector retrieval interfaces
+  vectorStores: {
+    name: string;
+    dimension: number;
+    metric: "cosine" | "euclidean";
+    searchEndpoint: string;
+    description: string;
+  }[];
+
+  // Knowledge graph interfaces
+  knowledgeGraphs: {
+    name: string;
+    nodeTypes: string[];
+    edgeTypes: string[];
+    queryEndpoint: string;
+    description: string;
+  }[];
+
+  // Behavioral time series interfaces
+  timeSeries: {
+    name: string;
+    metrics: string[];
+    granularity: "hour" | "day" | "week";
+    queryEndpoint: string;
+    description: string;
+  }[];
+
+  // Authorization status
+  authorization: {
+    granted: string[];      // Authorized data sources
+    pending: string[];      // Available but not authorized
+    unavailable: string[];  // Not accessible
+  };
+}
+```
+
+#### 10.3.3 Example: AI Writing Article Data Access
+
+```
+AI Task: Help user write an article about "Embodied Intelligence"
+
+Step 1: AI obtains AIDataSchema
+├── Discovers available data sources:
+│   ├── user_insights (authorized) ← User has authorized
+│   ├── external_links (authorized) ← User has authorized
+│   ├── published_articles (public) ← Platform public data
+│   └── article_paragraphs (public) ← Vector retrieval
+└── Discovers searchable vectors:
+    ├── user_insights.embedding
+    ├── article_paragraphs.embedding
+    └── articles.content_embedding
+
+Step 2: AI formulates data acquisition plan
+├── Retrieve user insights about "Embodied Intelligence"
+├── Retrieve user's related external links
+├── Retrieve platform articles on related topics
+└── Retrieve paragraphs from related articles
+
+Step 3: AI executes queries
+├── Vector retrieval: user_insights.embedding similarity > 0.8
+├── Association query: insight_links → external_links
+├── Vector retrieval: article_paragraphs similarity > 0.75
+└── Structured query: published_articles where topic='Embodied Intelligence'
+
+Step 4: AI generates article
+├── Integrates user's insights
+├── Cites external links (citation format)
+├── References viewpoints from platform articles
+└── Generates structured JSON content
+```
+
+### 10.4 Data Protocol Design Details
+
+#### 10.4.1 Structured Data (JSON Schema)
+
+**Scenario:** AI needs precise understanding of data semantics
+
+**Storage Location:**
+- User creation data → User DB
+- Platform statistics data → Platform DB
+
+**Tech Stack:**
+- Schema definition: JSON Schema Draft 2020-12
+- Validation: Zod / AJV
+- Storage: PostgreSQL JSONB
+
+**AI Access Method:**
+```typescript
+// AI reads structured data
+GET /api/v1/ai/data/{schema_name}?filter={...}
+
+// Returns data conforming to JSON Schema
+{
+  "$schema": "https://viblog.ai/schemas/article_insights.json",
+  "data": [...]
+}
+```
+
+#### 10.4.2 Vector Embeddings
+
+**Scenario:** AI needs semantic retrieval and similarity matching
+
+**Storage Location:** Mainly stored in Platform DB (for retrieval)
+
+**Tech Stack:**
+- Vector generation: OpenAI text-embedding-3-small
+- Storage: PostgreSQL + pgvector
+- Indexing: IVFFlat / HNSW
+
+**AI Access Method:**
+```typescript
+// AI vector retrieval
+POST /api/v1/ai/vectors/{store_name}/search
+{
+  "query": "Latest research on embodied intelligence",
+  "k": 10,
+  "threshold": 0.75
+}
+
+// Returns data IDs corresponding to similar vectors
+{
+  "results": [
+    { "id": "uuid-1", "score": 0.92, "content_preview": "..." },
+    ...
+  ]
+}
+```
+
+#### 10.4.3 Knowledge Graph
+
+**Scenario:** AI needs to understand associations between data
+
+**Storage Location:**
+- User personal knowledge graph → User DB
+- Platform global knowledge graph → Platform DB
+
+**Tech Stack:**
+- Graph database: Neo4j / RedisGraph / PostgreSQL + Apache AGE
+- Query language: Cypher / GraphQL
+
+**AI Access Method:**
+```typescript
+// AI graph query
+POST /api/v1/ai/graph/{graph_name}/query
+{
+  "query": "MATCH (u:User)-[:WROTE]->(a:Article)-[:CITES]->(l:Link) WHERE u.id = $user_id RETURN a, l",
+  "parameters": { "user_id": "..." }
+}
+
+// Returns graph structure data
+{
+  "nodes": [...],
+  "edges": [...]
+}
+```
+
+#### 10.4.4 Behavioral Time Series
+
+**Scenario:** AI needs to understand user interest evolution, platform trends
+
+**Storage Location:** Platform DB
+
+**Tech Stack:**
+- Time series database: TimescaleDB / PostgreSQL + partitioned tables
+- Querying: SQL window functions
+
+**AI Access Method:**
+```typescript
+// AI time series query
+GET /api/v1/ai/timeseries/{metric_name}?from=...&to=...&granularity=day
+
+// Returns time series data
+{
+  "metric": "article_views",
+  "data": [
+    { "time": "2026-03-01", "value": 1523 },
+    { "time": "2026-03-02", "value": 1687 },
+    ...
+  ]
+}
+```
+
+### 10.5 AI Data Access Confirmation Design Decisions
+
+#### Decision 1: Authorization Granularity ✅
+
+**Principle:** First solve existence, then solve quality
+
+**Solution:** Data source level authorization (MVP)
+```
+User-authorizable data sources:
+├── user_insights → [ ] Authorize
+├── external_links → [ ] Authorize
+├── vibe_sessions → [ ] Authorize (contribute training data)
+└── knowledge_graph → [ ] Authorize
+
+Future iterations (based on user feedback):
+├── Field-level authorization
+└── Time-range authorization
+```
+
+#### Decision 2: AI Identity Authentication ✅
+
+**Solution:** MCP tools carry authorization token
+
+```
+Workflow:
+1. User applies for authorization token in Personal Settings
+2. User confirms Apply → Token automatically fills MCP configuration
+3. MCP tools automatically carry Token when called
+4. Platform validates Token permissions then returns data
+
+Default state: Token is empty → No authorization of any private data
+```
+
+**Token Design:**
+```typescript
+interface AuthorizationToken {
+  token_id: string;
+  user_id: string;
+  granted_datasources: string[];  // Authorized data sources
+  created_at: string;
+  expires_at: string;
+  last_used_at: string;
+}
+```
+
+#### Decision 3: Data Desensitization Levels ✅
+
+**Solution:** Three-level permissions, user-selectable
+
+| Level | Name | Description | Risk |
+|-------|------|-------------|------|
+| 1 | Sensitive field desensitization | Default, sensitive fields (email, phone, etc.) desensitized | Low |
+| 2 | Fully transparent | AI can access all raw data | Medium (requires confirmation) |
+| 3 | Training authorization | Data can be used to train Viblog models | High (requires confirmation + credits) |
+
+**UI Design:**
+```
+Personal Settings > AI Authorization
+┌────────────────────────────────────────┐
+│ Data Access Permissions                 │
+│                                        │
+│ [x] Authorize AI to access my insights │
+│ [x] Authorize AI to access my external links │
+│ [ ] Authorize AI to access my coding sessions │
+│                                        │
+│ Privacy Level:                         │
+│ ○ Sensitive fields desensitized (default) │
+│ ○ Fully transparent ⚠️ Risk warning    │
+│ ○ Training authorization → +50 credits/month │
+└────────────────────────────────────────┘
+```
+
+---
+
+## 11. Open Questions (Remaining)
+
+1. **Privacy:** How to handle community article search while respecting privacy?
+   - Proposed: Opt-in for community search; default is private
+
+2. **Caching:** How to cache `learn_from_articles` results for common queries?
+   - Proposed: Redis cache with 1-hour TTL for common patterns
+
+---
+
+## 11. References
 
 - [MCP Specification](https://modelcontextprotocol.io/specification/2025-11-25)
 - [Claude Code MCP Integration](https://code.claude.com/docs/en/mcp)
-- [Claude Code Analysis](./.comp_product_assets/ai-coding-tools/claude-code-analysis.md)
+- [Claude Code Analysis](../.comp_product_assets/ai-coding-tools/claude-code-analysis.md)
+- [IMPLEMENTATION_PLAN.md](../IMPLEMENTATION_PLAN.md) - Phase 10 detailed steps
 
 ---
 
-**Document Status:** Ready for Review
+**Document Version:** 3.0
+**Updated:** 2026-03-16
+**Status:** Approved for Implementation
 
-**Next Steps:**
-1. User reviews and approves design
-2. Begin Layer 1 implementation
-3. Create database migrations
-4. Build MCP Server scaffold
+**Key Decisions:**
+1. Hybrid Data Architecture (User DB + Platform DB)
+2. Local-first Model Routing with Platform Fallback
+3. Client Buffer + Server Queue Rate Limiting
+4. Independent Draft Buckets Table
+5. User-Authorized Data Sync Protocol
+6. **NEW: AI-Data-Native Architecture** - AIDataSchema, Authorization Token, Three-level Privacy
+7. **NEW: Four Data Protocols** - Structured Data, Vector Embeddings, Knowledge Graph, Time Series

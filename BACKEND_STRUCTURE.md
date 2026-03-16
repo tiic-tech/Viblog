@@ -454,6 +454,400 @@ $$ LANGUAGE plpgsql;
 
 ---
 
-**Document Version:** 2.0
-**Last Updated:** 2026-03-15
+---
+
+## 10. AI-Data-Native Tables (New - 2026-03-16)
+
+### 10.1 Overview
+
+These tables support the AI-Data-Native architecture, enabling:
+- **External reference management** - User-cited links and snapshots
+- **User insights** - Personal reading reflections and inspirations
+- **Annotation system** - Article highlighting and discussions
+- **Behavioral analytics** - User interaction tracking
+- **Credits system** - Data contribution incentives
+
+### 10.2 External Links (User Private Database)
+
+```sql
+-- User-cited external links
+CREATE TABLE public.external_links (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+
+  -- Link information
+  url TEXT NOT NULL,
+  title TEXT,                    -- Page title
+  site_name TEXT,                -- Source website
+  favicon_url TEXT,
+
+  -- Snapshot (stored with user authorization)
+  snapshot_status TEXT DEFAULT 'none'
+    CHECK (snapshot_status IN ('none', 'pending', 'cached', 'failed')),
+  snapshot_content TEXT,         -- Cached page content
+  snapshot_at TIMESTAMPTZ,
+
+  -- Vector embedding for semantic search
+  snapshot_embedding VECTOR(1536),  -- OpenAI text-embedding-3-small
+
+  -- Metadata
+  metadata JSONB DEFAULT '{}',   -- {author, publish_date, tags, ...}
+
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  last_accessed_at TIMESTAMPTZ,
+
+  UNIQUE(user_id, url)
+);
+
+CREATE INDEX idx_external_links_user ON public.external_links(user_id);
+CREATE INDEX idx_external_links_embedding ON public.external_links USING ivfflat (snapshot_embedding vector_cosine_ops);
+```
+
+### 10.3 User Insights (User Private Database)
+
+```sql
+-- User's reading reflections and inspirations
+CREATE TABLE public.user_insights (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+
+  -- Insight content
+  content TEXT NOT NULL,         -- User's thoughts/reflections
+  source_type TEXT NOT NULL
+    CHECK (source_type IN ('external_link', 'viblog_article', 'book', 'conversation')),
+  source_id UUID,                -- Related source ID
+
+  -- Vector embedding for semantic search
+  embedding VECTOR(1536),        -- OpenAI text-embedding-3-small
+
+  -- Context
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  context TEXT,                  -- Context when insight was written
+
+  -- Usage tracking
+  used_in_articles UUID[] DEFAULT '{}',
+
+  CONSTRAINT unique_user_insight UNIQUE(user_id, content)
+);
+
+CREATE INDEX idx_user_insights_user ON public.user_insights(user_id);
+CREATE INDEX idx_user_insights_embedding ON public.user_insights USING ivfflat (embedding vector_cosine_ops);
+CREATE INDEX idx_user_insights_source ON public.user_insights(source_type, source_id);
+```
+
+### 10.4 Insight Links (User Private Database)
+
+```sql
+-- Association between insights and external links
+CREATE TABLE public.insight_links (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  insight_id UUID REFERENCES public.user_insights(id) ON DELETE CASCADE NOT NULL,
+  link_id UUID REFERENCES public.external_links(id) ON DELETE CASCADE NOT NULL,
+
+  -- Excerpt that triggered the insight
+  excerpt TEXT,                  -- Quoted fragment from source
+  excerpt_position JSONB,        -- Position of fragment in source
+
+  -- User annotation
+  relevance_score INT DEFAULT 3, -- 1-5 relevance rating
+  note TEXT,                     -- User's note about this fragment
+
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+
+  UNIQUE(insight_id, link_id)
+);
+
+CREATE INDEX idx_insight_links_insight ON public.insight_links(insight_id);
+CREATE INDEX idx_insight_links_link ON public.insight_links(link_id);
+```
+
+### 10.5 Article Paragraphs (Platform Database)
+
+```sql
+-- Article paragraphs for annotation and retrieval
+CREATE TABLE public.article_paragraphs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  article_id UUID NOT NULL,      -- Public article ID
+  paragraph_index INT NOT NULL,  -- Paragraph order
+  content TEXT NOT NULL,         -- Paragraph text
+  content_hash TEXT,             -- Content hash (detect edits)
+
+  -- Vector embedding for semantic search
+  embedding VECTOR(1536),        -- OpenAI text-embedding-3-small
+
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+
+  UNIQUE(article_id, paragraph_index)
+);
+
+CREATE INDEX idx_paragraphs_article ON public.article_paragraphs(article_id);
+CREATE INDEX idx_paragraphs_embedding ON public.article_paragraphs USING ivfflat (embedding vector_cosine_ops);
+CREATE INDEX idx_paragraphs_hash ON public.article_paragraphs(content_hash);
+```
+
+### 10.6 Annotations (Platform Database)
+
+```sql
+-- Article annotations (highlighting and margin notes)
+CREATE TABLE public.annotations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  article_id UUID NOT NULL,      -- Public article ID
+  paragraph_id UUID REFERENCES public.article_paragraphs(id),
+  user_id UUID REFERENCES public.profiles(id) NOT NULL,
+
+  -- Annotation position
+  start_offset INT,              -- Character offset within paragraph
+  end_offset INT,
+  selected_text TEXT,            -- Selected original text (for display)
+
+  -- Annotation content
+  content TEXT NOT NULL,         -- Annotation content
+
+  -- Discussion chain
+  discussion JSONB DEFAULT '[]', -- [{user_id, content, created_at}]
+
+  -- Privacy
+  visibility TEXT DEFAULT 'public'
+    CHECK (visibility IN ('public', 'private', 'followers')),
+
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_annotations_user ON public.annotations(user_id);
+CREATE INDEX idx_annotations_article ON public.annotations(article_id);
+CREATE INDEX idx_annotations_paragraph ON public.annotations(paragraph_id);
+```
+
+### 10.7 User Interactions (Platform Database)
+
+```sql
+-- User behavioral events for analytics
+CREATE TABLE public.user_interactions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id),
+  session_id UUID,               -- Browser session
+
+  -- Interaction type
+  interaction_type TEXT NOT NULL
+    CHECK (interaction_type IN (
+      'page_view', 'article_view', 'click', 'scroll',
+      'star', 'unstar', 'follow', 'unfollow',
+      'search', 'share', 'bookmark', 'annotation_create'
+    )),
+
+  -- Target
+  target_type TEXT,              -- 'article', 'user', 'tag', 'annotation'
+  target_id UUID,
+
+  -- Details
+  metadata JSONB DEFAULT '{}',   -- {duration_ms, scroll_depth, referrer, ...}
+
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Partitioned by month for performance
+CREATE INDEX idx_interactions_user ON public.user_interactions(user_id);
+CREATE INDEX idx_interactions_type ON public.user_interactions(interaction_type);
+CREATE INDEX idx_interactions_created ON public.user_interactions(created_at);
+CREATE INDEX idx_interactions_target ON public.user_interactions(target_type, target_id);
+```
+
+### 10.8 User Credits (Platform Database)
+
+```sql
+-- User credits for data contribution
+CREATE TABLE public.user_credits (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) UNIQUE NOT NULL,
+
+  balance INT DEFAULT 0,         -- Current balance
+  total_earned INT DEFAULT 0,    -- Total earned
+  total_spent INT DEFAULT 0,     -- Total spent
+
+  -- Privacy level
+  privacy_level INT DEFAULT 1
+    CHECK (privacy_level BETWEEN 1 AND 3),
+
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_user_credits_user ON public.user_credits(user_id);
+```
+
+### 10.9 Credit Transactions (Platform Database)
+
+```sql
+-- Credit transaction history
+CREATE TABLE public.credit_transactions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) NOT NULL,
+
+  amount INT NOT NULL,           -- Positive = earned, negative = spent
+  transaction_type TEXT NOT NULL
+    CHECK (transaction_type IN (
+      'session_contribution', 'article_contribution', 'active_usage',
+      'subscription_payment', 'reward_redemption', 'referral_bonus'
+    )),
+
+  reference_id UUID,             -- Related session/article/etc
+  description TEXT,
+
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_credit_transactions_user ON public.credit_transactions(user_id);
+CREATE INDEX idx_credit_transactions_type ON public.credit_transactions(transaction_type);
+CREATE INDEX idx_credit_transactions_created ON public.credit_transactions(created_at);
+```
+
+### 10.10 Authorization Tokens (Platform Database)
+
+```sql
+-- AI access authorization tokens
+CREATE TABLE public.authorization_tokens (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES public.profiles(id) NOT NULL,
+
+  token_hash TEXT NOT NULL,      -- SHA-256 hash of token
+  token_prefix TEXT NOT NULL,    -- First 8 chars for display
+
+  -- Granted data sources
+  granted_datasources TEXT[] DEFAULT '{}',  -- ['user_insights', 'external_links', ...]
+
+  -- Privacy level
+  privacy_level INT DEFAULT 1
+    CHECK (privacy_level BETWEEN 1 AND 3),
+
+  -- Timestamps
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  expires_at TIMESTAMPTZ,
+  last_used_at TIMESTAMPTZ,
+
+  -- Status
+  is_active BOOLEAN DEFAULT TRUE,
+
+  UNIQUE(token_hash)
+);
+
+CREATE INDEX idx_auth_tokens_user ON public.authorization_tokens(user_id);
+CREATE INDEX idx_auth_tokens_hash ON public.authorization_tokens(token_hash);
+CREATE INDEX idx_auth_tokens_prefix ON public.authorization_tokens(token_prefix);
+```
+
+---
+
+## 11. Row Level Security (RLS) for New Tables
+
+### 11.1 External Links RLS
+
+```sql
+ALTER TABLE public.external_links ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can manage own external links"
+  ON public.external_links FOR ALL
+  USING (user_id = auth.uid());
+```
+
+### 11.2 User Insights RLS
+
+```sql
+ALTER TABLE public.user_insights ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can manage own insights"
+  ON public.user_insights FOR ALL
+  USING (user_id = auth.uid());
+```
+
+### 11.3 Annotations RLS
+
+```sql
+ALTER TABLE public.annotations ENABLE ROW LEVEL SECURITY;
+
+-- Public annotations are viewable by all
+CREATE POLICY "Public annotations viewable by all"
+  ON public.annotations FOR SELECT
+  USING (visibility = 'public' OR user_id = auth.uid());
+
+-- Users manage own annotations
+CREATE POLICY "Users manage own annotations"
+  ON public.annotations FOR ALL
+  USING (user_id = auth.uid());
+```
+
+### 11.4 User Interactions RLS
+
+```sql
+ALTER TABLE public.user_interactions ENABLE ROW LEVEL SECURITY;
+
+-- Users can only see their own interactions
+CREATE POLICY "Users see own interactions"
+  ON public.user_interactions FOR SELECT
+  USING (user_id = auth.uid());
+
+-- Anyone can insert (for anonymous tracking)
+CREATE POLICY "Anyone can insert interactions"
+  ON public.user_interactions FOR INSERT
+  WITH CHECK (true);
+```
+
+---
+
+## 12. API Endpoints for AI-Data-Native Features
+
+### 12.1 External Links Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/links` | Create external link with snapshot |
+| GET | `/api/links` | List user's external links |
+| GET | `/api/links/[id]` | Get link details |
+| DELETE | `/api/links/[id]` | Delete external link |
+| POST | `/api/links/[id]/snapshot` | Refresh snapshot |
+
+### 12.2 Insights Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/insights` | Create insight |
+| GET | `/api/insights` | List user's insights |
+| PUT | `/api/insights/[id]` | Update insight |
+| DELETE | `/api/insights/[id]` | Delete insight |
+| POST | `/api/insights/search` | Semantic search insights |
+
+### 12.3 Annotation Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/articles/[id]/annotations` | Create annotation |
+| GET | `/api/articles/[id]/annotations` | List article annotations |
+| PUT | `/api/annotations/[id]` | Update annotation |
+| DELETE | `/api/annotations/[id]` | Delete annotation |
+| POST | `/api/annotations/[id]/reply` | Add reply to discussion |
+
+### 12.4 Authorization Token Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/tokens` | Generate new authorization token |
+| GET | `/api/auth/tokens` | List user's tokens |
+| DELETE | `/api/auth/tokens/[id]` | Revoke token |
+| PUT | `/api/auth/tokens/[id]` | Update token permissions |
+
+### 12.5 Credits Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/credits` | Get user's credit balance |
+| GET | `/api/credits/transactions` | Get transaction history |
+| POST | `/api/credits/earn` | Earn credits (contribution) |
+| POST | `/api/credits/spend` | Spend credits (redemption) |
+
+---
+
+**Document Version:** 3.0
+**Last Updated:** 2026-03-16
 **Author:** Viblog Team
+**Key Updates:** Added AI-Data-Native tables, RLS policies, and API endpoints

@@ -261,7 +261,129 @@ interface ArticleGenerationPrompt {
 
 ---
 
-## 10. Testing
+## 10. AI-Data-Native Infrastructure (New - 2026-03-16)
+
+### 10.1 Vector Database
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| pgvector | 0.5.1 | PostgreSQL extension for vector similarity search |
+| OpenAI API | latest | text-embedding-3-small for 1536-dim embeddings |
+
+**Configuration:**
+```sql
+-- Enable pgvector extension
+CREATE EXTENSION IF NOT EXISTS vector;
+
+-- Create vector index (IVFFlat for large datasets)
+CREATE INDEX idx_embeddings ON table_name
+USING ivfflat (embedding vector_cosine_ops)
+WITH (lists = 100);
+
+-- For smaller datasets, use HNSW
+CREATE INDEX idx_embeddings_hnsw ON table_name
+USING hnsw (embedding vector_cosine_ops);
+```
+
+**Embedding Strategy:**
+| Content Type | Embedding Model | Dimension | Storage |
+|--------------|-----------------|-----------|---------|
+| Article paragraphs | text-embedding-3-small | 1536 | Platform DB |
+| User insights | text-embedding-3-small | 1536 | User DB |
+| External link snapshots | text-embedding-3-small | 1536 | User DB |
+| Article overall | text-embedding-3-small | 1536 | Platform DB |
+
+### 10.2 Knowledge Graph
+
+| Option | Version | Purpose | Notes |
+|--------|---------|---------|-------|
+| Apache AGE | 1.5.0 | Graph extension for PostgreSQL | Recommended for MVP |
+| Neo4j | 5.x | Dedicated graph database | Future consideration |
+| RedisGraph | 2.x | In-memory graph | Performance-critical scenarios |
+
+**Apache AGE Configuration:**
+```sql
+-- Enable Apache AGE extension
+CREATE EXTENSION IF NOT EXISTS age;
+
+-- Create graph
+SELECT create_graph('viblog_knowledge');
+
+-- Example: Create user-article relationship
+SELECT * FROM cypher('viblog_knowledge', $$
+  CREATE (u:User {id: 'user-uuid'})-[:WROTE]->(a:Article {id: 'article-uuid'})
+  RETURN u, a
+$$) as (u agtype, a agtype);
+```
+
+**Graph Schema:**
+```
+Node Types:
+├── User - User entity
+├── Article - Published article
+├── Topic - Content topic
+├── Technology - Tech stack element
+├── Insight - User insight
+└── ExternalLink - External reference
+
+Edge Types:
+├── WROTE - User wrote Article
+├── CITES - Article cites ExternalLink
+├── RELATED_TO - Article related to Topic
+├── USES - Article uses Technology
+├── INSPIRED_BY - Insight inspired by ExternalLink
+└── FOLLOWS - User follows User
+```
+
+### 10.3 Time Series Database
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| TimescaleDB | 2.x | PostgreSQL extension for time series |
+| PostgreSQL Partitioning | 15+ | Native table partitioning (alternative) |
+
+**TimescaleDB Configuration:**
+```sql
+-- Enable TimescaleDB extension
+CREATE EXTENSION IF NOT EXISTS timescaledb;
+
+-- Create hypertable for user interactions
+SELECT create_hypertable(
+  'user_interactions',
+  'created_at',
+  chunk_time_interval => INTERVAL '1 month'
+);
+
+-- Create continuous aggregate for daily stats
+CREATE MATERIALIZED VIEW daily_interactions
+WITH (timescaledb.continuous) AS
+SELECT
+  time_bucket('1 day', created_at) AS day,
+  interaction_type,
+  COUNT(*) as count
+FROM user_interactions
+GROUP BY day, interaction_type;
+```
+
+### 10.4 AI Data Access Protocol
+
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| JSON Schema | Draft 2020-12 | Structured data schema definition |
+| Zod | 3.22.4 | Runtime validation |
+| OpenAI API | latest | Embedding generation |
+| pgvector | 0.5.1 | Vector similarity search |
+
+**Cost Analysis:**
+| Operation | Tokens/Request | Cost (per 1K) | Monthly Estimate |
+|-----------|---------------|---------------|------------------|
+| Embedding generation | ~500 tokens | $0.00002 | ~$10 for 500K tokens |
+| Vector search | ~100 tokens | $0.00002 | ~$5 for 250K queries |
+| Structured data API | ~1000 tokens | $0.003 (Sonnet) | ~$30 for 10K requests |
+
+---
+
+## 11. Testing
 
 ### 10.1 Unit Testing
 
@@ -293,7 +415,7 @@ interface ArticleGenerationPrompt {
 
 ---
 
-## 12. Environment Variables
+## 13. Environment Variables
 
 ```bash
 # Required in Production
@@ -306,6 +428,12 @@ ENCRYPTION_KEY=
 # MCP Server (User's local)
 VIBLOG_API_KEY=  # User's personal API key from Viblog
 VIBLOG_API_URL=https://viblog.tiic.tech
+
+# AI-Data-Native (New)
+OPENAI_API_KEY=  # For embedding generation (user's or platform's)
+KNOWLEDGE_GRAPH_ENABLED=true
+VECTOR_SEARCH_ENABLED=true
+TIMESCALE_ENABLED=true
 ```
 
 ---
@@ -324,6 +452,7 @@ VIBLOG_API_URL=https://viblog.tiic.tech
 
 ---
 
-**Document Version:** 2.0
-**Last Updated:** 2026-03-15
+**Document Version:** 3.0
+**Last Updated:** 2026-03-16
 **Author:** Viblog Team
+**Key Updates:** Added AI-Data-Native infrastructure (pgvector, Apache AGE, TimescaleDB, embeddings)

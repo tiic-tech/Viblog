@@ -475,6 +475,266 @@ Step 5: Update Documents & Report (RULE 6)
 
 ---
 
+---
+
+## Phase 9.5: Pre-Phase 10 Brainstorming Sessions (2026-03-16)
+
+### Overview
+
+Before entering Phase 10 MCP development, we conducted two deep brainstorming sessions to ensure architectural decisions were correct. This was not implementation work, but strategic thinking that fundamentally shaped Viblog's direction.
+
+**Key Insight: AI-Native = AI-Data-Native**
+
+---
+
+### Session 1: A2A Architecture & Data Model (2026-03-16 Morning)
+
+**What We Discussed:**
+1. Hybrid Data Architecture - User DB vs Platform DB
+2. Local-first Model Routing Strategy
+3. Draft Bucket Model Decision
+4. Data Ownership and Privacy Principles
+
+**Key Decisions Made:**
+1. **Hybrid Architecture:** Private data stays in user database; published content syncs to platform with user authorization
+2. **Model Routing:** Local LLM first, fallback to Viblog cloud when needed
+3. **Draft Buckets:** Independent table (Option B) for clear session-draft separation
+4. **Data Ownership:** User owns all creation data; platform owns interaction data
+
+**What Went Well:**
+- Systematic decision-making with options analysis
+- Clear trade-off documentation
+- Architecture diagram created for shared understanding
+
+---
+
+### Session 2: Human User Experience & AI-Data-Native Architecture (2026-03-16 Afternoon)
+
+**This Session Was Transformative.**
+
+**What We Discussed:**
+1. Human user writing/reading experience scenarios
+2. Commercial platform data requirements (user behavior, analytics)
+3. Annotation system design (Medium-style highlighting)
+4. Credits and incentives system
+5. **Most Important:** AI-Data-Native Architecture
+
+**The Core Insight:**
+
+> **AI-Native = AI-Data-Native**
+
+Data structure design is what makes AI-Native truly work. The critical question: **How to design data protocols so AI automatically knows how to I/O when accessing Viblog?**
+
+**This Changed Everything:**
+
+From this single insight, we derived:
+1. **Four Data Protocols:**
+   - Structured Data (JSON Schema) - MCP tool param parsing
+   - Vector Embeddings (pgvector) - Semantic retrieval
+   - Knowledge Graph (Apache AGE) - Association reasoning
+   - Time Series (TimescaleDB) - Trend analysis
+
+2. **AIDataSchema Interface:**
+```typescript
+// AI obtains this automatically when accessing Viblog
+interface AIDataSchema {
+  datasources: DataSource[];
+  schemas: JSONSchema[];
+  vectorStores: VectorStore[];
+  knowledgeGraphs: KnowledgeGraph[];
+  timeSeries: TimeSeries[];
+  authorization: AuthorizationStatus;
+}
+```
+
+3. **Three-Level Privacy Authorization:**
+   - Level 1: Sensitive fields desensitized (default)
+   - Level 2: Fully transparent (user confirmation)
+   - Level 3: Training authorization (+50 credits/month)
+
+4. **Data Source Authorization Model:**
+   - user_insights → [ ] Authorize
+   - external_links → [ ] Authorize
+   - vibe_sessions → [ ] Authorize (contribute training data)
+   - knowledge_graph → [ ] Authorize
+
+---
+
+### What Went Well (The Working Method)
+
+#### Good Case 11: From Future Vision Backwards Design
+
+**Scenario:** User asked how to design data schema for future AI model training.
+
+**What We Did Right:**
+1. Started from future vision: "Train Viblog foundation model"
+2. Derived data requirements: "What dataset to build?"
+3. Designed schema: "How should raw data schema be structured?"
+4. Considered behavior: "How to guide user behavior to produce correct data format?"
+5. Then UI/UX: "How to guide user behavior through interface?"
+
+**Pattern to Internalize:**
+```
+Future Vision
+    ↓
+Data Requirements
+    ↓
+Schema Design
+    ↓
+Behavior Guidance
+    ↓
+UI/UX Design
+```
+
+This "backwards design" ensures every UI decision serves the ultimate data goal.
+
+#### Good Case 12: Dual-Perspective Analysis (CTO + CPO)
+
+**Scenario:** Designing the annotation system schema.
+
+**What We Did Right:**
+- User played CPO role: "Users want Medium-style highlighting"
+- I played CTO role: "How to persist annotation position when article is edited?"
+- Discussed token consumption for LLM retrieval
+- Analyzed costs for different approaches
+- Arrived at hybrid solution: Paragraph ID + Vector storage
+
+**Pattern to Internalize:**
+```
+For product-technical decisions:
+1. Start with user experience (CPO)
+2. Translate to technical constraints (CTO)
+3. Find the sweet spot that serves both
+4. Document the trade-offs explicitly
+```
+
+#### Good Case 13: Scenario-Driven Schema Design
+
+**Scenario:** Designing external_links and user_insights tables.
+
+**What We Did Right:**
+1. Described user scenario: "User pastes a link, writes insights, generates article"
+2. Asked: "What data needs to be stored?"
+3. Asked: "What relationships exist?"
+4. Asked: "How does AI access this?"
+5. Only then designed the tables
+
+**Schema Design Pattern:**
+```
+User Scenario → Data Requirements → Relationships → AI Access Patterns → Schema
+```
+
+---
+
+### What Could Be Better
+
+#### Bad Case 11: Initially Overlooked Human User Experience
+
+**What happened:** Previous design sessions focused heavily on A2A (AI-to-AI) architecture. Human user experience was not deeply considered.
+
+**Impact:**
+- Missing user stories for Human users
+- No clear differentiation between A2A and Human scenarios
+- Credits system not designed
+- Annotation system not designed
+
+**Root Cause:**
+- Over-focus on technical differentiation (MCP protocol)
+- Assumption that "blog is just blog"
+- Missing the "dual-track users" in architecture design
+
+**Prevention:**
+```
+For AI-Native products:
+1. Remember: AI serves humans, not replaces them
+2. Always ask: "What does the HUMAN user experience?"
+3. Design A2A and Human experiences in parallel
+4. The "AI" in AI-Native includes the humans who built the AI
+```
+
+**This Session Corrected It:**
+- Added 13 Human user experience user stories to PRD.md
+- Added credits system for data contribution incentives
+- Added annotation system for reading engagement
+- Added authorization settings UI for privacy control
+
+---
+
+### Key Architecture Decisions Documented
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| Data Architecture | Hybrid (User DB + Platform DB) | Privacy-first, user owns creation data |
+| AI-Native Definition | AI-Data-Native | Data protocols enable AI self-discovery |
+| Data Protocols | 4 types (Structured, Vector, Graph, Time Series) | Different access patterns for different needs |
+| Authorization | Data source level (MVP) | Simple to implement, clear to users |
+| Privacy Levels | 3 levels with trade-offs | User choice with clear consequences |
+| Vector Storage | pgvector + OpenAI embeddings | 1536-dim, platform DB for retrieval |
+| Knowledge Graph | Apache AGE (PostgreSQL extension) | Avoid separate infrastructure |
+| Time Series | TimescaleDB | For behavioral analytics |
+
+---
+
+### Documents Updated (6 files)
+
+| Document | Version | Key Updates |
+|----------|---------|-------------|
+| VIBLOG_MCP_SERVICE_DESIGN.md | 2.0 → 3.0 | AI-Data-Native architecture (Section 10) |
+| BACKEND_STRUCTURE.md | 2.0 → 3.0 | 10 new tables, RLS policies |
+| TECH_STACK.md | 2.0 → 3.0 | pgvector, Apache AGE, TimescaleDB |
+| PRD.md | 2.0 → 3.0 | 13 Human UX user stories |
+| FRONTEND_GUIDELINES.md | 3.0 → 4.0 | UI components for new features |
+| IMPLEMENTATION_PLAN.md | 3.0 → 4.0 | Restructured Phase 10 (6-8 weeks) |
+
+---
+
+### The Collaborative Working Method
+
+**What Made This Session Effective:**
+
+1. **Role Clarity:**
+   - User: Partner / CPO / Product Visionary
+   - Claude: Partner / CTO / Technical Architect
+
+2. **Decision Documentation:**
+   - Every major decision explicitly stated
+   - Trade-offs analyzed
+   - "Decision confirmed" moments
+
+3. **From Vision to Implementation:**
+   - Started with "Why" (future vision)
+   - Then "What" (data requirements)
+   - Then "How" (schema design)
+   - Then "UI" (user experience)
+
+4. **Iteration, Not Perfection:**
+   - Proposed options first
+   - Discussed trade-offs
+   - Made decisions
+   - Documented clearly
+
+5. **Think-Aloud Protocol:**
+   - I explained my reasoning
+   - User corrected course when needed
+   - Both aligned on direction
+
+---
+
+### Lessons for Future Brainstorming Sessions
+
+1. **Start with "Why":** Future vision first, then work backwards
+2. **Dual Perspective:** Always consider both CPO (user) and CTO (technical) views
+3. **Scenario-Driven:** User stories before schema design
+4. **Document Decisions:** Explicit "Decision confirmed" moments
+5. **Think of Data as Protocol:** How will AI (not just humans) access this?
+6. **Human-Centered:** AI-Native doesn't mean AI-only
+
+---
+
+**Phase 9.5 Completion:** Architecture finalized, 6 documents updated, ready for Phase 10 implementation
+
+---
+
 ## Bad Cases: Mistakes to Avoid
 
 ### Bad Case 1: Database Column Name Mismatch
@@ -681,7 +941,8 @@ After context compaction/session resume:
 
 ---
 
-**Document Version:** 4.0
-**Last Updated:** 2026-03-15
+**Document Version:** 5.0
+**Last Updated:** 2026-03-16
 **Author:** Claude (with human collaborator)
-**Phase 9 Completion:** 7 products analyzed, 22.7/25 average score, 4 new bad cases documented
+**Phase 9.5 Completion:** Brainstorming sessions completed, AI-Data-Native architecture designed
+**Key Insight:** AI-Native = AI-Data-Native
