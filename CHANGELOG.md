@@ -623,3 +623,37 @@ All notable changes to this project will be documented in this file.
 - Screenshots: `.comp_product_assets/traditional-blogs/effortel_screenshots/`
 - Scraped data: `.comp_product_assets/traditional-blogs/effortel-scraped.md`
 
+### Added - Code Gallery UI Development (2026-03-17)
+
+**Phase 1: Design Token Refinement - COMPLETED**
+- Border radius scale: 4px/8px/12px/16px (Effortel-aligned)
+- Hero/Display line heights: 1.1/1.15 (premium typography)
+- Tag/Badge system tokens: transparent bg, 4px radius, 0.1em letter-spacing
+- Deprecation: `rounded-2xl` (28px) → `rounded-xl` (16px)
+- Reference: `docs/dev-logs/phase-1-design-token-refinement.md`
+
+**Phase 2: Card Component Polish - COMPLETED**
+- **2.1 Border Radius Migration:** Updated cards from `rounded-2xl` to `rounded-xl`
+- **2.2 Hover Overlay Enhancement:**
+  - Added diagonal gradient overlay (135deg, black/80 → transparent)
+  - Arrow icon reveal on hover with spring animation
+  - 300ms transition duration
+- **2.3 16:10 Aspect Ratio:**
+  - Image containers use `aspect-[16/10]` for consistent proportions
+  - Object-cover for proper image fitting
+- **2.4 Outlined Tag Component:**
+  - Pattern: `bg-transparent border-white/[0.15] rounded-sm`
+  - Typography: 11px, uppercase, tracking-widest
+  - Displays: `vibe_model` and `vibe_duration_minutes` tags
+  - Positioned after title, before excerpt
+
+**Technical Implementation:**
+- Card structure: Image container (aspect ratio + badge + hover overlay) + Content section
+- Fixed duplicate hover overlay bug (removed incorrectly placed duplicate)
+- All changes aligned with Effortel design patterns (22/25 score reference)
+
+**Files Modified:**
+- `src/app/(public)/page.tsx` - Exhibition card component updates
+- `src/styles/design-system.css` - Phase 1 design tokens
+- `tailwind.config.ts` - Token synchronization
+
