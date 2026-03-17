@@ -37,11 +37,13 @@ export function PublicArticleCard({ article }: PublicArticleCardProps) {
           'relative h-full overflow-hidden',
           'border border-[rgba(255,255,255,0.08)]',
           'bg-bg-card',
-          // Hover transform + shadow
+          // Hover transform + shadow (desktop)
           'transition-all duration-[300ms] ease-[cubic-bezier(0.16,1,0.3,1)]',
           'hover:-translate-y-1',
           'hover:shadow-[0_12px_40px_rgba(0,0,0,0.4),0_0_30px_rgba(139,92,246,0.15)]',
-          'hover:border-accent-primary/30'
+          'hover:border-accent-primary/30',
+          // Touch feedback (mobile)
+          'active:scale-[0.98] active:transition-transform'
         )}
       >
         {/* Tags Section */}
@@ -49,7 +51,7 @@ export function PublicArticleCard({ article }: PublicArticleCardProps) {
           {article.vibe_platform && (
             <Badge
               variant="secondary"
-              className="text-xs bg-transparent border border-[rgba(255,255,255,0.15)] text-fg-secondary"
+              className="border border-[rgba(255,255,255,0.15)] bg-transparent text-xs text-fg-secondary"
             >
               {article.vibe_platform}
             </Badge>
@@ -57,7 +59,7 @@ export function PublicArticleCard({ article }: PublicArticleCardProps) {
           {article.vibe_duration_minutes && (
             <Badge
               variant="outline"
-              className="text-xs gap-1 bg-transparent border border-[rgba(255,255,255,0.15)] text-fg-secondary"
+              className="gap-1 border border-[rgba(255,255,255,0.15)] bg-transparent text-xs text-fg-secondary"
             >
               <Clock className="h-3 w-3" />
               {article.vibe_duration_minutes} min
@@ -66,7 +68,7 @@ export function PublicArticleCard({ article }: PublicArticleCardProps) {
           {article.vibe_model && (
             <Badge
               variant="outline"
-              className="text-xs bg-transparent border border-[rgba(255,255,255,0.15)] text-fg-secondary"
+              className="border border-[rgba(255,255,255,0.15)] bg-transparent text-xs text-fg-secondary"
             >
               {article.vibe_model}
             </Badge>
@@ -101,7 +103,7 @@ export function PublicArticleCard({ article }: PublicArticleCardProps) {
 
           {/* Project Badge */}
           {article.projects && (
-            <div className="absolute bottom-2 left-2 flex items-center gap-1.5 rounded-md bg-bg-surface/80 px-2 py-1 text-xs backdrop-blur-sm">
+            <div className="bg-bg-surface/80 absolute bottom-2 left-2 flex items-center gap-1.5 rounded-md px-2 py-1 text-xs backdrop-blur-sm">
               <div
                 className="h-2 w-2 rounded-full"
                 style={{ backgroundColor: article.projects.color || '#6366f1' }}
@@ -114,7 +116,7 @@ export function PublicArticleCard({ article }: PublicArticleCardProps) {
           <div
             className={cn(
               'absolute inset-0 flex items-center justify-center',
-              'bg-gradient-to-br from-accent-primary/80 to-accent-secondary/80',
+              'from-accent-primary/80 to-accent-secondary/80 bg-gradient-to-br',
               'opacity-0 transition-opacity duration-300',
               'group-hover/card:opacity-100'
             )}
@@ -145,9 +147,7 @@ export function PublicArticleCard({ article }: PublicArticleCardProps) {
             {article.title}
           </h3>
           {article.excerpt && (
-            <p className="mb-3 line-clamp-2 text-sm text-fg-secondary">
-              {article.excerpt}
-            </p>
+            <p className="mb-3 line-clamp-2 text-sm text-fg-secondary">{article.excerpt}</p>
           )}
           <div className="flex items-center justify-between text-xs text-fg-muted">
             <div className="flex items-center gap-2">

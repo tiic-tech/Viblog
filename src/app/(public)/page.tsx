@@ -299,7 +299,7 @@ export default function RevolutionaryHomepage() {
       </motion.section>
 
       {/* Journey Timeline Section */}
-      <section className="relative z-10 py-32">
+      <section className="relative z-10 py-16 md:py-32">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 60 }}
@@ -406,7 +406,7 @@ export default function RevolutionaryHomepage() {
       </section>
 
       {/* Exhibition Gallery Section */}
-      <section id="exhibitions" className="relative z-10 py-32">
+      <section id="exhibitions" className="relative z-10 py-16 md:py-32">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 60 }}
@@ -565,7 +565,7 @@ export default function RevolutionaryHomepage() {
       </section>
 
       {/* Code Art Showcase */}
-      <section className="relative z-10 py-32">
+      <section className="relative z-10 py-16 md:py-32">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 60 }}
@@ -656,7 +656,7 @@ export default function RevolutionaryHomepage() {
       </section>
 
       {/* CTA Section */}
-      <section className="relative z-10 py-32">
+      <section className="relative z-10 py-16 md:py-32">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -668,7 +668,7 @@ export default function RevolutionaryHomepage() {
             {/* Background Glow */}
             <div className="from-accent-primary/20 via-accent-secondary/20 to-accent-tertiary/20 absolute -inset-4 bg-gradient-to-r opacity-50 blur-3xl" />
 
-            <div className="border-glass-border bg-glass-bg relative rounded-3xl border p-12 backdrop-blur-sm md:p-16">
+            <div className="border-glass-border bg-glass-bg relative rounded-3xl border p-8 backdrop-blur-sm md:p-12 lg:p-16">
               <h2 className="mb-6 font-display text-4xl font-bold text-fg-primary md:text-5xl lg:text-6xl">
                 Ready to Write Your Story?
               </h2>
