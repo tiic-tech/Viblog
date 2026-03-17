@@ -305,7 +305,7 @@ export default function RevolutionaryHomepage() {
             initial={{ opacity: 0, y: 60 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="mx-auto mb-24 max-w-4xl text-center"
           >
             <h2 className="mb-6 font-display text-4xl font-bold md:text-5xl lg:text-6xl">
@@ -374,7 +374,7 @@ export default function RevolutionaryHomepage() {
                 initial={{ opacity: 0, x: index % 2 === 0 ? -60 : 60 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: '-100px' }}
-                transition={{ delay: index * 0.2, duration: 0.8 }}
+                transition={{ delay: index * 0.15, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                 className={`relative mb-16 flex items-center gap-8 lg:mb-24 ${
                   index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'
                 }`}
@@ -412,6 +412,7 @@ export default function RevolutionaryHomepage() {
             initial={{ opacity: 0, y: 60 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="mx-auto mb-16 max-w-4xl text-center"
           >
             <span className="mb-4 block font-mono text-sm uppercase tracking-widest text-accent-primary">
@@ -434,7 +435,7 @@ export default function RevolutionaryHomepage() {
                   initial={{ opacity: 0, y: 40 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-50px' }}
-                  transition={{ delay: index * 0.1, duration: 0.6 }}
+                  transition={{ delay: index * 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                   className={`group relative ${index === 0 ? 'md:col-span-2 md:row-span-2' : ''}`}
                 >
                   <Link href={`/article/${article.slug}`}>
@@ -593,7 +594,7 @@ export default function RevolutionaryHomepage() {
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 1, delay: 0.3 }}
+                  transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
                 >
                   <span style={{ color: 'var(--code-keyword)' }}>import</span>
                   <span className="text-fg-primary">
@@ -661,6 +662,7 @@ export default function RevolutionaryHomepage() {
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="relative mx-auto max-w-4xl text-center"
           >
             {/* Background Glow */}

@@ -270,4 +270,43 @@
   /* Primary Button Glow */
   --btn-primary-glow: 0 0 20px rgba(139, 92, 246, 0.3);
   --btn-primary-glow-intense: 0 0 30px rgba(139, 92, 246, 0.4);
+
+  /* ============================================
+     16. MICRO-INTERACTIONS CATALOG
+     Phase 11.4: Hover Effects & Animations
+     ============================================ */
+  /* Card Hover */
+  --hover-card-transform: translateY(-4px);
+  --hover-card-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(139, 92, 246, 0.15);
+  --hover-card-duration: 300ms;
+  --hover-card-easing: cubic-bezier(0.16, 1, 0.3, 1); /* Premium smooth */
+
+  /* Button Hover (filled) */
+  --hover-button-bg-lighten: 10%;
+  --hover-button-glow: 0 0 20px rgba(139, 92, 246, 0.3);
+  --hover-button-duration: 200ms;
+  --hover-button-easing: ease;
+
+  /* Button Hover (outlined) */
+  --hover-button-outline-border: rgba(139, 92, 246, 0.5);
+  --hover-button-outline-bg: rgba(139, 92, 246, 0.1);
+
+  /* Nav Link Hover */
+  --hover-nav-color: var(--accent-primary);
+  --hover-nav-duration: 150ms;
+  --hover-nav-easing: ease;
+
+  /* Tag Hover */
+  --hover-tag-border: rgba(255, 255, 255, 0.25);
+  --hover-tag-color: var(--fg-primary);
+  --hover-tag-duration: 200ms;
+
+  /* Article Title Hover */
+  --hover-title-color: var(--accent-primary);
+  --hover-title-duration: 150ms;
+
+  /* Scroll Animation */
+  --scroll-reveal-duration: 600ms;
+  --scroll-reveal-delay-base: 100ms;
+  --scroll-reveal-easing: cubic-bezier(0.16, 1, 0.3, 1); /* Premium smooth */
 }

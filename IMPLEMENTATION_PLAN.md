@@ -1214,7 +1214,7 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
 
 ### Step 11.4: Micro-interactions Polish
 
-**Status:** Pending
+**Status:** In Progress (3/5 checkpoints complete)
 
 **Soul Check:** Serves ALL User Stories - Premium feel through subtle animations builds trust in AI-generated content. Every interaction reinforces the "Code Gallery" aesthetic.
 
@@ -1224,10 +1224,11 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
 - `src/styles/design-system.css`
 - `src/app/(public)/page.tsx`
 - `src/components/public/article-card.tsx`
+- `tailwind.config.ts` (CRITICAL: container centering fix)
 
 **Checkpoints:**
 
-- [ ] **11.4.1: Define Hover Effects Catalog** (File: `src/styles/design-system.css`)
+- [x] **11.4.1: Define Hover Effects Catalog** (File: `src/styles/design-system.css`)
   - Card: Overlay fade + arrow slide (300ms ease-out)
   - Button (filled): Background lighten + glow (200ms ease)
   - Button (outlined): Border color + bg fill (200ms ease)
@@ -1235,11 +1236,12 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
   - Tag: Border opacity + text color (200ms ease)
   - Article Title: Color shift to accent (150ms ease)
 
-- [ ] **11.4.2: Implement Card Hover Enhancement** (File: `src/components/public/article-card.tsx`)
+- [x] **11.4.2: Implement Card Hover Enhancement** (File: `src/components/public/article-card.tsx`)
   - Extract hover logic to article-card.tsx for reusability
   - Add translateY(-4px) + box-shadow on hover
+  - Hover overlay with arrow reveal animation
 
-- [ ] **11.4.3: Implement Scroll Animations** (File: `src/app/(public)/page.tsx`)
+- [x] **11.4.3: Implement Scroll Animations** (File: `src/app/(public)/page.tsx`)
   - Staggered card reveal with premium easing
   - Update easing function: `[0.16, 1, 0.3, 1]` (premium smooth)
 
@@ -1250,6 +1252,12 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
 - [ ] **11.4.5: Verify Progress Indicator** (File: `src/app/(public)/page.tsx`)
   - Verify scroll progress animation
   - Consider adding to article detail pages
+
+**CRITICAL FIX (2026-03-17):**
+- Fixed Tailwind container centering issue
+- Root cause: Tailwind's default `container` class does NOT center content
+- Fix: Added `center: true` and responsive padding to `tailwind.config.ts`
+- This affected ALL page layouts, causing elements to appear left-aligned
 
 **Target Score:** Micro-interactions (10/10), Premium Feel (9/10)
 

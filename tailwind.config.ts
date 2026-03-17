@@ -4,6 +4,16 @@ const config: Config = {
   darkMode: 'class',
   content: ['./src/**/*.{ts,tsx}'],
   theme: {
+    // Container configuration - CRITICAL for page centering
+    container: {
+      center: true,
+      padding: {
+        DEFAULT: '1rem', // 16px on mobile
+        sm: '2rem', // 32px on sm and up
+        lg: '4rem', // 64px on lg and up
+        xl: '5rem', // 80px on xl and up
+      },
+    },
     extend: {
       /* ============================================
          COLORS - Revolutionary Design System

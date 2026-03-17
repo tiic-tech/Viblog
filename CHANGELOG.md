@@ -63,11 +63,27 @@ All notable changes to this project will be documented in this file.
   - CTA card with gradient background
   - Social links (Twitter, GitHub)
 
-- **Step 11.4: Micro-interactions Polish**
-  - Card hover overlay with arrow reveal (300ms ease-out)
-  - Button hover effects (200ms ease)
-  - Nav link color shift (150ms ease)
-  - Staggered scroll animations
+- **Step 11.4: Micro-interactions Polish** IN PROGRESS (3/5 checkpoints)
+  - [x] 11.4.1: Define Hover Effects Catalog (design-system.css lines 275-311)
+  - [x] 11.4.2: Implement Card Hover Enhancement (hover overlay with arrow reveal)
+  - [x] 11.4.3: Implement Scroll Animations (premium easing: cubic-bezier(0.16,1,0.3,1))
+  - [ ] 11.4.4: Add Loading States (skeleton placeholders)
+  - [ ] 11.4.5: Verify Progress Indicator
+  - Card hover: translateY(-4px) + glow shadow + overlay reveal
+  - Premium easing: `cubic-bezier(0.16, 1, 0.3, 1)` for smooth animations
+  - Hover overlay with gradient background and arrow animation
+
+- **CRITICAL FIX: Container Centering** (2026-03-17)
+  - Issue: All page elements except hero were left-aligned instead of centered
+  - Root cause: Tailwind's default `container` class does NOT center content
+  - Fix: Added container configuration to `tailwind.config.ts`:
+    ```typescript
+    container: {
+      center: true,
+      padding: { DEFAULT: '1rem', sm: '2rem', lg: '4rem', xl: '5rem' }
+    }
+    ```
+  - This fix affects ALL page layouts across the entire application
 
 - **Step 11.5: Mobile Responsive Polish**
   - Hero title: 60-128px desktop, 36-48px mobile
