@@ -212,10 +212,10 @@ export type Database = {
           name?: string
           privacy_level?: number | null
           token_hash?: string
-          token_prefix?: string
+          token_prefix?:string
           token_type?: string | null
           updated_at?: string
-          user_id?: string
+          user_id?:string
         }
         Relationships: []
       }
@@ -308,7 +308,7 @@ export type Database = {
           title?: string | null
           updated_at?: string
           url?: string
-          user_id?: string
+          user_id?:string
         }
         Relationships: []
       }
@@ -337,8 +337,8 @@ export type Database = {
           edge_type?: string
           id?: string
           source_node_id?: string
-          target_node_id?: string
-          user_id?: string
+          target_node_id?:string
+          user_id?:string
         }
         Relationships: []
       }
@@ -365,7 +365,7 @@ export type Database = {
           node_data?: Json
           node_type?: string
           updated_at?: string
-          user_id?: string
+          user_id?:string
         }
         Relationships: []
       }
@@ -470,7 +470,37 @@ export type Database = {
           name?: string
           slug?: string
           updated_at?: string
-          user_id?: string
+          user_id?:string
+        }
+        Relationships: []
+      }
+      session_fragments: {
+        Row: {
+          content: string
+          created_at: string
+          fragment_type: string
+          id: string
+          metadata: Json | null
+          sequence_number: number
+          session_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          fragment_type: string
+          id?: string
+          metadata?: Json | null
+          sequence_number: number
+          session_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          fragment_type?: string
+          id?: string
+          metadata?: Json | null
+          sequence_number?: number
+          session_id?: string
         }
         Relationships: []
       }
@@ -491,7 +521,7 @@ export type Database = {
           article_id?: string
           created_at?: string
           id?: string
-          user_id?: string
+          user_id?:string
         }
         Relationships: []
       }
@@ -524,7 +554,7 @@ export type Database = {
           total_earned?: number
           total_spent?: number
           updated_at?: string
-          user_id?: string
+          user_id?:string
         }
         Relationships: []
       }
@@ -575,7 +605,7 @@ export type Database = {
           tags?: string[] | null
           title?: string | null
           updated_at?: string
-          user_id?: string
+          user_id?:string
         }
         Relationships: []
       }
@@ -661,8 +691,53 @@ export type Database = {
           llm_model?: string | null
           llm_provider?: string | null
           updated_at?: string
-          user_id?: string
+          user_id?:string
           vibe_platforms?: Json | null
+        }
+        Relationships: []
+      }
+      vibe_sessions: {
+        Row: {
+          created_at: string
+          end_time: string | null
+          id: string
+          metadata: Json | null
+          model: string | null
+          platform: string | null
+          raw_context: Json | null
+          start_time: string
+          status: string
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_time?: string | null
+          id?: string
+          metadata?: Json | null
+          model?: string | null
+          platform?: string | null
+          raw_context?: Json | null
+          start_time?: string
+          status?: string
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          end_time?: string | null
+          id?: string
+          metadata?: Json | null
+          model?: string | null
+          platform?: string | null
+          raw_context?: Json | null
+          start_time?: string
+          status?: string
+          title?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

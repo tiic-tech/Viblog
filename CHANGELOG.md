@@ -15,6 +15,17 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Phase 10.2: Core MCP Tools (2026-03-17):**
+  - Created vibe_sessions and session_fragments tables with RLS policies
+  - Implemented create_vibe_session MCP tool (POST /api/vibe-sessions)
+  - Implemented append_session_context MCP tool (POST /api/vibe-sessions/[id]/fragments)
+  - Implemented upload_session_context MCP tool (PUT /api/vibe-sessions/[id]/fragments)
+  - Implemented generate_structured_context MCP tool (POST /api/vibe-sessions/generate-structured-context)
+  - Implemented generate_article_draft MCP tool (POST /api/vibe-sessions/generate-article-draft)
+  - Created LLM service with fetch-based OpenAI API calls (no SDK dependency)
+  - Created Zod validation schemas for session and structured context types
+  - Full CRUD API for vibe sessions (GET/POST/PATCH/DELETE)
+  - Fragment management API (GET/POST/PUT/DELETE)
 - **Phase 10.1: Database Infrastructure (2026-03-16 ~ 2026-03-17):**
   - Enabled pgvector extension for vector similarity search
   - Created 11 new AI-Data-Native tables with RLS policies:
