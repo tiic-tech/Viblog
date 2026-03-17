@@ -15,6 +15,22 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Phase 11.2.1: Rate Limiting Middleware - COMPLETE (2026-03-17 23:31):**
+  - Implemented sliding window rate limiting algorithm
+  - Created in-memory rate limit store with automatic cleanup
+  - Per-IP and per-user identification from request headers
+  - Configurable rate limits per endpoint pattern:
+    - Auth: 10 req/min (strict security)
+    - LLM/generate: 20 req/min (cost control)
+    - AI: 50 req/min
+    - Vibe sessions: 100 req/min
+    - Fragments: 500 req/min (high for MCP use)
+    - Default: 60 req/min
+  - Rate limit response headers (X-RateLimit-Limit, -Remaining, -Reset, Retry-After)
+  - Integration with Next.js middleware for API routes
+  - Comprehensive test suite: 49 tests passing
+  - Commit ec01da7: 5 files changed, 1001 insertions
+  - Files: `src/lib/rate-limit.ts`, `src/lib/middleware/rate-limit.ts`
 - **Phase 11.1: Test Coverage Expansion - COMPLETE (2026-03-17 21:34):**
   - Added Vitest testing framework with v8 coverage
   - Created 68 comprehensive tests across 5 test files

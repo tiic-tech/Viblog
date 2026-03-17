@@ -12,11 +12,11 @@
 
 This document provides a step-by-step build sequence for Viblog post-MVP development. Each step has clear deliverables and dependencies.
 
-**Current Status:** Phase 11.2 Ready to Start - Rate Limiting Implementation (2026-03-17 23:10)
+**Current Status:** Phase 11.2.1 Complete - Rate Limiting Middleware (2026-03-17 23:31)
 
 **Phase 11 Progress:**
 - Phase 11.1: Test Coverage Expansion - COMPLETE (99.03% coverage)
-- Phase 11.2: Rate Limiting Implementation - NEXT
+- Phase 11.2: Rate Limiting Implementation - IN PROGRESS (Step 11.2.1 COMPLETE)
 - Phase 11.3: Error Handling Improvements - COMPLETE
 
 ---
@@ -1357,53 +1357,60 @@ src/lib/auth/
 
 ---
 
-### Phase 11.2: Rate Limiting Implementation (P0 - CRITICAL) - NEXT
+### Phase 11.2: Rate Limiting Implementation (P0 - CRITICAL) - IN PROGRESS
 
 **Priority:** CRITICAL - Production security requirement
 
-**Status:** Ready to Start (2026-03-17)
+**Status:** Step 11.2.1 COMPLETE (2026-03-17 23:31)
 
 **Deliverable:** Rate limiting for all API endpoints
 
 #### Step 11.2.1: Implement Rate Limiter Middleware
-**Status:** Pending
+**Status:** COMPLETE (2026-03-17 23:31)
 
-**Deliverable:** Configurable rate limiting middleware
+**Deliverable:** Configurable rate limiting middleware - DONE
 
 **Tasks:**
-- [ ] Create rate limiter utility
-  - [ ] Sliding window algorithm
-  - [ ] Per-IP and per-user limits
-  - [ ] Configurable thresholds
-- [ ] Add Redis-based distributed rate limiting (optional, use in-memory fallback)
-- [ ] Integrate with Next.js middleware
-- [ ] Add rate limit headers to responses
-  - [ ] `X-RateLimit-Limit`
-  - [ ] `X-RateLimit-Remaining`
-  - [ ] `X-RateLimit-Reset`
+- [x] Create rate limiter utility
+  - [x] Sliding window algorithm
+  - [x] Per-IP and per-user limits
+  - [x] Configurable thresholds
+- [x] In-memory rate limit store with automatic cleanup (Redis optional for future)
+- [x] Integrate with Next.js middleware
+- [x] Add rate limit headers to responses
+  - [x] `X-RateLimit-Limit`
+  - [x] `X-RateLimit-Remaining`
+  - [x] `X-RateLimit-Reset`
+  - [x] `Retry-After` (when rate limited)
 
-**Configuration:**
+**Implementation:**
 ```typescript
-const rateLimits = {
-  // MCP API endpoints - higher limits for legitimate use
-  'api/vibe-sessions': { limit: 100, window: '1m' },
-  'api/vibe-sessions/*/fragments': { limit: 500, window: '1m' },
+// Files created:
+// src/lib/rate-limit.ts - Core rate limiter with sliding window
+// src/lib/middleware/rate-limit.ts - Next.js middleware integration
+// 49 tests passing across 2 test files
 
-  // LLM-powered endpoints - lower limits (cost control)
-  'api/vibe-sessions/generate-*': { limit: 20, window: '1m' },
-
-  // Auth endpoints - strict limits
-  'api/auth/*': { limit: 10, window: '1m' },
+const DEFAULT_RATE_LIMITS = {
+  'api/vibe-sessions': { limit: 100, windowSeconds: 60 },
+  'api/vibe-sessions/fragments': { limit: 500, windowSeconds: 60 },
+  'api/vibe-sessions/generate': { limit: 20, windowSeconds: 60 },
+  'api/v1/ai': { limit: 50, windowSeconds: 60 },
+  'api/auth': { limit: 10, windowSeconds: 60 },
+  // ...
 }
 ```
 
-**Files to Create:**
+**Files Created:**
 ```
 src/lib/
-├── rate-limit.ts          # Rate limiter utility
+├── rate-limit.ts          # Rate limiter utility (336 lines)
+├── rate-limit.test.ts     # Tests (423 lines, 39 tests)
 └── middleware/
-    └── rate-limit.ts      # Next.js middleware integration
+    ├── rate-limit.ts      # Next.js middleware integration (85 lines)
+    └── rate-limit.test.ts # Tests (140 lines, 10 tests)
 ```
+
+**Commit:** ec01da7
 
 ---
 
