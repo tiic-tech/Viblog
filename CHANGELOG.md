@@ -63,12 +63,12 @@ All notable changes to this project will be documented in this file.
   - CTA card with gradient background
   - Social links (Twitter, GitHub)
 
-- **Step 11.4: Micro-interactions Polish** IN PROGRESS (4/5 checkpoints)
+- **Step 11.4: Micro-interactions Polish** COMPLETE
   - [x] 11.4.1: Define Hover Effects Catalog (design-system.css lines 275-311)
   - [x] 11.4.2: Implement Card Hover Enhancement (hover overlay with arrow reveal)
   - [x] 11.4.3: Implement Scroll Animations (premium easing: cubic-bezier(0.16,1,0.3,1))
   - [x] 11.4.4: Add Loading States (shimmer skeleton placeholders)
-  - [ ] 11.4.5: Verify Progress Indicator
+  - [x] 11.4.5: Verify Progress Indicator (reusable ScrollProgressIndicator component)
   - Card hover: translateY(-4px) + glow shadow + overlay reveal
   - Premium easing: `cubic-bezier(0.16, 1, 0.3, 1)` for smooth animations
   - Hover overlay with gradient background and arrow animation
@@ -77,6 +77,11 @@ All notable changes to this project will be documented in this file.
     - Updated `feed-skeleton.tsx` to match article-card.tsx structure (16:10 aspect ratio)
     - Added shimmer animation: `linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent)`
     - Tests: 6 passing (3 new shimmer variant tests)
+  - **Checkpoint 11.4.5 Progress Indicator:**
+    - Created reusable `ScrollProgressIndicator` component
+    - Added to article detail page (`/article/[slug]`)
+    - Spring animation with stiffness: 100, damping: 30
+    - Tests: 5 passing for new component
 
 - **CRITICAL FIX: Container Centering** (2026-03-17)
   - Issue: All page elements except hero were left-aligned instead of centered

@@ -1214,18 +1214,20 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
 
 ### Step 11.4: Micro-interactions Polish
 
-**Status:** In Progress (4/5 checkpoints complete)
+**Status:** COMPLETE (5/5 checkpoints)
 
 **Soul Check:** Serves ALL User Stories - Premium feel through subtle animations builds trust in AI-generated content. Every interaction reinforces the "Code Gallery" aesthetic.
 
 **Deliverable:** Comprehensive hover effects, scroll animations, and loading states
 
-**Files to Modify:**
+**Files Modified:**
 - `src/styles/design-system.css`
 - `src/app/(public)/page.tsx`
 - `src/components/public/article-card.tsx`
 - `src/components/ui/skeleton.tsx` (shimmer variant)
 - `src/components/public/feed-skeleton.tsx` (premium loading)
+- `src/components/ui/scroll-progress-indicator.tsx` (reusable component)
+- `src/app/(public)/article/[slug]/page.tsx` (progress indicator added)
 - `tailwind.config.ts` (CRITICAL: container centering fix)
 
 **Checkpoints:**
@@ -1253,7 +1255,11 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
   - Updated feed-skeleton to match article-card structure (16:10 aspect ratio)
   - Tests: 6 passing (3 new shimmer variant tests)
 
-- [ ] **11.4.5: Verify Progress Indicator** (File: `src/app/(public)/page.tsx`)
+- [x] **11.4.5: Verify Progress Indicator** (Files: `src/components/ui/scroll-progress-indicator.tsx`, `src/app/(public)/article/[slug]/page.tsx`)
+  - Created reusable `ScrollProgressIndicator` component
+  - Added to article detail page
+  - Spring animation: stiffness 100, damping 30
+  - Tests: 5 passing
   - Verify scroll progress animation
   - Consider adding to article detail pages
 

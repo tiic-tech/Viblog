@@ -5,6 +5,7 @@ import ArticleHeader from '@/components/public/article-header'
 import ArticleContent from '@/components/public/article-content'
 import ArticleActions from '@/components/public/article-actions'
 import RelatedArticles from '@/components/public/related-articles'
+import { ScrollProgressIndicator } from '@/components/ui/scroll-progress-indicator'
 import type { ArticleDetail, RelatedArticle } from '@/types/public'
 
 interface ArticlePageProps {
@@ -210,6 +211,9 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   return (
     <article className="container py-8">
+      {/* Scroll Progress Indicator */}
+      <ScrollProgressIndicator />
+
       {/* Cover Image */}
       {article.cover_image && (
         <div className="mb-8 aspect-video max-h-96 w-full overflow-hidden rounded-lg">
