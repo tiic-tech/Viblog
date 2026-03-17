@@ -15,6 +15,17 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Phase 11.5.1: Structured Logging - COMPLETE (2026-03-18 00:24):**
+  - Created structured JSON logging utility with request ID tracking
+  - Implemented performance timing with `logger.time()` and `startTimer()`
+  - Added specialized logging methods: `apiRequest()`, `dbOperation()`, `cacheOperation()`, `authEvent()`
+  - Integrated structured logging into key modules:
+    - `token-auth.ts`: Auth event logging, cache hit/miss tracking
+    - `cache.ts`: Structured error logging for Redis operations
+    - `rate-limit.ts`: Rate limit violation logging
+  - Request ID context management: `setRequestId()`, `getRequestId()`, `clearRequestId()`
+  - Helper functions: `withLogging()`, `withLoggingAsync()` for scoped logging
+  - File: `src/lib/logger.ts` with 22 passing tests
 - **Phase 11.4: Caching Layer - COMPLETE (2026-03-17 23:50):**
   - Implemented Redis-compatible cache layer with Upstash support
   - Created cache utilities: getCache, setCache, getOrSetCache, deleteCache

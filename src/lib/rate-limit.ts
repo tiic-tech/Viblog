@@ -14,6 +14,7 @@
  */
 
 import { NextResponse, type NextRequest } from 'next/server'
+import { logger } from './logger'
 
 /**
  * Rate limit configuration for an endpoint pattern
@@ -309,7 +310,7 @@ export function checkRateLimit(
 
 /**
  * Log a rate limit violation
- * In production, this would send to a monitoring service (e.g., Sentry, Datadog)
+ * Uses structured logging for production monitoring
  */
 function logRateLimitViolation(
   identifier: string,
@@ -317,22 +318,15 @@ function logRateLimitViolation(
   config: RateLimitConfig,
   requestCount: number
 ): void {
-  // Only log in production to avoid noise in development
-  if (isProduction()) {
-    // Structured log for production monitoring
-    console.error(
-      JSON.stringify({
-        timestamp: new Date().toISOString(),
-        event: 'rate_limit_violation',
-        identifier,
-        pathname,
-        limit: config.limit,
-        windowSeconds: config.windowSeconds,
-        requestCount,
-        environment: 'production',
-      })
-    )
-  }
+  // Log to monitoring with structured format
+  logger.warn('Rate limit violation', {
+    event: 'rate_limit_violation',
+    identifier,
+    pathname,
+    limit: config.limit,
+    windowSeconds: config.windowSeconds,
+    requestCount,
+  })
 }
 
 /**

@@ -6,6 +6,7 @@
  */
 
 import { getRedisClient, isRedisConfigured } from './client'
+import { logger } from '../logger'
 
 /**
  * Cache options
@@ -83,7 +84,7 @@ export async function getCache<T>(key: string): Promise<T | null> {
       const value = await redis.get<T>(fullKey)
       return value
     } catch (error) {
-      console.error('Redis get error:', error)
+      logger.error('Redis get error', error, { key: fullKey })
       // Fall through to memory cache
     }
   }
@@ -114,7 +115,7 @@ export async function setCache<T>(key: string, value: T, ttl: number): Promise<v
       await redis.set(fullKey, value, { ex: ttl })
       return
     } catch (error) {
-      console.error('Redis set error:', error)
+      logger.error('Redis set error', error, { key: fullKey, ttl })
       // Fall through to memory cache
     }
   }
@@ -143,7 +144,7 @@ export async function deleteCache(key: string): Promise<void> {
     try {
       await redis.del(fullKey)
     } catch (error) {
-      console.error('Redis delete error:', error)
+      logger.error('Redis delete error', error, { key: fullKey })
     }
   }
 
@@ -187,7 +188,7 @@ export async function deleteCachePattern(pattern: string): Promise<number> {
         deletedCount += keys.length
       }
     } catch (error) {
-      console.error('Redis pattern delete error:', error)
+      logger.error('Redis pattern delete error', error, { pattern })
     }
   }
 
