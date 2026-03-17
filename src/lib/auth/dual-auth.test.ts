@@ -149,6 +149,10 @@ describe('dualAuthenticate', () => {
       vi.mocked(validateToken).mockResolvedValue({
         valid: false,
         error: 'Invalid token',
+        userId: null,
+        tokenType: null,
+        authorizedSources: null,
+        privacyLevel: null,
       })
 
       const request = new NextRequest('http://localhost/api/test')
@@ -171,6 +175,10 @@ describe('dualAuthenticate', () => {
       vi.mocked(validateToken).mockResolvedValue({
         valid: false,
         error: 'No authorization header',
+        userId: null,
+        tokenType: null,
+        authorizedSources: null,
+        privacyLevel: null,
       })
 
       const request = new NextRequest('http://localhost/api/test')
@@ -191,6 +199,10 @@ describe('dualAuthenticate', () => {
       vi.mocked(validateToken).mockResolvedValue({
         valid: false,
         error: 'Token not found or expired',
+        userId: null,
+        tokenType: null,
+        authorizedSources: null,
+        privacyLevel: null,
       })
 
       const request = new NextRequest('http://localhost/api/test', {
@@ -213,10 +225,10 @@ describe('dualAuthenticate', () => {
       // Token valid but no userId (shouldn't happen but edge case)
       vi.mocked(validateToken).mockResolvedValue({
         valid: true,
-        userId: undefined,
-        tokenType: undefined,
-        authorizedSources: undefined,
-        privacyLevel: undefined,
+        userId: null,
+        tokenType: null,
+        authorizedSources: null,
+        privacyLevel: null,
       })
 
       const request = new NextRequest('http://localhost/api/test', {
