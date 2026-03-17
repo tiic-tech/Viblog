@@ -37,7 +37,8 @@ All notable changes to this project will be documented in this file.
     - `src/types.ts` - Shared types (re-exports CallToolResult from SDK)
   - Uses `@modelcontextprotocol/sdk` for MCP protocol implementation
   - TypeScript ESM modules with NodeNext resolution
-  - NEXT: Local testing with Claude Code configuration
+  - **CI PASSED (2026-03-17 14:43):** All checks green (Type check, Build, Tests 166 passed)
+  - PR #9 ready for merge: https://github.com/tiic-tech/Viblog/pull/9
 - **Phase 10.3: AI Data Access Protocol (2026-03-17):**
   - Implemented AIDataSchema endpoint (GET /api/v1/ai/schema)
   - Implemented Vector Search API (POST /api/v1/ai/vectors/{store}/search)
@@ -162,6 +163,10 @@ All notable changes to this project will be documented in this file.
   - Independent from develop_reviewer (parallel execution)
 
 ### Fixed
+- **CI TypeScript Errors (2026-03-17):**
+  - Fixed mock `TokenAuthResult` type errors in `dual-auth.test.ts` (added missing `null` properties)
+  - Excluded `packages/` directory from root TypeScript config (MCP server is standalone npm package)
+  - Root cause: TypeScript include pattern `**/*.ts` picked up MCP server files without SDK installed
 - **Image Analyzer Skills - Execution Capability (2026-03-16):**
   - Fixed image-analyzer-kimi and image-analyzer-qwen skills to be executable
   - Previous version: Skills returned documentation instead of performing analysis
