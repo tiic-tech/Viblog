@@ -139,6 +139,10 @@ const config: Config = {
         '5xl': ['var(--text-5xl)', { lineHeight: 'var(--leading-tight)' }],
         '6xl': ['var(--text-6xl)', { lineHeight: 'var(--leading-tight)' }],
         '7xl': ['var(--text-7xl)', { lineHeight: 'var(--leading-tight)' }],
+        tag: [
+          'var(--tag-font-size)',
+          { lineHeight: '1.2', letterSpacing: 'var(--tag-letter-spacing)' },
+        ],
       },
 
       /* ============================================
@@ -186,12 +190,6 @@ const config: Config = {
          ============================================ */
       padding: {
         tag: 'var(--tag-padding)',
-      },
-      fontSize: {
-        tag: [
-          'var(--tag-font-size)',
-          { lineHeight: '1.2', letterSpacing: 'var(--tag-letter-spacing)' },
-        ],
       },
 
       /* ============================================

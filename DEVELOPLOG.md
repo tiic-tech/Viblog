@@ -941,6 +941,124 @@ After context compaction/session resume:
 
 ---
 
+## Phase 10: Frontend UI Enhancement (2026-03-17)
+
+### Overview
+
+Phase 10 focuses on elevating the frontend UI quality based on competitive analysis learnings (Effortel: 22/25). Two parallel tracks:
+
+1. **Code Gallery UI** - Homepage design system refinement
+2. **UI Team Workflow Phase 3** - Article detail page polish
+
+---
+
+### Track 1: Code Gallery UI (In Progress)
+
+**Status:** Phase 1-2 COMPLETE, Phase 3 PENDING
+
+**What I Did:**
+1. **Phase 1: Design Token Refinement**
+   - Updated border radius scale: 4px (tags) → 8px (buttons) → 12px (cards) → 16px (large cards)
+   - Deprecated `rounded-2xl` in favor of `rounded-xl` for consistency
+   - Added tight line-heights for display text (1.1-1.15)
+
+2. **Phase 2: Card Component Polish**
+   - Enhanced card hover effects
+   - Standardized aspect ratios
+   - Added outlined tag styling
+
+**Files Modified:**
+- `tailwind.config.ts` - Design token updates
+- Card components - Hover and styling updates
+
+**What's Next:**
+- Phase 3: Button System Standardization
+  - Primary button: 8px border-radius
+  - Secondary button: Outlined style, 8px radius
+  - Icon button: 40x40px, 8px radius
+
+---
+
+### Track 2: UI Team Workflow Phase 3 - Article Detail Polish (Complete)
+
+**What I Did:**
+1. **Reading Typography (Phase 3.1)**
+   - Created `prose-immersive.css` for optimal reading experience
+   - 65ch max-width, 1.75 line-height, proper type scale
+
+2. **Code Block Enhancement (Phase 3.2)**
+   - Created `CodeBlock` component with syntax highlighting
+   - Language badge, copy button, dark theme styling
+   - File: `src/components/ui/code-block.tsx`
+
+3. **Author Journey Section (Phase 3.3)**
+   - Enhanced author card with vibe coding context
+   - Session narrative ("crafted in X session with Y model")
+   - Links to author's other works
+
+4. **Annotation UI Foundation (Phase 3.4)**
+   - Created `use-text-selection.ts` hook for text selection detection
+   - Created `annotation-tooltip.tsx` component
+   - Created `use-highlights.ts` for highlight persistence
+   - Toast notifications for user feedback
+
+**Files Created:**
+- `src/styles/prose-immersive.css`
+- `src/components/ui/code-block.tsx`
+- `src/components/ui/annotation-tooltip.tsx`
+- `src/hooks/use-text-selection.ts`
+- `src/hooks/use-highlights.ts`
+- `docs/dev-logs/phase-3-article-detail-polish.md`
+
+**Files Modified:**
+- `src/components/public/article-content.tsx`
+- `src/components/public/article-header.tsx`
+- `src/app/(public)/article/[slug]/page.tsx`
+- `src/lib/supabase/server.ts` (fixed mock query for chained `.eq()` calls)
+
+**What Went Well:**
+- Mock Supabase client properly handles method chaining
+- Annotation UI foundation ready for future implementation
+- Documentation-first approach with phase-3-article-detail-polish.md
+
+**Technical Fix Applied:**
+```typescript
+// Fixed: MockQuery type now returns MockQuery for all chainable methods
+type MockQuery = {
+  select: () => MockQuery
+  eq: () => MockQuery  // Was missing, caused TypeError
+  neq: () => MockQuery
+  // ... other methods
+}
+```
+
+---
+
+### Uncommitted Changes Status
+
+**Modified (need commit):**
+- `src/app/(public)/article/[slug]/page.tsx`
+- `src/app/api/public/users/[username]/route.ts`
+- `src/components/public/article-content.tsx`
+- `src/components/public/article-header.tsx`
+- `src/lib/supabase/server.ts`
+- `tailwind.config.ts`
+
+**Untracked (new files):**
+- `docs/dev-logs/phase-3-article-detail-polish.md`
+- `src/components/ui/annotation-tooltip.tsx`
+- `src/components/ui/code-block.tsx`
+- `src/hooks/use-highlights.ts`
+- `src/hooks/use-text-selection.ts`
+- `src/styles/prose-immersive.css`
+
+---
+
+**Phase 10 Status:** In Progress
+**Next Session:** Continue with Phase 3 Button System Standardization or commit current changes
+
+---
+
 **Document Version:** 5.0
 **Last Updated:** 2026-03-16
 **Author:** Claude (with human collaborator)

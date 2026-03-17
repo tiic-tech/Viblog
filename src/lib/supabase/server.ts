@@ -14,35 +14,41 @@ export async function createClient() {
 
   if (!supabaseUrl || !supabaseAnonKey) {
     // Return a mock client that mimics Supabase query chain
-    const createMockQuery = () => ({
-      select: (columns?: string, options?: { count?: string; head?: boolean }) => {
-        const baseQuery = {
-          eq: () => createMockQuery(),
-          gte: () => createMockQuery(),
-          not: () => createMockQuery(),
-          order: () => createMockQuery(),
-          range: async (start: number, end: number) => ({ data: [], error: null }),
-          single: async () => ({ data: null, error: null }),
-        }
+    // Use a proper chainable query builder pattern
+    type MockQuery = {
+      select: (columns?: string, options?: { count?: string; head?: boolean }) => MockQuery
+      eq: (column: string, value: unknown) => MockQuery
+      neq: (column: string, value: unknown) => MockQuery
+      gte: (column: string, value: unknown) => MockQuery
+      not: (filter: string, column: string, value?: unknown) => MockQuery
+      order: (column: string, options?: { ascending?: boolean }) => MockQuery
+      limit: (count: number) => MockQuery
+      update: (data: Record<string, unknown>) => MockQuery
+      range: (start: number, end: number) => Promise<{ data: unknown[]; error: null }>
+      single: () => Promise<{ data: null; error: null }>
+    }
 
-        // Handle count query (head: true)
-        if (options?.head) {
-          return {
-            eq: () => ({
-              eq: async () => ({ count: 0, error: null }),
-            }),
-          }
-        }
-
-        return baseQuery
-      },
-    })
+    const createMockQuery = (): MockQuery => {
+      const query: MockQuery = {
+        select: () => query,
+        eq: () => query,
+        neq: () => query,
+        gte: () => query,
+        not: () => query,
+        order: () => query,
+        limit: () => query,
+        update: () => query,
+        range: async () => ({ data: [], error: null }),
+        single: async () => ({ data: null, error: null }),
+      }
+      return query
+    }
 
     return {
       auth: {
         getUser: async () => ({ data: { user: null }, error: null }),
       },
-      from: (table: string) => createMockQuery(),
+      from: () => createMockQuery(),
     } as any
   }
 

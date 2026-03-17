@@ -2,10 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import type { PublicProfile, PublicArticle, PaginationInfo } from '@/types/public'
 
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ username: string }> }
-) {
+export async function GET(request: Request, { params }: { params: Promise<{ username: string }> }) {
   try {
     const { username } = await params
     const { searchParams } = new URL(request.url)
@@ -17,7 +14,8 @@ export async function GET(
     // Fetch profile by username
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select(`
+      .select(
+        `
         id,
         username,
         display_name,
@@ -27,7 +25,8 @@ export async function GET(
         github_username,
         twitter_username,
         created_at
-      `)
+      `
+      )
       .eq('username', username)
       .single()
 
@@ -51,8 +50,10 @@ export async function GET(
       .eq('status', 'published')
       .eq('visibility', 'public')
 
+    type StarsQueryResult = { stars_count: number | null }
+
     const totalStars = (starsData || []).reduce(
-      (sum, article) => sum + (article.stars_count || 0),
+      (sum: number, article: StarsQueryResult) => sum + (article.stars_count || 0),
       0
     )
 
@@ -75,7 +76,11 @@ export async function GET(
     // Build articles query with count
     const offset = (page - 1) * limit
 
-    const { data: articles, error: articlesError, count } = await supabase
+    const {
+      data: articles,
+      error: articlesError,
+      count,
+    } = await supabase
       .from('articles')
       .select(
         `
@@ -105,39 +110,32 @@ export async function GET(
       .range(offset, offset + limit - 1)
 
     if (articlesError) {
-      return NextResponse.json(
-        { error: 'Failed to fetch articles' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Failed to fetch articles' }, { status: 500 })
     }
 
-    const formattedArticles: PublicArticle[] = (articles || []).map(
-      (article: any) => {
-        const project = Array.isArray(article.projects)
-          ? article.projects[0]
-          : article.projects
+    const formattedArticles: PublicArticle[] = (articles || []).map((article: any) => {
+      const project = Array.isArray(article.projects) ? article.projects[0] : article.projects
 
-        return {
-          id: article.id,
-          title: article.title,
-          slug: article.slug,
-          excerpt: article.excerpt,
-          cover_image: article.cover_image,
-          vibe_platform: article.vibe_platform,
-          vibe_duration_minutes: article.vibe_duration_minutes,
-          vibe_model: article.vibe_model,
-          stars_count: article.stars_count,
-          views_count: article.views_count,
-          published_at: article.published_at || '',
-          profiles: {
-            username: profile.username,
-            display_name: profile.display_name,
-            avatar_url: profile.avatar_url,
-          },
-          projects: project || null,
-        }
+      return {
+        id: article.id,
+        title: article.title,
+        slug: article.slug,
+        excerpt: article.excerpt,
+        cover_image: article.cover_image,
+        vibe_platform: article.vibe_platform,
+        vibe_duration_minutes: article.vibe_duration_minutes,
+        vibe_model: article.vibe_model,
+        stars_count: article.stars_count,
+        views_count: article.views_count,
+        published_at: article.published_at || '',
+        profiles: {
+          username: profile.username,
+          display_name: profile.display_name,
+          avatar_url: profile.avatar_url,
+        },
+        projects: project || null,
       }
-    )
+    })
 
     const pagination: PaginationInfo = {
       page,

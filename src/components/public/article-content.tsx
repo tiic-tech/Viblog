@@ -1,19 +1,113 @@
 'use client'
 
-import { memo } from 'react'
+import { memo, useRef, useCallback, useEffect } from 'react'
+import CodeBlock from '@/components/ui/code-block'
+import AnnotationTooltip from '@/components/ui/annotation-tooltip'
+import type { TextSelection } from '@/hooks/use-text-selection'
+import { useHighlights, applyHighlightsToDOM } from '@/hooks/use-highlights'
+import { toast } from '@/hooks/use-toast'
+
+// Import immersive prose styles for Phase 3 Article Detail Polish
+import '@/styles/prose-immersive.css'
 
 interface ArticleContentProps {
   content: string | null
+  articleId?: string
 }
 
 // Parse and render Tiptap JSON content
-function ArticleContent({ content }: ArticleContentProps) {
-  if (!content) {
-    return (
-      <div className="text-muted-foreground py-8 text-center">
-        No content available.
-      </div>
+function ArticleContent({ content, articleId = 'default' }: ArticleContentProps) {
+  const contentRef = useRef<HTMLDivElement>(null)
+
+  // Initialize highlights persistence
+  const { highlights, addHighlight, removeHighlight, isHighlighted } = useHighlights({
+    articleId,
+    maxHighlights: 50,
+  })
+
+  // Apply persisted highlights to DOM after content renders
+  useEffect(() => {
+    if (!contentRef.current || highlights.length === 0) return
+
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(() => {
+      if (contentRef.current) {
+        applyHighlightsToDOM(contentRef.current, highlights)
+      }
+    }, 100)
+
+    return () => clearTimeout(timer)
+  }, [highlights])
+
+  // Handle highlight action - persist the highlight
+  const handleHighlight = useCallback(
+    (selection: TextSelection) => {
+      // Check if already highlighted
+      if (isHighlighted(selection.text)) {
+        toast({
+          title: 'Already Highlighted',
+          description: 'This text is already highlighted',
+        })
+        return
+      }
+
+      // Create the highlight
+      const newHighlight = addHighlight({
+        text: selection.text,
+        containerXPath: selection.containerXPath,
+        startOffset: selection.startOffset,
+        endOffset: selection.endOffset,
+        color: 'default',
+      })
+
+      if (newHighlight) {
+        // Apply to DOM immediately
+        if (contentRef.current) {
+          applyHighlightsToDOM(contentRef.current, [...highlights, newHighlight])
+        }
+
+        toast({
+          title: 'Text Highlighted',
+          description: `"${selection.text.slice(0, 50)}${selection.text.length > 50 ? '...' : ''}"`,
+        })
+      }
+    },
+    [addHighlight, isHighlighted, highlights]
+  )
+
+  // Handle comment action
+  const handleComment = useCallback((selection: TextSelection) => {
+    // For now, show a toast - future implementation will open comment modal
+    toast({
+      title: 'Add Comment',
+      description: `Comment on: "${selection.text.slice(0, 30)}${selection.text.length > 30 ? '...' : ''}"`,
+    })
+  }, [])
+
+  // Handle share action
+  const handleShare = useCallback((selection: TextSelection) => {
+    // Copy selection to clipboard with article context
+    const shareText = `"${selection.text}" - from article`
+
+    navigator.clipboard.writeText(shareText).then(
+      () => {
+        toast({
+          title: 'Copied to Clipboard',
+          description: 'Text selection ready to share',
+        })
+      },
+      () => {
+        toast({
+          title: 'Copy Failed',
+          description: 'Could not copy text to clipboard',
+          variant: 'destructive',
+        })
+      }
     )
+  }, [])
+
+  if (!content) {
+    return <div className="py-8 text-center text-muted-foreground">No content available.</div>
   }
 
   // Try to parse as JSON (Tiptap format)
@@ -23,18 +117,35 @@ function ArticleContent({ content }: ArticleContentProps) {
   } catch {
     // If not JSON, treat as HTML
     return (
-      <div
-        className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-semibold prose-headings:tracking-tight prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:leading-7 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-code:rounded prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:font-normal prose-pre:bg-muted prose-pre:p-4 prose-img:rounded-lg prose-blockquote:border-l-primary"
-        dangerouslySetInnerHTML={{ __html: content }}
-      />
+      <>
+        <div
+          ref={contentRef}
+          className="prose-immersive"
+          dangerouslySetInnerHTML={{ __html: content }}
+        />
+        <AnnotationTooltip
+          containerRef={contentRef}
+          onHighlight={handleHighlight}
+          onComment={handleComment}
+          onShare={handleShare}
+        />
+      </>
     )
   }
 
   // Render JSON content recursively
   return (
-    <div className="prose prose-neutral dark:prose-invert max-w-none prose-headings:font-semibold prose-headings:tracking-tight prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:leading-7 prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-code:rounded prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:font-normal prose-pre:bg-muted prose-pre:p-4 prose-img:rounded-lg prose-blockquote:border-l-primary">
-      {renderNode(parsedContent)}
-    </div>
+    <>
+      <div ref={contentRef} className="prose-immersive">
+        {renderNode(parsedContent)}
+      </div>
+      <AnnotationTooltip
+        containerRef={contentRef}
+        onHighlight={handleHighlight}
+        onComment={handleComment}
+        onShare={handleShare}
+      />
+    </>
   )
 }
 
@@ -72,9 +183,9 @@ function renderNode(node: any): React.ReactNode {
   }
 
   // Handle block nodes
-  const children = node.content ? node.content.map((child: any, i: number) => (
-    <span key={i}>{renderNode(child)}</span>
-  )) : null
+  const children = node.content
+    ? node.content.map((child: any, i: number) => <span key={i}>{renderNode(child)}</span>)
+    : null
 
   switch (node.type) {
     case 'doc':
@@ -91,24 +202,21 @@ function renderNode(node: any): React.ReactNode {
       return <li>{children}</li>
     case 'blockquote':
       return <blockquote>{children}</blockquote>
-    case 'codeBlock':
-      return (
-        <pre>
-          <code>{children}</code>
-        </pre>
-      )
+    case 'codeBlock': {
+      // Extract text content from Tiptap codeBlock nodes
+      const codeText = node.content
+        ? node.content.map((child: any) => child.text || '').join('')
+        : ''
+      const language = node.attrs?.language || 'typescript'
+      const filename = node.attrs?.filename
+      return <CodeBlock code={codeText} language={language} filename={filename} />
+    }
     case 'hardBreak':
       return <br />
     case 'horizontalRule':
       return <hr />
     case 'image':
-      return (
-        <img
-          src={node.attrs?.src}
-          alt={node.attrs?.alt || ''}
-          title={node.attrs?.title}
-        />
-      )
+      return <img src={node.attrs?.src} alt={node.attrs?.alt || ''} title={node.attrs?.title} />
     default:
       return children
   }
