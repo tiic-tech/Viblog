@@ -961,6 +961,53 @@ After context compaction/session resume:
 - `src/types.test.ts` - 4 tests for getServerConfig
 - `src/server.test.ts` - 2 tests for server creation
 
+### Phase 11.2: Rate Limiting Implementation
+
+**Context:** Implement comprehensive rate limiting to protect MCP API endpoints from abuse.
+
+**What I Built:**
+
+**Step 11.2.1 - Core Rate Limiter:**
+- Sliding window rate limiting algorithm
+- Per-identifier tracking (user ID, MCP API key, IP address)
+- Path-specific rate limit configurations
+- In-memory store with automatic cleanup
+
+**Step 11.2.2 - Environment-Based Configuration:**
+- Production multiplier (50% of development limits)
+- Automatic environment detection via NODE_ENV
+- Statistics tracking for monitoring:
+  - Total requests, blocked requests, block rate
+  - Last blocked timestamp
+  - Top blocked paths (top 10)
+- Structured JSON logging for production monitoring
+
+**Rate Limit Tiers (Development/Production):**
+| Endpoint Pattern | Dev Limit | Prod Limit | Window |
+|------------------|-----------|------------|--------|
+| vibe-sessions (base) | 100 | 50 | 60s |
+| vibe-sessions/fragments | 500 | 250 | 60s |
+| vibe-sessions/generate | 20 | 10 | 60s |
+| v1/ai | 50 | 25 | 60s |
+| auth | 10 | 5 | 60s |
+| public | 100 | 50 | 60s |
+| user | 50 | 25 | 60s |
+| default | 60 | 30 | 60s |
+
+**Key Files:**
+- `src/lib/rate-limit.ts` - Core rate limiter (470 lines)
+- `src/lib/middleware/rate-limit.ts` - Middleware integration
+- `src/middleware.ts` - Next.js middleware entry
+
+**Test Coverage:**
+- 58 total tests (48 in rate-limit.test.ts, 10 in middleware test)
+- All edge cases covered: window expiration, identifier separation
+- Statistics tracking fully tested
+
+**Commits:**
+- 43ad0b3: Rate limiter implementation
+- a3d6a4f: Documentation updates
+
 ### Phase 11.3: Error Handling Improvements
 
 **Context:** Implement consistent error handling across MCP Server.
