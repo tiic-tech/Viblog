@@ -1214,7 +1214,7 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
 
 ### Step 11.4: Micro-interactions Polish
 
-**Status:** In Progress (3/5 checkpoints complete)
+**Status:** In Progress (4/5 checkpoints complete)
 
 **Soul Check:** Serves ALL User Stories - Premium feel through subtle animations builds trust in AI-generated content. Every interaction reinforces the "Code Gallery" aesthetic.
 
@@ -1224,6 +1224,8 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
 - `src/styles/design-system.css`
 - `src/app/(public)/page.tsx`
 - `src/components/public/article-card.tsx`
+- `src/components/ui/skeleton.tsx` (shimmer variant)
+- `src/components/public/feed-skeleton.tsx` (premium loading)
 - `tailwind.config.ts` (CRITICAL: container centering fix)
 
 **Checkpoints:**
@@ -1245,9 +1247,11 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
   - Staggered card reveal with premium easing
   - Update easing function: `[0.16, 1, 0.3, 1]` (premium smooth)
 
-- [ ] **11.4.4: Add Loading States** (File: `src/components/dashboard/articles-skeleton.tsx`)
-  - Skeleton placeholders for cards
-  - Smooth image fade-in with shimmer effect
+- [x] **11.4.4: Add Loading States** (Files: `src/components/ui/skeleton.tsx`, `src/components/public/feed-skeleton.tsx`)
+  - Enhanced Skeleton component with shimmer variant
+  - Premium shimmer animation: `linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent)`
+  - Updated feed-skeleton to match article-card structure (16:10 aspect ratio)
+  - Tests: 6 passing (3 new shimmer variant tests)
 
 - [ ] **11.4.5: Verify Progress Indicator** (File: `src/app/(public)/page.tsx`)
   - Verify scroll progress animation
