@@ -23,6 +23,10 @@ const buttonVariants = cva(
       variant: {
         default:
           'bg-accent-primary text-white hover:bg-accent-primary-light hover:shadow-[0_0_20px_rgba(139,92,246,0.3)] [a]:hover:bg-accent-primary-light',
+        premium:
+          'bg-gradient-to-r from-accent-primary to-accent-secondary text-white hover:opacity-90 hover:shadow-[0_0_30px_rgba(139,92,246,0.4)]',
+        accent:
+          'bg-accent-secondary text-white hover:bg-accent-secondary-light hover:shadow-[0_0_20px_rgba(6,182,212,0.3)]',
         outline:
           'border-border-emphasis bg-transparent text-fg-primary hover:bg-glass-bg-hover hover:border-accent-primary dark:border-glass-border dark:hover:border-accent-primary',
         secondary:

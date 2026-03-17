@@ -3,6 +3,8 @@
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
 import { useRef, useState, useEffect } from 'react'
 import Link from 'next/link'
+import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import type { PublicArticle } from '@/types/public'
 
 // Animated code snippets floating in space
@@ -251,15 +253,19 @@ export default function RevolutionaryHomepage() {
             >
               <Link
                 href="/register"
-                className="group relative overflow-hidden rounded-xl bg-accent-primary px-8 py-4 text-lg font-semibold text-white transition-all duration-300 hover:shadow-lg"
-                style={{ boxShadow: '0 0 30px rgba(139, 92, 246, 0.3)' }}
+                className={cn(
+                  buttonVariants({ variant: 'premium', size: 'lg' }),
+                  'text-lg font-semibold'
+                )}
               >
-                <span className="relative z-10">Start Your Journey</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-accent-primary-dark to-accent-primary opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                Start Your Journey
               </Link>
               <a
                 href="#exhibitions"
-                className="hover:bg-glass-bg-hover rounded-xl border border-border-emphasis px-8 py-4 text-lg font-semibold text-fg-primary backdrop-blur-sm transition-all duration-300"
+                className={cn(
+                  buttonVariants({ variant: 'outline', size: 'lg' }),
+                  'text-lg font-semibold'
+                )}
               >
                 Explore Exhibitions
               </a>
@@ -670,14 +676,19 @@ export default function RevolutionaryHomepage() {
               <div className="flex flex-col justify-center gap-4 sm:flex-row">
                 <Link
                   href="/register"
-                  className="rounded-xl bg-accent-primary px-8 py-4 text-lg font-semibold text-white transition-all duration-300"
-                  style={{ boxShadow: '0 0 30px rgba(139, 92, 246, 0.3)' }}
+                  className={cn(
+                    buttonVariants({ variant: 'premium', size: 'lg' }),
+                    'text-lg font-semibold'
+                  )}
                 >
                   Create Free Account
                 </Link>
                 <Link
                   href="/login"
-                  className="hover:bg-glass-bg-hover rounded-xl border border-border-emphasis px-8 py-4 text-lg font-semibold text-fg-primary transition-all duration-300"
+                  className={cn(
+                    buttonVariants({ variant: 'outline', size: 'lg' }),
+                    'text-lg font-semibold'
+                  )}
                 >
                   Sign In
                 </Link>
