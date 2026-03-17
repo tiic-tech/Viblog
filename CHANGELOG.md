@@ -15,7 +15,7 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
-- **Phase 10.1: Database Infrastructure (2026-03-16):**
+- **Phase 10.1: Database Infrastructure (2026-03-16 ~ 2026-03-17):**
   - Enabled pgvector extension for vector similarity search
   - Created 11 new AI-Data-Native tables with RLS policies:
     - `graph_nodes`, `graph_edges` - JSONB-based knowledge graph fallback
@@ -33,6 +33,11 @@ All notable changes to this project will be documented in this file.
   - Created Authorization Tokens endpoint (`/api/user/authorization-tokens`)
   - Updated TypeScript types for all new tables
   - Documented All-in-One PostgreSQL architecture with microservice migration paths
+  - Documented Dual-Track Database Architecture (2026-03-17):
+    - Platform DB + User DB decoupled architecture
+    - Managed Proxy Architecture: Users need only ONE PostgreSQL connection
+    - Platform microservice migration is INVISIBLE to users
+    - Migration triggers and thresholds for future scaling
 
 ### Changed
 - **CLAUDE.md Complete Rewrite (2026-03-16):**
