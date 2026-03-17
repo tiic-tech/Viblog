@@ -1060,54 +1060,328 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
 
 ---
 
-## 5. Phase 11: Visual Redesign (Updated)
+## 5. Phase 11: Code Gallery UI/UX Plan
 
-**Goal:** Implement Pinterest-style card layout and premium visual design
+**Goal:** Complete the Code Gallery distinctive UI with premium visual design, enhancing the AI-Native soul through polished interactions
 
-**Estimated Effort:** 2 weeks
+**Status:** Ready to Start (Phase 1-2 Complete)
 
-**Dependencies:** Phase 10 completion (uses new data structures)
+**Estimated Effort:** 4-5 days
 
----
+**Dependencies:**
+- Phase 1-2 (Design Token Refinement, Card Component Polish) - COMPLETE
+- Phase 10 (can run in parallel - frontend worktree)
 
-### Step 11.1: Card Component Redesign
-**Status:** Pending
-
-**Deliverable:** New article card component with Pinterest-style design
-
-**Tasks:**
-- [ ] Design new card in Figma
-- [ ] Implement card component with hover effects
-- [ ] Add masonry grid layout
-- [ ] Optimize for performance
-- [ ] Add responsive breakpoints
+**Strategic Context:** This phase implements Phases 3-7 from VIBLOG_CODE_GALLERY_UI_DEV_PLAN.md, translating Effortel's premium UI patterns into Viblog's unique "Code Gallery" identity.
 
 ---
 
-### Step 11.2: Masonry Grid Layout
-**Status:** Pending
+### Soul Check: User Story Mapping
 
-**Deliverable:** Pinterest-style grid layout
-
-**Tasks:**
-- [ ] Implement masonry grid with CSS Grid
-- [ ] Add lazy loading for images
-- [ ] Implement infinite scroll
-- [ ] Optimize for mobile
+| UI Phase | User Story | AI-Native Soul Enhancement |
+|----------|------------|---------------------------|
+| Step 11.1: Button System | US-103: Dual Format Publishing | Consistent CTAs for AI-human collaboration |
+| Step 11.2: Navigation | US-100: MCP Session Recording | Discoverable MCP entry points |
+| Step 11.3: Footer | US-101: Draft Bucket Generation | Clear product navigation for content flow |
+| Step 11.4: Micro-interactions | All User Stories | Premium feel builds trust in AI-generated content |
+| Step 11.5: Mobile Polish | All User Stories | Vibe coding is mobile-first for AI learners |
 
 ---
 
-### Step 11.3: Visual Polish
+### Step 11.1: Button System Standardization
+
+**Status:** In Progress (11.1.1, 11.1.4 Complete)
+
+**Soul Check:** Serves US-103 (Dual Format Publishing) - Consistent button styling creates trust in AI-human collaboration interfaces. Primary buttons guide users to AI-assisted content creation.
+
+**Deliverable:** Standardized button components with premium 8px border-radius, updated variants
+
+**Files to Modify:**
+- `src/components/ui/button.tsx` ✅
+- `src/app/(public)/page.tsx`
+- `src/styles/design-system.css` ✅
+
+**Checkpoints:**
+
+- [x] **11.1.1: Update Button Variants** (File: `src/components/ui/button.tsx`) ✅ COMPLETE
+  - Change default border-radius from `rounded-lg` to `rounded-md` (8px) ✅
+  - Update `size="icon"` to 40x40px with `rounded-md` ✅
+  - Add glow effect on primary button hover ✅
+  - Result: `variant: { default: "bg-accent-primary text-white hover:bg-accent-primary-light hover:shadow-[0_0_20px_rgba(139,92,246,0.3)]" }`
+  - Icon sizes: `size-10` (40x40px), `size-9` (36px for sm), `size-11` (44px for lg)
+
+- [ ] **11.1.2: Create Premium Button Variant** (File: `src/components/ui/button.tsx`)
+  - Add `premium` variant with gradient background
+  - Add `accent` variant for secondary CTAs
+
+- [ ] **11.1.3: Update Homepage CTA Buttons** (File: `src/app/(public)/page.tsx`)
+  - Replace inline button styles with Button component
+  - Update CTA buttons in Hero section
+  - Update CTA buttons in final section
+
+- [x] **11.1.4: Add Button Design Tokens** (File: `src/styles/design-system.css`) ✅ COMPLETE
+  - Added button-specific tokens: --btn-radius, --btn-height-*, --btn-icon-size, --btn-padding-*, --btn-transition, --btn-primary-glow
+
+**Target Score:** Visual Hierarchy (8/10), Component Design (9/10)
+
+---
+
+### Step 11.2: Navigation Implementation
+
 **Status:** Pending
 
-**Deliverable:** Premium visual design throughout
+**Soul Check:** Serves US-100 (MCP Session Recording) - Navigation provides discoverable entry points to MCP features. Clear product structure builds trust in AI-Native capabilities.
 
-**Tasks:**
-- [ ] Update color system (from Dribbble analysis)
-- [ ] Add micro-interactions (from Pinterest analysis)
-- [ ] Improve typography (from Medium analysis)
-- [ ] Add loading animations
-- [ ] Implement dark-first design
+**Deliverable:** Fixed navigation with premium interactions, scroll behavior, and mobile hamburger menu
+
+**Files to Create/Modify:**
+- `src/components/layout/Navigation.tsx` (NEW)
+- `src/app/(public)/layout.tsx`
+- `src/app/(public)/page.tsx`
+
+**Checkpoints:**
+
+- [ ] **11.2.1: Create Navigation Component** (File: `src/components/layout/Navigation.tsx`)
+  - Fixed header at 72px height
+  - Background: `rgba(5, 5, 8, 0.9)` with backdrop-blur
+  - Border bottom: 1px solid `rgba(255, 255, 255, 0.05)`
+  - Z-index: 50
+  - Nav items: Explore, Features, Pricing, About
+
+- [ ] **11.2.2: Implement Scroll Behavior** (File: `src/components/layout/Navigation.tsx`)
+  - Hide on scroll down, show on scroll up
+  - Add background opacity transition on scroll
+
+- [ ] **11.2.3: Add Navigation Styling** (File: `src/components/layout/Navigation.tsx`)
+  - Nav items: 14px font, medium weight, 32px spacing
+  - Hover: Color shift to accent-primary (150ms ease)
+  - Logo positioning with gradient text
+  - CTA button on right side
+
+- [ ] **11.2.4: Implement Mobile Navigation** (File: `src/components/layout/Navigation.tsx`)
+  - Hamburger menu toggle
+  - Full-screen mobile menu overlay
+  - Animate menu slide-in from right
+
+- [ ] **11.2.5: Integrate Navigation into Layout** (File: `src/app/(public)/layout.tsx`)
+  - Add Navigation component above main content
+  - Add padding-top to main content for fixed header
+
+**Target Score:** Visual Hierarchy (9/10), Balance & Layout (8/10)
+
+---
+
+### Step 11.3: Footer Implementation
+
+**Status:** Pending
+
+**Soul Check:** Serves US-101 (Draft Bucket Generation) - Footer provides clear product navigation and reinforces the content creation flow. CTA card drives users toward AI-assisted publishing.
+
+**Deliverable:** Structured 4-column footer with CTA card and social links
+
+**Files to Create/Modify:**
+- `src/components/layout/Footer.tsx` (NEW)
+- `src/app/(public)/layout.tsx`
+
+**Checkpoints:**
+
+- [ ] **11.3.1: Create Footer Component** (File: `src/components/layout/Footer.tsx`)
+  - Background: `var(--bg-surface)`
+  - Padding: 80px top, 48px bottom
+  - Structure: CTA Card + 4-column grid + Bottom section
+
+- [ ] **11.3.2: Implement CTA Card** (File: `src/components/layout/Footer.tsx`)
+  - 16px radius, subtle gradient background
+  - Link to /register
+  - Animated arrow icon on hover
+
+- [ ] **11.3.3: Implement Footer Grid** (File: `src/components/layout/Footer.tsx`)
+  - 4-column grid on desktop (PRODUCT, RESOURCES, COMPANY, LEGAL)
+  - 2-column on tablet
+  - Single column on mobile
+
+- [ ] **11.3.4: Add Footer Bottom Section** (File: `src/components/layout/Footer.tsx`)
+  - Copyright with AI-Native tagline: "Made with AI, for AI"
+  - Social links (Twitter, GitHub)
+  - Border top separator
+
+- [ ] **11.3.5: Integrate Footer into Layout** (File: `src/app/(public)/layout.tsx`)
+  - Add Footer component at bottom of layout
+
+**Target Score:** Balance & Layout (9/10), Brand Identity (8/10)
+
+---
+
+### Step 11.4: Micro-interactions Polish
+
+**Status:** Pending
+
+**Soul Check:** Serves ALL User Stories - Premium feel through subtle animations builds trust in AI-generated content. Every interaction reinforces the "Code Gallery" aesthetic.
+
+**Deliverable:** Comprehensive hover effects, scroll animations, and loading states
+
+**Files to Modify:**
+- `src/styles/design-system.css`
+- `src/app/(public)/page.tsx`
+- `src/components/public/article-card.tsx`
+
+**Checkpoints:**
+
+- [ ] **11.4.1: Define Hover Effects Catalog** (File: `src/styles/design-system.css`)
+  - Card: Overlay fade + arrow slide (300ms ease-out)
+  - Button (filled): Background lighten + glow (200ms ease)
+  - Button (outlined): Border color + bg fill (200ms ease)
+  - Nav Link: Color shift to accent (150ms ease)
+  - Tag: Border opacity + text color (200ms ease)
+  - Article Title: Color shift to accent (150ms ease)
+
+- [ ] **11.4.2: Implement Card Hover Enhancement** (File: `src/components/public/article-card.tsx`)
+  - Extract hover logic to article-card.tsx for reusability
+  - Add translateY(-4px) + box-shadow on hover
+
+- [ ] **11.4.3: Implement Scroll Animations** (File: `src/app/(public)/page.tsx`)
+  - Staggered card reveal with premium easing
+  - Update easing function: `[0.16, 1, 0.3, 1]` (premium smooth)
+
+- [ ] **11.4.4: Add Loading States** (File: `src/components/dashboard/articles-skeleton.tsx`)
+  - Skeleton placeholders for cards
+  - Smooth image fade-in with shimmer effect
+
+- [ ] **11.4.5: Verify Progress Indicator** (File: `src/app/(public)/page.tsx`)
+  - Verify scroll progress animation
+  - Consider adding to article detail pages
+
+**Target Score:** Micro-interactions (10/10), Premium Feel (9/10)
+
+---
+
+### Step 11.5: Mobile Responsive Polish
+
+**Status:** Pending
+
+**Soul Check:** Serves ALL User Stories - Vibe coding is mobile-first for AI learners. Mobile optimization ensures AI-Native content is accessible everywhere.
+
+**Deliverable:** Seamless mobile experience with responsive adaptations
+
+**Files to Modify:**
+- `src/app/(public)/page.tsx`
+- `src/components/layout/Navigation.tsx`
+- `src/components/layout/Footer.tsx`
+- `tailwind.config.ts`
+
+**Checkpoints:**
+
+- [ ] **11.5.1: Mobile Typography Adaptations** (File: `src/app/(public)/page.tsx`)
+  - Hero Title: 6xl-9xl (60-128px) -> 4xl-5xl (36-48px)
+  - Section titles: 4xl-6xl -> 3xl-4xl
+  - Body text: maintain base size
+
+- [ ] **11.5.2: Mobile Spacing Adaptations** (File: `src/app/(public)/page.tsx`)
+  - Section padding: 128px (py-32) -> 64px (py-16)
+  - Card gaps: 24px -> 16px
+  - Container padding adjustments
+
+- [ ] **11.5.3: Mobile Grid Adaptations** (File: `src/app/(public)/page.tsx`)
+  - Grid: 3 columns -> 1 column on mobile
+  - Card radius: 16px -> 12px on mobile
+
+- [ ] **11.5.4: Mobile Navigation** (File: `src/components/layout/Navigation.tsx`)
+  - Hamburger menu for mobile (implemented in 11.2.4)
+
+- [ ] **11.5.5: Mobile Footer** (File: `src/components/layout/Footer.tsx`)
+  - 4 columns -> 2 columns on tablet
+  - 2 columns -> 1 column on mobile (implemented in 11.3.3)
+
+- [ ] **11.5.6: Touch Interactions** (File: `src/app/(public)/page.tsx`)
+  - Increase tap targets to 44px minimum
+  - Add touch feedback (scale down on press)
+  - Disable hover effects that don't work on touch
+
+- [ ] **11.5.7: Mobile Card Adaptations** (File: `src/components/public/article-card.tsx`)
+  - Reduce card radius on mobile
+  - Stack tags vertically on small screens
+  - Adjust font sizes for readability
+
+**Target Score:** Responsive Design (10/10), Spacing System (8/10)
+
+---
+
+### Success Criteria
+
+**Design Quality Gate (Chief UI Designer):**
+- [ ] Visual Hierarchy: 8+/10
+- [ ] Balance & Layout: 8+/10
+- [ ] Typography: 8+/10
+- [ ] Color Harmony: 8+/10
+- [ ] Spacing System: 8+/10
+- [ ] Component Design: 8+/10
+- [ ] Micro-interactions: 8+/10
+- [ ] Responsive Design: 8+/10
+- [ ] Brand Identity: 8+/10
+- [ ] Premium Feel: 8+/10
+
+**Target Grade:** A (85+/100 total)
+
+**Technical Quality Gate (CTO):**
+- [ ] All button variants render correctly
+- [ ] Navigation scroll behavior smooth
+- [ ] Footer links functional
+- [ ] No console errors on mobile
+- [ ] Performance: First Contentful Paint < 1.5s
+- [ ] Performance: Largest Contentful Paint < 2.5s
+- [ ] Accessibility: WCAG 2.1 AA compliant
+- [ ] Cross-browser: Chrome, Safari, Firefox tested
+
+---
+
+### Timeline & Dependencies
+
+```
+Day 1: Step 11.1 Button System (0.5 day) + Step 11.2 Navigation Start (0.5 day)
+Day 2: Step 11.2 Navigation Complete (0.5 day) + Step 11.3 Footer (0.5 day)
+Day 3: Step 11.4 Micro-interactions (1 day)
+Day 4: Step 11.5 Mobile Polish (0.5 day) + Testing & Review (0.5 day)
+
+Total: 4 days
+```
+
+**Dependency Graph:**
+```
+Step 11.1 (Buttons) ─────┬──> Step 11.2 (Navigation)
+                         │
+                         └──> Step 11.4 (Micro-interactions) ──> Step 11.5 (Mobile)
+                                 ^                                      ^
+                                 │                                      │
+Step 11.3 (Footer) ─────────────┴──────────────────────────────────────┘
+```
+
+---
+
+### Risk Mitigation
+
+| Risk | Mitigation |
+|------|------------|
+| Over-engineering | Stick to Effortel patterns, don't add extra features |
+| Breaking existing animations | Test after each CSS change, use browser dev tools |
+| Inconsistent button usage | Audit all button instances, create migration guide |
+| Mobile performance | Test on real devices, optimize animation complexity |
+| Navigation z-index conflicts | Document z-index hierarchy, use CSS variables |
+
+---
+
+### File Change Summary
+
+**New Files:**
+- `src/components/layout/Navigation.tsx` - Fixed navigation component
+- `src/components/layout/Footer.tsx` - Structured footer component
+
+**Modified Files:**
+- `src/components/ui/button.tsx` - Updated variants with premium styling
+- `src/app/(public)/page.tsx` - Homepage button updates
+- `src/app/(public)/layout.tsx` - Add Navigation and Footer
+- `src/styles/design-system.css` - Add interaction tokens
+- `src/components/public/article-card.tsx` - Enhanced hover effects
+- `tailwind.config.ts` - Add responsive utilities if needed
 
 ---
 

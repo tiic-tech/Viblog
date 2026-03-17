@@ -14,6 +14,79 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added - Phase 11 Code Gallery UI/UX Plan (2026-03-17)
+
+- **Strategic Context:** Implements Phases 3-7 from VIBLOG_CODE_GALLERY_UI_DEV_PLAN.md
+- **Source:** Effortel competitive analysis (22/25 score) - learning principles, maintaining uniqueness
+- **Estimated Effort:** 4-5 days
+- **Dependencies:** Phase 1-2 (Design Token, Card Polish) - COMPLETE
+
+- **Soul Check: User Story Mapping:**
+  | Step | User Story | AI-Native Soul |
+  |------|------------|----------------|
+  | 11.1 Button System | US-103: Dual Format | Trust in AI-human collaboration |
+  | 11.2 Navigation | US-100: MCP Session | Discoverable MCP entry points |
+  | 11.3 Footer | US-101: Draft Bucket | Clear product navigation |
+  | 11.4 Micro-interactions | All Stories | Premium feel for AI content |
+  | 11.5 Mobile Polish | All Stories | Mobile-first AI learners |
+
+- **Step 11.1: Button System Standardization** (In Progress)
+  - [x] 11.1.1: Update button border-radius to 8px (rounded-md) - DONE
+  - [ ] 11.1.2: Create Premium Button Variant
+  - [ ] 11.1.3: Update Homepage CTA Buttons
+  - [x] 11.1.4: Add Button Design Tokens to design-system.css - DONE
+  - Primary/Secondary/Icon button variants with 40x40px icon size
+  - Hover glow effect on primary buttons: `0 0 20px rgba(139,92,246,0.3)`
+
+- **Step 11.2: Navigation Implementation**
+  - Fixed 72px header with backdrop-blur
+  - Hide on scroll down, show on scroll up
+  - Nav items: 14px, medium, 32px spacing
+
+- **Step 11.3: Footer Implementation**
+  - 4-column layout (Product, Resources, Company, Legal)
+  - CTA card with gradient background
+  - Social links (Twitter, GitHub)
+
+- **Step 11.4: Micro-interactions Polish**
+  - Card hover overlay with arrow reveal (300ms ease-out)
+  - Button hover effects (200ms ease)
+  - Nav link color shift (150ms ease)
+  - Staggered scroll animations
+
+- **Step 11.5: Mobile Responsive Polish**
+  - Hero title: 60-128px desktop, 36-48px mobile
+  - Section padding: 128px desktop, 64px mobile
+  - Grid: 3 columns desktop, 1 column mobile
+  - Touch targets: 44px minimum
+
+- **Design Target:** Grade A (85+/100) across 10 Design Metrics
+
+- **Documentation:**
+  - `IMPLEMENTATION_PLAN.md` - Phase 11 detailed checkpoints
+  - `VIBLOG_CODE_GALLERY_UI_DEV_PLAN.md` - Source plan
+  - `docs/UI_TEAM_WORKFLOW.md` - Working method
+
+### Added - UI Team Workflow Phase 3: Article Detail Polish (2026-03-17)
+- **Soul-Centered Design:**
+  - Immersive reading typography (65ch, 1.75 line-height)
+  - Code block theming with language badge + copy button
+  - Annotation UI for text selection (US-205, US-206)
+  - Author journey section celebrating Vibe Coder
+
+- **Components Created:**
+  - `src/components/ui/code-block.tsx` - Syntax highlighted code
+  - `src/hooks/use-text-selection.ts` - Selection detection
+  - `src/components/ui/annotation-tooltip.tsx` - Annotation UI
+
+- **Design Metrics Improved:**
+  - Typography: 6/10 → 9/10
+  - Component Design: 6/10 → 9/10
+  - Brand Identity: 6/10 → 9/10
+
+- **Documentation:**
+  - `docs/dev-logs/phase-3-article-detail-polish.md` - Full design review
+
 ### Added - UI Team Workflow Phase 2: Card Component Polish (2026-03-17)
 - **Design Review Score: 83/100 (Grade A-)**
 - **Effortel-Inspired Design Patterns:**

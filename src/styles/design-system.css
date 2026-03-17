@@ -245,4 +245,29 @@
   --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
   --ease-dramatic: cubic-bezier(0.68, -0.55, 0.265, 1.55);
   --ease-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
+
+  /* ============================================
+     15. BUTTON SYSTEM - Effortel-Inspired Premium
+     Phase 11.1: Button System Standardization
+     ============================================ */
+  /* Button Radius */
+  --btn-radius: var(--radius-md);  /* 8px */
+
+  /* Button Sizing */
+  --btn-height-sm: 36px;
+  --btn-height-default: 40px;
+  --btn-height-lg: 44px;
+  --btn-icon-size: 40px;
+
+  /* Button Padding */
+  --btn-padding-sm: 12px;
+  --btn-padding-default: 16px;
+  --btn-padding-lg: 20px;
+
+  /* Button Transitions */
+  --btn-transition: all 200ms ease;
+
+  /* Primary Button Glow */
+  --btn-primary-glow: 0 0 20px rgba(139, 92, 246, 0.3);
+  --btn-primary-glow-intense: 0 0 30px rgba(139, 92, 246, 0.4);
 }
