@@ -15,11 +15,8 @@ import {
  */
 function getSupabaseClient(authMethod: 'session' | 'mcp_api') {
   if (authMethod === 'mcp_api') {
-    // Use service role client for MCP API Key auth
-    // This bypasses RLS, but we've already validated the user via the API key
     return createServiceRoleClient()
   }
-  // Use regular client for session auth
   return createClient()
 }
 

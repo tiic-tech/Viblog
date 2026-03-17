@@ -23,7 +23,10 @@ function getSupabaseClient(authMethod: 'session' | 'mcp_api') {
  * GET /api/vibe-sessions/[id]/fragments
  * List all fragments for a session
  */
-export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const authResult = await dualAuthenticate(request)
     if (!authResult.success) {
@@ -66,7 +69,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
  * POST /api/vibe-sessions/[id]/fragments
  * Append a single fragment to a session (for incremental updates)
  */
-export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const authResult = await dualAuthenticate(request)
     if (!authResult.success) {
@@ -104,7 +110,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     if (session.status !== 'active') {
-      return NextResponse.json({ error: 'Cannot append to inactive session' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'Cannot append to inactive session' },
+        { status: 400 }
+      )
     }
 
     // Auto-assign sequence_number if not provided
@@ -150,7 +159,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
  * PUT /api/vibe-sessions/[id]/fragments
  * Batch upload multiple fragments (for complete session context)
  */
-export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const authResult = await dualAuthenticate(request)
     if (!authResult.success) {
@@ -188,7 +200,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     }
 
     if (session.status !== 'active') {
-      return NextResponse.json({ error: 'Cannot upload to inactive session' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'Cannot upload to inactive session' },
+        { status: 400 }
+      )
     }
 
     // Prepare batch insert
@@ -223,7 +238,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
  * DELETE /api/vibe-sessions/[id]/fragments
  * Delete all fragments for a session (reset context)
  */
-export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const authResult = await dualAuthenticate(request)
     if (!authResult.success) {
@@ -246,7 +264,10 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
       return NextResponse.json({ error: 'Session not found' }, { status: 404 })
     }
 
-    const { error } = await supabase.from('session_fragments').delete().eq('session_id', id)
+    const { error } = await supabase
+      .from('session_fragments')
+      .delete()
+      .eq('session_id', id)
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
