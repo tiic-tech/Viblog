@@ -10,10 +10,10 @@ import { createServerClient } from '@supabase/ssr'
  */
 export function createServiceRoleClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_SECRET_KEY
 
   if (!supabaseUrl || !serviceRoleKey) {
-    throw new Error('Missing Supabase URL or Service Role Key')
+    throw new Error('Missing Supabase URL or Service Secret Key')
   }
 
   return createServerClient(supabaseUrl, serviceRoleKey, {
