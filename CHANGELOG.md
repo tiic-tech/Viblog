@@ -15,6 +15,22 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **CORE GOAL: Claude Code → Viblog MCP Integration (2026-03-17):**
+  - Mission: Enable Claude Code to write and publish directly to Viblog via MCP configuration
+  - Eliminates Playwright-based indirect publishing workflow
+  - Timeline: 5-8 days for full MCP integration
+  - User selected "Pivot to MCP Server (Recommended)" approach
+- **Phase 10.4: MCP Server Implementation (IN PROGRESS - 2026-03-17):**
+  - Created `src/lib/mcp/types.ts` - MCP Protocol Types (JSON-RPC 2.0)
+    - JsonRpcRequest, JsonRpcResponse, McpTool, McpToolCallResult
+    - MCP_SERVER_INFO: { name: 'viblog-mcp-server', version: '1.0.0' }
+    - MCP_PROTOCOL_VERSION: '2024-11-05'
+  - Created `src/lib/mcp/tools.ts` - 11 MCP Tools Definition
+    - Layer 1: Data Collection (create_vibe_session, append_session_context, upload_session_context)
+    - Layer 2: Structured Processing (generate_structured_context, update_structured_context)
+    - Layer 3: Content Generation (generate_article_draft, update_article_draft, merge_sessions_to_article)
+    - Layer 4: Publish Management (publish_article, get_session_status, list_user_sessions)
+  - NEXT: Create `src/app/api/mcp/route.ts` - Main MCP endpoint
 - **Phase 10.3: AI Data Access Protocol (2026-03-17):**
   - Implemented AIDataSchema endpoint (GET /api/v1/ai/schema)
   - Implemented Vector Search API (POST /api/v1/ai/vectors/{store}/search)

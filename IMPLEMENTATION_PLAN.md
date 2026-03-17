@@ -12,7 +12,31 @@
 
 This document provides a step-by-step build sequence for Viblog post-MVP development. Each step has clear deliverables and dependencies.
 
-**Current Status:** Phase 10.3 COMPLETED - Backend Track Complete, Ready for Phase 10.4 Frontend Track
+**Current Status:** Phase 10.4 IN PROGRESS - MCP Server Implementation
+
+---
+
+## 1.0.1 Core Goal: Claude Code → Viblog MCP Integration
+
+**Mission:** Enable Claude Code to write and publish directly to Viblog via MCP configuration.
+
+**Problem:** Current workflow uses Playwright as indirect publishing mechanism - inefficient and fragile.
+
+**Solution:** Implement MCP Server that wraps existing REST APIs with MCP protocol layer.
+
+**Timeline:** 5-8 days for full MCP integration.
+
+**Approach Selected:** Pivot to MCP Server (Recommended)
+
+**Progress:**
+- [x] Created `src/lib/mcp/types.ts` - MCP Protocol Types
+- [x] Created `src/lib/mcp/tools.ts` - 11 MCP Tools Definition
+- [ ] Create `src/app/api/mcp/route.ts` - Main MCP endpoint (NEXT STEP)
+- [ ] Implement tool handlers routing to existing REST APIs
+- [ ] Write Claude Code MCP Configuration Guide
+- [ ] Add integration tests for MCP endpoints
+
+**Breakpoint:** Ready to create `src/app/api/mcp/route.ts` - the main MCP endpoint handling JSON-RPC 2.0 requests.
 
 ---
 
