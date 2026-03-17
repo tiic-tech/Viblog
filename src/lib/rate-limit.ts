@@ -9,6 +9,8 @@
  * - Per-IP and per-user rate limiting
  * - Configurable thresholds per endpoint pattern
  * - Rate limit headers in responses
+ * - Environment-based configuration (stricter in production)
+ * - Rate limit violation monitoring/logging
  */
 
 import { NextResponse, type NextRequest } from 'next/server'
@@ -50,10 +52,50 @@ interface RateLimitEntry {
 }
 
 /**
+ * Statistics for monitoring
+ */
+interface RateLimitStats {
+  totalRequests: number
+  blockedRequests: number
+  lastBlockedAt: number | null
+  topBlockedPaths: Map<string, number>
+}
+
+/**
  * In-memory store for rate limit entries
  * Key format: `${keyPrefix}:${identifier}:${path}`
  */
 const memoryStore = new Map<string, RateLimitEntry>()
+
+/**
+ * Statistics for monitoring
+ */
+const stats: RateLimitStats = {
+  totalRequests: 0,
+  blockedRequests: 0,
+  lastBlockedAt: null,
+  topBlockedPaths: new Map(),
+}
+
+/**
+ * Get current environment
+ */
+function getEnvironment(): 'development' | 'test' | 'production' {
+  return (process.env.NODE_ENV as 'development' | 'test' | 'production') || 'development'
+}
+
+/**
+ * Check if running in production
+ */
+export function isProduction(): boolean {
+  return getEnvironment() === 'production'
+}
+
+/**
+ * Rate limit multiplier for production (reduces limits)
+ * Production limits are 50% of development limits
+ */
+const PRODUCTION_MULTIPLIER = 0.5
 
 /**
  * Cleanup interval in milliseconds (5 minutes)
@@ -66,7 +108,8 @@ const CLEANUP_INTERVAL = 5 * 60 * 1000
 const MAX_ENTRY_AGE = 10 * 60 * 1000
 
 /**
- * Default rate limit configurations per endpoint pattern
+ * Default rate limit configurations per endpoint pattern (development values)
+ * Production values are automatically reduced by PRODUCTION_MULTIPLIER
  */
 export const DEFAULT_RATE_LIMITS: Record<string, RateLimitConfig> = {
   // MCP API endpoints - higher limits for legitimate use
@@ -99,44 +142,59 @@ export const DEFAULT_RATE_LIMITS: Record<string, RateLimitConfig> = {
 }
 
 /**
+ * Apply environment-based multiplier to rate limit config
+ * Production environments have stricter limits (50% of development)
+ */
+function applyEnvironmentMultiplier(config: RateLimitConfig): RateLimitConfig {
+  if (!isProduction()) {
+    return config
+  }
+
+  return {
+    ...config,
+    limit: Math.max(1, Math.floor(config.limit * PRODUCTION_MULTIPLIER)),
+  }
+}
+
+/**
  * Get the rate limit config for a given path
+ * Applies environment-based multiplier for production
  */
 export function getRateLimitConfig(pathname: string): RateLimitConfig {
   // Normalize pathname
   const normalizedPath = pathname.startsWith('/') ? pathname.slice(1) : pathname
 
+  // Get base config based on pattern matching
+  let config: RateLimitConfig
+
   // Check patterns in order of specificity
   // First check for specific patterns
   if (normalizedPath.includes('vibe-sessions/generate')) {
-    return DEFAULT_RATE_LIMITS['api/vibe-sessions/generate']
+    config = DEFAULT_RATE_LIMITS['api/vibe-sessions/generate']
   }
   // Check fragments BEFORE base vibe-sessions (more specific pattern first)
-  if (normalizedPath.match(/vibe-sessions\/[^/]+\/fragments/)) {
-    return DEFAULT_RATE_LIMITS['api/vibe-sessions/fragments']
-  }
-  if (normalizedPath.startsWith('api/vibe-sessions')) {
-    return DEFAULT_RATE_LIMITS['api/vibe-sessions']
-  }
-  if (normalizedPath.startsWith('api/v1/ai')) {
-    return DEFAULT_RATE_LIMITS['api/v1/ai']
-  }
-  if (normalizedPath.startsWith('api/auth')) {
-    return DEFAULT_RATE_LIMITS['api/auth']
-  }
-  if (normalizedPath.startsWith('api/public')) {
-    return DEFAULT_RATE_LIMITS['api/public']
-  }
-  if (normalizedPath.startsWith('api/user')) {
-    return DEFAULT_RATE_LIMITS['api/user']
-  }
-  if (normalizedPath.startsWith('api/articles')) {
-    return DEFAULT_RATE_LIMITS['api/articles']
-  }
-  if (normalizedPath.startsWith('api/projects')) {
-    return DEFAULT_RATE_LIMITS['api/projects']
+  else if (normalizedPath.match(/vibe-sessions\/[^/]+\/fragments/)) {
+    config = DEFAULT_RATE_LIMITS['api/vibe-sessions/fragments']
+  } else if (normalizedPath.startsWith('api/vibe-sessions')) {
+    config = DEFAULT_RATE_LIMITS['api/vibe-sessions']
+  } else if (normalizedPath.startsWith('api/v1/ai')) {
+    config = DEFAULT_RATE_LIMITS['api/v1/ai']
+  } else if (normalizedPath.startsWith('api/auth')) {
+    config = DEFAULT_RATE_LIMITS['api/auth']
+  } else if (normalizedPath.startsWith('api/public')) {
+    config = DEFAULT_RATE_LIMITS['api/public']
+  } else if (normalizedPath.startsWith('api/user')) {
+    config = DEFAULT_RATE_LIMITS['api/user']
+  } else if (normalizedPath.startsWith('api/articles')) {
+    config = DEFAULT_RATE_LIMITS['api/articles']
+  } else if (normalizedPath.startsWith('api/projects')) {
+    config = DEFAULT_RATE_LIMITS['api/projects']
+  } else {
+    config = DEFAULT_RATE_LIMITS['default']
   }
 
-  return DEFAULT_RATE_LIMITS['default']
+  // Apply environment multiplier for production
+  return applyEnvironmentMultiplier(config)
 }
 
 /**
@@ -209,11 +267,25 @@ export function checkRateLimit(
   const remaining = Math.max(0, config.limit - currentCount)
   const resetTime = now + config.windowSeconds * 1000
 
+  // Track total requests
+  stats.totalRequests++
+
   // Check if rate limited
   if (currentCount >= config.limit) {
     // Find the oldest timestamp to calculate retry-after
     const oldestTimestamp = Math.min(...entry.timestamps)
     const retryAfter = Math.ceil((oldestTimestamp - windowStart) / 1000)
+
+    // Track blocked requests
+    stats.blockedRequests++
+    stats.lastBlockedAt = now
+
+    // Track blocked paths
+    const currentCountForPath = stats.topBlockedPaths.get(pathname) || 0
+    stats.topBlockedPaths.set(pathname, currentCountForPath + 1)
+
+    // Log rate limit violation (in production, this would go to monitoring service)
+    logRateLimitViolation(identifier, pathname, config, currentCount)
 
     return {
       allowed: false,
@@ -232,6 +304,34 @@ export function checkRateLimit(
     limit: config.limit,
     remaining: remaining - 1, // Account for current request
     resetTime,
+  }
+}
+
+/**
+ * Log a rate limit violation
+ * In production, this would send to a monitoring service (e.g., Sentry, Datadog)
+ */
+function logRateLimitViolation(
+  identifier: string,
+  pathname: string,
+  config: RateLimitConfig,
+  requestCount: number
+): void {
+  // Only log in production to avoid noise in development
+  if (isProduction()) {
+    // Structured log for production monitoring
+    console.error(
+      JSON.stringify({
+        timestamp: new Date().toISOString(),
+        event: 'rate_limit_violation',
+        identifier,
+        pathname,
+        limit: config.limit,
+        windowSeconds: config.windowSeconds,
+        requestCount,
+        environment: 'production',
+      })
+    )
   }
 }
 
@@ -332,4 +432,39 @@ export function clearRateLimitStore(): void {
  */
 export function getStoreSize(): number {
   return memoryStore.size
+}
+
+/**
+ * Get rate limit statistics (for monitoring)
+ */
+export function getRateLimitStats(): {
+  totalRequests: number
+  blockedRequests: number
+  blockRate: number
+  lastBlockedAt: number | null
+  topBlockedPaths: Array<{ path: string; count: number }>
+} {
+  // Sort blocked paths by count
+  const topBlockedPaths = Array.from(stats.topBlockedPaths.entries())
+    .map(([path, count]) => ({ path, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10) // Top 10
+
+  return {
+    totalRequests: stats.totalRequests,
+    blockedRequests: stats.blockedRequests,
+    blockRate: stats.totalRequests > 0 ? (stats.blockedRequests / stats.totalRequests) * 100 : 0,
+    lastBlockedAt: stats.lastBlockedAt,
+    topBlockedPaths,
+  }
+}
+
+/**
+ * Clear statistics (for testing)
+ */
+export function clearStats(): void {
+  stats.totalRequests = 0
+  stats.blockedRequests = 0
+  stats.lastBlockedAt = null
+  stats.topBlockedPaths.clear()
 }

@@ -14,6 +14,9 @@ import {
   getStoreSize,
   startCleanupInterval,
   stopCleanupInterval,
+  getRateLimitStats,
+  clearStats,
+  isProduction,
   DEFAULT_RATE_LIMITS,
   type RateLimitConfig,
 } from './rate-limit'
@@ -35,6 +38,7 @@ function createMockRequest(
 describe('Rate Limiter', () => {
   beforeEach(() => {
     clearRateLimitStore()
+    clearStats()
   })
 
   afterEach(() => {
@@ -418,6 +422,138 @@ describe('Rate Limiter', () => {
       const fragmentsConfig = DEFAULT_RATE_LIMITS['api/vibe-sessions/fragments']
       const defaultConfig = DEFAULT_RATE_LIMITS['default']
       expect(fragmentsConfig.limit).toBeGreaterThan(defaultConfig.limit)
+    })
+  })
+
+  describe('Environment-based Configuration', () => {
+    it('isProduction returns false in test environment', () => {
+      // NODE_ENV is 'test' when running vitest
+      expect(isProduction()).toBe(false)
+    })
+
+    it('returns development limits in test environment', () => {
+      const config = getRateLimitConfig('/api/vibe-sessions')
+      // In development/test, should return full limit (100)
+      expect(config.limit).toBe(100)
+    })
+
+    it('returns correct limits for all endpoints in development', () => {
+      // Verify all endpoints return expected development limits
+      const testCases = [
+        { path: '/api/vibe-sessions', expectedLimit: 100 },
+        { path: '/api/vibe-sessions/abc123/fragments', expectedLimit: 500 },
+        { path: '/api/vibe-sessions/generate-structured-context', expectedLimit: 20 },
+        { path: '/api/v1/ai/schema', expectedLimit: 50 },
+        { path: '/api/auth/callback', expectedLimit: 10 },
+        { path: '/api/public/articles', expectedLimit: 100 },
+        { path: '/api/user/api-keys', expectedLimit: 50 },
+        { path: '/api/unknown', expectedLimit: 60 },
+      ]
+
+      testCases.forEach(({ path, expectedLimit }) => {
+        const config = getRateLimitConfig(path)
+        expect(config.limit).toBe(expectedLimit)
+      })
+    })
+  })
+
+  describe('Rate Limit Statistics', () => {
+    const config: RateLimitConfig = {
+      limit: 3,
+      windowSeconds: 60,
+      keyPrefix: 'stats-test',
+    }
+
+    it('tracks total requests', () => {
+      checkRateLimit('ip1', config, '/api/test')
+      checkRateLimit('ip1', config, '/api/test')
+      checkRateLimit('ip2', config, '/api/test')
+
+      const stats = getRateLimitStats()
+      expect(stats.totalRequests).toBe(3)
+    })
+
+    it('tracks blocked requests', () => {
+      // Use up limit
+      checkRateLimit('ip1', config, '/api/test')
+      checkRateLimit('ip1', config, '/api/test')
+      checkRateLimit('ip1', config, '/api/test')
+
+      // This should be blocked
+      checkRateLimit('ip1', config, '/api/test')
+
+      const stats = getRateLimitStats()
+      expect(stats.blockedRequests).toBe(1)
+    })
+
+    it('calculates block rate correctly', () => {
+      // 3 allowed, 2 blocked
+      checkRateLimit('ip1', config, '/api/test')
+      checkRateLimit('ip1', config, '/api/test')
+      checkRateLimit('ip1', config, '/api/test')
+      checkRateLimit('ip1', config, '/api/test') // blocked
+      checkRateLimit('ip1', config, '/api/test') // blocked
+
+      const stats = getRateLimitStats()
+      expect(stats.totalRequests).toBe(5)
+      expect(stats.blockedRequests).toBe(2)
+      expect(stats.blockRate).toBe(40) // 2/5 = 40%
+    })
+
+    it('tracks last blocked timestamp', () => {
+      // Use up limit
+      checkRateLimit('ip1', config, '/api/test')
+      checkRateLimit('ip1', config, '/api/test')
+      checkRateLimit('ip1', config, '/api/test')
+
+      const beforeBlock = getRateLimitStats()
+      expect(beforeBlock.lastBlockedAt).toBeNull()
+
+      // This should be blocked
+      checkRateLimit('ip1', config, '/api/test')
+
+      const afterBlock = getRateLimitStats()
+      expect(afterBlock.lastBlockedAt).not.toBeNull()
+      expect(afterBlock.lastBlockedAt).toBeGreaterThan(0)
+    })
+
+    it('tracks top blocked paths', () => {
+      const config2: RateLimitConfig = { limit: 2, windowSeconds: 60, keyPrefix: 'test2' }
+
+      // Block path1 twice
+      checkRateLimit('ip1', config2, '/api/path1')
+      checkRateLimit('ip1', config2, '/api/path1')
+      checkRateLimit('ip1', config2, '/api/path1') // blocked
+
+      // Block path2 once
+      checkRateLimit('ip2', config2, '/api/path2')
+      checkRateLimit('ip2', config2, '/api/path2')
+      checkRateLimit('ip2', config2, '/api/path2') // blocked
+
+      const stats = getRateLimitStats()
+      expect(stats.topBlockedPaths).toHaveLength(2)
+      expect(stats.topBlockedPaths[0].path).toBe('/api/path1')
+      expect(stats.topBlockedPaths[0].count).toBe(1)
+    })
+
+    it('clearStats resets all statistics', () => {
+      // Generate some stats
+      checkRateLimit('ip1', config, '/api/test')
+      checkRateLimit('ip1', config, '/api/test')
+      checkRateLimit('ip1', config, '/api/test')
+      checkRateLimit('ip1', config, '/api/test') // blocked
+
+      const beforeClear = getRateLimitStats()
+      expect(beforeClear.totalRequests).toBe(4)
+      expect(beforeClear.blockedRequests).toBe(1)
+
+      clearStats()
+
+      const afterClear = getRateLimitStats()
+      expect(afterClear.totalRequests).toBe(0)
+      expect(afterClear.blockedRequests).toBe(0)
+      expect(afterClear.lastBlockedAt).toBeNull()
+      expect(afterClear.topBlockedPaths).toHaveLength(0)
     })
   })
 })
