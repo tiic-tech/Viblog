@@ -1033,6 +1033,47 @@ After context compaction/session resume:
 
 ---
 
+### Phase 11.4: Caching Layer Implementation
+
+**Context:** Improve performance under load by caching frequently accessed data.
+
+**What I Built:**
+- Redis-compatible cache layer with Upstash support
+  - `src/lib/cache/client.ts` - Redis client configuration
+  - `src/lib/cache/cache.ts` - Cache utilities: getCache, setCache, getOrSetCache, deleteCache
+  - `src/lib/cache/invalidation.ts` - Cache invalidation functions
+- Cache-aside pattern implementation for read-heavy endpoints
+- TTL configurations:
+  - API key validation: 5 minutes
+  - LLM-generated context: 1 hour
+  - User sessions: 5 minutes
+- Cache invalidation on mutations:
+  - Token DELETE/PATCH operations invalidate by token hash
+  - Session mutations invalidate user session cache
+
+**Key Design Decisions:**
+- Token hash (SHA-256) used as cache key for security
+- Cache key prefixes for organized invalidation: `api_key:`, `session:`, `llm_context:`
+- MCP API key validation cached to reduce database hits on every request
+- LLM context cached with content hash for automatic invalidation on fragment changes
+
+**Files Modified:**
+- `src/lib/auth/token-auth.ts` - API key validation caching
+- `src/app/api/vibe-sessions/route.ts` - Session list caching
+- `src/app/api/vibe-sessions/generate-structured-context/route.ts` - LLM context caching
+- `src/app/api/user/authorization-tokens/route.ts` - Cache invalidation
+- `src/app/api/user/mcp-keys/route.ts` - Cache invalidation
+
+**Test Coverage:**
+- 11 cache invalidation tests passing
+- Cache utilities tested with mock Redis
+
+**Commits:**
+- 4d99e68: Phase 11.4.1 - Implement Cache Layer
+- 26e07ec: Phase 11.4.2 - Apply Caching to Endpoints
+
+---
+
 ## Key Insights: Vibe Coding Principles
 
 ### 1. Token Monitoring is Critical
