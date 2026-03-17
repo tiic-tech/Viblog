@@ -20,17 +20,24 @@ All notable changes to this project will be documented in this file.
   - Eliminates Playwright-based indirect publishing workflow
   - Timeline: 5-8 days for full MCP integration
   - User selected "Pivot to MCP Server (Recommended)" approach
-- **Phase 10.4: MCP Server Implementation (IN PROGRESS - 2026-03-17):**
-  - Created `src/lib/mcp/types.ts` - MCP Protocol Types (JSON-RPC 2.0)
-    - JsonRpcRequest, JsonRpcResponse, McpTool, McpToolCallResult
-    - MCP_SERVER_INFO: { name: 'viblog-mcp-server', version: '1.0.0' }
-    - MCP_PROTOCOL_VERSION: '2024-11-05'
-  - Created `src/lib/mcp/tools.ts` - 11 MCP Tools Definition
+- **Phase 10.4: MCP Server npm Package (BUILD SUCCESSFUL - 2026-03-17):**
+  - Created standalone npm package `@viblog/mcp-server` with stdio transport
+  - Package location: `packages/viblog-mcp-server/`
+  - Implemented 6 MCP tools:
     - Layer 1: Data Collection (create_vibe_session, append_session_context, upload_session_context)
-    - Layer 2: Structured Processing (generate_structured_context, update_structured_context)
-    - Layer 3: Content Generation (generate_article_draft, update_article_draft, merge_sessions_to_article)
-    - Layer 4: Publish Management (publish_article, get_session_status, list_user_sessions)
-  - NEXT: Create `src/app/api/mcp/route.ts` - Main MCP endpoint
+    - Layer 2: Structured Processing (generate_structured_context)
+    - Layer 3: Content Generation (generate_article_draft)
+    - Layer 4: Session Management (list_user_sessions)
+  - Architecture:
+    - `src/index.ts` - Entry point with StdioServerTransport
+    - `src/server.ts` - MCP server setup with ListToolsRequestSchema and CallToolRequestSchema handlers
+    - `src/tools/index.ts` - Tool definitions with Zod-style inputSchema
+    - `src/tools/handlers.ts` - Tool execution logic with error handling
+    - `src/api/client.ts` - REST API client for backend communication
+    - `src/types.ts` - Shared types (re-exports CallToolResult from SDK)
+  - Uses `@modelcontextprotocol/sdk` for MCP protocol implementation
+  - TypeScript ESM modules with NodeNext resolution
+  - NEXT: Local testing with Claude Code configuration
 - **Phase 10.3: AI Data Access Protocol (2026-03-17):**
   - Implemented AIDataSchema endpoint (GET /api/v1/ai/schema)
   - Implemented Vector Search API (POST /api/v1/ai/vectors/{store}/search)

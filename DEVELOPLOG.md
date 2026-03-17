@@ -735,6 +735,79 @@ For AI-Native products:
 
 ---
 
+## Phase 10: MCP Server Implementation (2026-03-17)
+
+### Overview
+
+Phase 10 implements the core goal of Viblog: enabling AI agents to write and publish directly to Viblog via the MCP (Model Context Protocol). This replaces the Playwright-based indirect workflow with a native stdio-based npm package.
+
+**Core Goal:** Enable Claude Code to write and publish directly to Viblog via MCP configuration.
+
+---
+
+### Phase 10.4: MVP MCP Server npm Package (Completed 2026-03-17)
+
+**What I Did:**
+
+1. **Package Structure Created:**
+   ```
+   packages/viblog-mcp-server/
+   ├── package.json          # @viblog/mcp-server v1.0.0
+   ├── tsconfig.json         # TypeScript ESM config
+   ├── src/
+   │   ├── index.ts          # Entry point (stdio server)
+   │   ├── server.ts         # MCP Server setup
+   │   ├── tools/
+   │   │   ├── index.ts      # 6 tool definitions
+   │   │   └── handlers.ts   # Tool execution logic
+   │   ├── api/
+   │   │   └── client.ts     # REST API client
+   │   └── types.ts          # Shared types
+   └── README.md             # Usage documentation
+   ```
+
+2. **6 MCP Tools Implemented:**
+   | Tool | Purpose | Backend Endpoint |
+   |------|---------|------------------|
+   | `create_vibe_session` | Create recording session | POST /api/vibe-sessions |
+   | `append_session_context` | Add context incrementally | POST /api/vibe-sessions/{id}/fragments |
+   | `upload_session_context` | Batch upload fragments | PUT /api/vibe-sessions/{id}/fragments |
+   | `generate_structured_context` | AI processing | POST /api/vibe-sessions/generate-structured-context |
+   | `generate_article_draft` | Create draft from session | POST /api/vibe-sessions/generate-article-draft |
+   | `list_user_sessions` | List user's sessions | GET /api/vibe-sessions |
+
+3. **TypeScript Build Fixed:**
+   - Initial error: Custom `McpToolCallResult` type didn't match SDK's `CallToolResult`
+   - Solution: Re-exported `CallToolResult` from `@modelcontextprotocol/sdk/types.js`
+   - Build now passes successfully
+
+**What Went Well:**
+
+- SDK types re-used instead of creating custom types
+- Clean separation between tool definitions and handlers
+- REST client handles authentication via X-API-Key header
+- Environment variable validation at startup
+
+**Technical Notes:**
+
+- Transport: stdio (JSON-RPC 2.0)
+- Dependencies: `@modelcontextprotocol/sdk`, `zod`
+- Configuration: `VIBLOG_API_URL` and `VIBLOG_API_KEY` environment variables
+
+**Next Steps:**
+
+1. Configure Claude Code with local package for testing
+2. Verify create_vibe_session works end-to-end
+3. Verify session exists in database
+4. Verify generate_article_draft produces drafts
+5. Publish to npm registry
+
+---
+
+**Phase 10.4 Status:** MVP npm package built, ready for integration testing
+
+---
+
 ## Bad Cases: Mistakes to Avoid
 
 ### Bad Case 1: Database Column Name Mismatch
@@ -941,8 +1014,8 @@ After context compaction/session resume:
 
 ---
 
-**Document Version:** 5.0
-**Last Updated:** 2026-03-16
+**Document Version:** 5.1
+**Last Updated:** 2026-03-17
 **Author:** Claude (with human collaborator)
-**Phase 9.5 Completion:** Brainstorming sessions completed, AI-Data-Native architecture designed
+**Phase 10.4 Status:** MVP MCP Server npm package built, ready for integration testing
 **Key Insight:** AI-Native = AI-Data-Native
