@@ -1074,6 +1074,371 @@ After context compaction/session resume:
 
 ---
 
+## Phase 11: Backend Infrastructure Hardening (2026-03-17 ~ 2026-03-18)
+
+### CTO Technical Review Summary
+
+**Overall Score: 88/100 (Grade A) - APPROVE for merge**
+
+| Metric | Score | Notes |
+|--------|-------|-------|
+| Architecture Alignment | 90/100 | Well-structured layered architecture |
+| Code Quality | 90/100 | Clean TypeScript, proper typing |
+| Performance Impact | 80/100 | Rate limiting adds minimal overhead |
+| Security Posture | 90/100 | Rate limiting protects against abuse |
+| Test Coverage | 100/100 | Comprehensive test suite (99%+ coverage) |
+| Error Handling | 100/100 | Robust error class hierarchy |
+| Maintainability | 80/100 | Clear module structure |
+| Scalability | 70/100 | In-memory stores limit horizontal scaling |
+| Documentation | 80/100 | Good inline documentation |
+| Technical Debt | 90/100 | Minimal new debt, clear improvement paths |
+
+**P0 Issues:** None
+
+**P1 Improvements:**
+1. Rate limiter needs Redis support for horizontal scaling
+2. Memory cache needs LRU eviction strategy
+3. Health check endpoints need OpenAPI documentation
+
+---
+
+### What I Built
+
+Phase 11 transformed Viblog from an MVP to production-ready infrastructure through five sub-phases:
+
+**Phase 11.1: Test Coverage Expansion**
+- Vitest testing framework with v8 coverage
+- 68 comprehensive tests across 5 test files
+- Achieved 99.03% overall coverage (from 20% baseline)
+
+**Phase 11.2: Rate Limiting Implementation**
+- Sliding window rate limiting algorithm
+- Environment-aware configuration (50% stricter in production)
+- Per-identifier tracking (user ID, MCP API key, IP address)
+- Path-specific rate limit configurations
+- Statistics tracking for monitoring
+
+**Phase 11.3: Error Handling Improvements**
+- Custom error class hierarchy (McpServerError, ValidationError, ApiError, etc.)
+- Zod validation schemas for all 6 MCP tools
+- Helper functions: toMcpError(), isMcpError()
+
+**Phase 11.4: Caching Layer**
+- Redis-compatible cache layer with Upstash support
+- Cache-aside pattern for read-heavy endpoints
+- Cache invalidation on mutations
+- TTL configurations for different data types
+
+**Phase 11.5: Logging & Monitoring**
+- Structured JSON logging with request ID tracking
+- Performance timing with logger.time() and startTimer()
+- Health check endpoints (/api/health, /api/health/ready, /api/health/live)
+
+---
+
+### Technical Approach
+
+#### Rate Limiting Architecture
+
+```
+Request
+    │
+    ├── Extract Identifier (User ID / MCP Key / IP)
+    │
+    ├── Get Path-Specific Config
+    │   └── Apply Environment Multiplier (0.5x in production)
+    │
+    ├── Sliding Window Check
+    │   ├── Filter timestamps within window
+    │   ├── Count vs Limit comparison
+    │   └── Calculate retry-after
+    │
+    └── Response Headers
+        ├── X-RateLimit-Limit
+        ├── X-RateLimit-Remaining
+        ├── X-RateLimit-Reset
+        └── Retry-After (if blocked)
+```
+
+**Rate Limit Tiers:**
+
+| Endpoint Pattern | Dev Limit | Prod Limit | Window |
+|------------------|-----------|------------|--------|
+| vibe-sessions/fragments | 500 | 250 | 60s |
+| vibe-sessions (base) | 100 | 50 | 60s |
+| vibe-sessions/generate | 20 | 10 | 60s |
+| v1/ai | 50 | 25 | 60s |
+| auth | 10 | 5 | 60s |
+| public | 100 | 50 | 60s |
+| default | 60 | 30 | 60s |
+
+#### Caching Strategy
+
+```
+Cache-Aside Pattern:
+
+Read Flow:
+1. Check cache for key
+2. If miss: Query database
+3. Store result in cache with TTL
+4. Return result
+
+Write Flow:
+1. Write to database
+2. Invalidate related cache keys
+3. Return result
+
+Cache Key Prefixes:
+- api_key:{hash} - API key validation (5 min TTL)
+- session:{userId} - User sessions (5 min TTL)
+- llm_context:{sessionId}:{hash} - LLM context (1 hour TTL)
+```
+
+#### Error Handling Hierarchy
+
+```
+McpServerError (base)
+├── ConfigurationError (500) - Missing/invalid config
+├── ValidationError (400) - Input validation failures
+├── ApiError - External API errors
+│   └── isRetryable(), getSuggestedAction()
+├── RateLimitError (429) - Rate limiting with retryAfter
+├── NetworkError (503) - Network connectivity issues
+└── UnknownError (500) - Catch-all for unexpected errors
+```
+
+#### Structured Logging Format
+
+```json
+{
+  "timestamp": "2026-03-18T00:24:00.000Z",
+  "level": "info",
+  "message": "API Request: POST /api/vibe-sessions",
+  "requestId": "1742276640000-a1b2c3d4e5f6",
+  "duration": 45,
+  "environment": "production",
+  "service": "viblog-api",
+  "context": {
+    "method": "POST",
+    "path": "/api/vibe-sessions",
+    "userId": "uuid"
+  }
+}
+```
+
+---
+
+### Key Files Changed
+
+**Phase 11.1 - Test Coverage:**
+- `packages/viblog-mcp-server/src/api/client.test.ts` - 23 tests
+- `packages/viblog-mcp-server/src/tools/handlers.test.ts` - 22 tests
+- `packages/viblog-mcp-server/src/tools/index.test.ts` - 17 tests
+- `packages/viblog-mcp-server/src/types.test.ts` - 4 tests
+- `packages/viblog-mcp-server/src/server.test.ts` - 2 tests
+
+**Phase 11.2 - Rate Limiting:**
+- `src/lib/rate-limit.ts` - Core rate limiter (465 lines)
+- `src/lib/rate-limit.test.ts` - 58 comprehensive tests
+- `src/lib/middleware/rate-limit.ts` - Middleware integration
+- `src/middleware.ts` - Next.js middleware entry
+
+**Phase 11.3 - Error Handling:**
+- `packages/viblog-mcp-server/src/errors.ts` - Error class hierarchy
+- `packages/viblog-mcp-server/src/errors.test.ts` - Error tests
+- `packages/viblog-mcp-server/src/validation.ts` - Zod schemas
+- `packages/viblog-mcp-server/src/validation.test.ts` - Validation tests
+
+**Phase 11.4 - Caching:**
+- `src/lib/cache/client.ts` - Redis client configuration
+- `src/lib/cache/cache.ts` - Cache utilities
+- `src/lib/cache/invalidation.ts` - Cache invalidation functions
+- `src/lib/cache/*.test.ts` - Cache tests
+
+**Phase 11.5 - Logging & Monitoring:**
+- `src/lib/logger.ts` - Structured logging utility (314 lines)
+- `src/lib/logger.test.ts` - 22 logging tests
+- `src/app/api/health/route.ts` - Main health check
+- `src/app/api/health/ready/route.ts` - Readiness probe
+- `src/app/api/health/live/route.ts` - Liveness probe
+- `src/app/api/health/health.test.ts` - 12 health check tests
+
+**Commits:**
+- ec01da7: Rate limiting middleware
+- 43ad0b3: Environment-based rate limiting
+- 8843891: Error handling improvements
+- 4d99e68: Cache layer implementation
+- 26e07ec: Cache applied to endpoints
+- 6474876: Structured logging
+- 566fafa: Health check endpoints
+- 39beb17: Phase 11 complete
+
+---
+
+### Challenges & Solutions
+
+#### Challenge 1: Rate Limiter Memory Management
+
+**Problem:** In-memory rate limit store grows unbounded over time.
+
+**Solution:** Implemented automatic cleanup with:
+- Cleanup interval: 5 minutes
+- Max entry age: 10 minutes
+- Entries removed when last cleanup timestamp exceeds cutoff
+
+```typescript
+const CLEANUP_INTERVAL = 5 * 60 * 1000  // 5 minutes
+const MAX_ENTRY_AGE = 10 * 60 * 1000    // 10 minutes
+
+function cleanupOldEntries(): void {
+  const now = Date.now()
+  const cutoff = now - MAX_ENTRY_AGE
+  for (const [key, entry] of memoryStore.entries()) {
+    if (entry.lastCleanup < cutoff) {
+      memoryStore.delete(key)
+    }
+  }
+}
+```
+
+#### Challenge 2: Environment-Aware Configuration
+
+**Problem:** Development and production need different rate limits.
+
+**Solution:** Implemented environment multiplier pattern:
+- Production limits = Development limits * 0.5
+- Automatic environment detection via NODE_ENV
+- Single source of truth for rate limit configurations
+
+```typescript
+const PRODUCTION_MULTIPLIER = 0.5
+
+function applyEnvironmentMultiplier(config: RateLimitConfig): RateLimitConfig {
+  if (!isProduction()) return config
+  return {
+    ...config,
+    limit: Math.max(1, Math.floor(config.limit * PRODUCTION_MULTIPLIER)),
+  }
+}
+```
+
+#### Challenge 3: Cache Key Security
+
+**Problem:** Token values should not appear in cache keys.
+
+**Solution:** Use SHA-256 hash of token for cache key:
+- Token never stored in cache key
+- Consistent hash allows invalidation by token
+- Secure pattern: `api_key:{sha256(token)}`
+
+```typescript
+function hashToken(token: string): string {
+  return crypto.createHash('sha256').update(token).digest('hex')
+}
+```
+
+#### Challenge 4: Request ID Context Propagation
+
+**Problem:** Request ID needs to flow through async operations.
+
+**Solution:** Logger class with internal state management:
+- `setRequestId()` / `getRequestId()` / `clearRequestId()` methods
+- Helper functions `withLogging()` and `withLoggingAsync()` for scoped context
+- Automatic cleanup in try/finally blocks
+
+---
+
+### Functional Testing Results
+
+**Test Coverage Summary:**
+
+| Module | Tests | Coverage |
+|--------|-------|----------|
+| Rate Limiter | 58 | 99%+ |
+| Logger | 22 | 99%+ |
+| Health Checks | 12 | 99%+ |
+| Cache Layer | 11 | 99%+ |
+| Error Handling | 198 | 99%+ |
+| MCP Server | 68 | 99.03% |
+
+**Total: 369 tests passing**
+
+**Manual Verification:**
+1. Rate limiting blocks after threshold - PASS
+2. Rate limit headers present in response - PASS
+3. Structured logs appear in console - PASS
+4. Health check returns component status - PASS
+5. Cache hit/miss logged correctly - PASS
+6. Cache invalidation on mutation - PASS
+
+---
+
+### Next Steps
+
+**Immediate (P1):**
+1. Add Redis support for rate limiter horizontal scaling
+2. Implement LRU eviction for memory cache
+3. Add OpenAPI documentation for health endpoints
+
+**Short-term:**
+1. Integrate rate limit stats with monitoring dashboard
+2. Add alerting for high block rates
+3. Implement log aggregation (Vercel Analytics)
+
+**Long-term:**
+1. Migrate to Redis-backed rate limiting for multi-instance deployment
+2. Add distributed tracing (OpenTelemetry)
+3. Implement log retention and search
+
+---
+
+### Lessons Learned
+
+#### Good Case: Test-First Approach
+
+Starting Phase 11 with comprehensive tests (Phase 11.1) provided:
+- Confidence in refactoring
+- Immediate feedback on regressions
+- Documentation through test cases
+- 99%+ coverage as foundation
+
+#### Good Case: Environment-Aware Design
+
+Building environment detection from the start:
+- Prevented production incidents from development settings
+- Single configuration source reduces maintenance
+- Automatic adjustment reduces deployment errors
+
+#### Good Case: Layered Architecture
+
+Separating concerns into distinct layers:
+- Rate limiting at middleware level
+- Caching at data access level
+- Logging as cross-cutting concern
+- Each layer independently testable
+
+#### Bad Case: In-Memory Scaling Limitation
+
+**What happened:** In-memory rate limiting and caching work for single instance but won't scale horizontally.
+
+**Impact:** P1 improvement needed for multi-instance deployment.
+
+**Prevention:**
+```
+For distributed systems:
+1. Design for Redis from the start
+2. Abstract storage behind interface
+3. Implement in-memory fallback for development
+4. Document scaling limitations clearly
+```
+
+---
+
+**Phase 11 Status:** COMPLETED (2026-03-18)
+**Next Phase:** Phase 12 - MCP Server Publishing & Distribution
+
+---
+
 ## Key Insights: Vibe Coding Principles
 
 ### 1. Token Monitoring is Critical
@@ -1145,8 +1510,8 @@ After context compaction/session resume:
 
 ---
 
-**Document Version:** 5.1
-**Last Updated:** 2026-03-17
+**Document Version:** 6.0
+**Last Updated:** 2026-03-18
 **Author:** Claude (with human collaborator)
-**Phase 10.4 Status:** MVP MCP Server npm package built, ready for integration testing
+**Phase 11 Status:** Backend Infrastructure Hardening COMPLETE - Grade A (88/100)
 **Key Insight:** AI-Native = AI-Data-Native
