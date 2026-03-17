@@ -577,3 +577,49 @@ All notable changes to this project will be documented in this file.
 ---
 
 **Last Updated:** 2026-03-16
+### Added - Competitive Analysis: Effortel Blog (2026-03-17)
+
+- **Target:** https://www.effortel.com/categories/blog
+- **Platform:** Webflow (B2B Telecom/MVNE)
+- **Score:** 22/25 (Reference Implementation)
+
+**Key Findings:**
+
+- **Color System:**
+  - Dark theme: #1B2123 (page), #22282A (cards)
+  - Cyan accent: #66E8FA (primary CTA)
+  - Secondary accents: #2EF5BD (mint), #DCFC4C (yellow)
+  - Text hierarchy: White → #B1C5CE → #77858B
+
+- **Typography:**
+  - Font: Satoshi Variable (custom variable font)
+  - Hero headlines: 64-72px, tight line-height (1.1-1.15)
+  - Tags: Uppercase, wide letter-spacing (0.1em)
+  - Body: 16px, comfortable line-height (1.6)
+
+- **Card Design:**
+  - Border radius: 16px
+  - Border: 1px solid #394247
+  - Hover: Overlay with arrow reveal
+  - Thumbnail aspect ratio: 16:10
+
+- **Spacing:**
+  - Section padding: 80-120px
+  - Container max: 1400px
+  - Grid gaps: 24px (standard)
+
+- **Components:**
+  - Buttons: 8px border radius, 12-16px vertical padding
+  - Tags: Outlined, 4px border radius, uppercase
+  - Cookie modal: 16px border radius, subtle shadow
+
+**Design Patterns for Viblog:**
+- Adopt: Dark theme + cyan accent, 16px card radius, card hover overlays
+- Adapt: Font family to Inter/Outfit, adjust to brand colors
+- Avoid: Multiple accent colors, complex navigation
+
+**Artifacts:**
+- Full analysis: `.competitive-analysis/effortel-ui-ux-analysis.md`
+- Screenshots: `.comp_product_assets/traditional-blogs/effortel_screenshots/`
+- Scraped data: `.comp_product_assets/traditional-blogs/effortel-scraped.md`
+
