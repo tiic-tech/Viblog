@@ -15,6 +15,15 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Phase 10.3: AI Data Access Protocol (2026-03-17):**
+  - Implemented AIDataSchema endpoint (GET /api/v1/ai/schema)
+  - Implemented Vector Search API (POST /api/v1/ai/vectors/{store}/search)
+  - Implemented Knowledge Graph API (POST /api/v1/ai/graph/{graph}/query)
+  - Implemented Time Series API (GET /api/v1/ai/timeseries/{metric})
+  - Created AI data access validation schemas (Zod)
+  - Created token-based authentication middleware for MCP/authorization tokens
+  - Created embedding service with fetch-based OpenAI API calls
+  - Added getUserLLMConfig utility for LLM configuration retrieval
 - **Phase 10.2: Core MCP Tools (2026-03-17):**
   - Created vibe_sessions and session_fragments tables with RLS policies
   - Implemented create_vibe_session MCP tool (POST /api/vibe-sessions)

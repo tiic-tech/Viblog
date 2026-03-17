@@ -7,6 +7,35 @@ import {
 } from '@/lib/validations/structured-context'
 
 /**
+ * LLM configuration for a user
+ */
+export interface LLMConfig {
+  apiKey: string | null
+  provider: string | null
+  model: string | null
+}
+
+/**
+ * Get LLM configuration for a user
+ *
+ * @param userId - Optional user ID (for token-based auth)
+ * @returns LLM configuration
+ */
+export async function getUserLLMConfig(userId?: string | null): Promise<LLMConfig | null> {
+  const apiKeys = await getDecryptedApiKeys()
+
+  if (!apiKeys?.llm?.apiKey) {
+    return null
+  }
+
+  return {
+    apiKey: apiKeys.llm.apiKey,
+    provider: apiKeys.llm.provider,
+    model: apiKeys.llm.model,
+  }
+}
+
+/**
  * OpenAI API response types
  */
 interface OpenAIMessage {
@@ -38,7 +67,10 @@ async function getOpenAIApiKey(): Promise<{ apiKey: string | null; error?: strin
   }
 
   if (apiKeys.llm.provider !== 'openai') {
-    return { apiKey: null, error: 'Only OpenAI provider is supported for structured context generation' }
+    return {
+      apiKey: null,
+      error: 'Only OpenAI provider is supported for structured context generation',
+    }
   }
 
   return { apiKey: apiKeys.llm.apiKey }
@@ -62,7 +94,7 @@ async function callOpenAI(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: options.model,
