@@ -4,6 +4,8 @@
  * Shared types for the Viblog MCP Server
  */
 
+import { ConfigurationError } from './errors.js'
+
 // ============================================
 // Configuration
 // ============================================
@@ -18,10 +20,10 @@ export function getServerConfig(): McpServerConfig {
   const apiKey = process.env.VIBLOG_API_KEY
 
   if (!apiUrl) {
-    throw new Error('VIBLOG_API_URL environment variable is required')
+    throw new ConfigurationError('VIBLOG_API_URL environment variable is required')
   }
   if (!apiKey) {
-    throw new Error('VIBLOG_API_KEY environment variable is required')
+    throw new ConfigurationError('VIBLOG_API_KEY environment variable is required')
   }
 
   return { apiUrl, apiKey }

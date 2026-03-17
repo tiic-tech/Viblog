@@ -2,6 +2,7 @@
  * REST API Client for Viblog Backend
  *
  * Handles all HTTP communication between MCP Server and Viblog APIs
+ * with built-in rate limiting and retry logic.
  */
 
 import type {
@@ -22,12 +23,15 @@ import type {
   VibeSession,
   SessionFragment,
 } from '../types.js'
+import { RateLimiter, createRateLimiter } from './rate-limiter.js'
 
 export class ViblogApiClient {
   private config: McpServerConfig
+  private rateLimiter: RateLimiter
 
-  constructor(config: McpServerConfig) {
+  constructor(config: McpServerConfig, rateLimiter?: RateLimiter) {
     this.config = config
+    this.rateLimiter = rateLimiter ?? createRateLimiter()
   }
 
   private async request<T>(
@@ -42,27 +46,32 @@ export class ViblogApiClient {
       'Authorization': `Bearer ${this.config.apiKey}`,
     }
 
-    const options: RequestInit = {
-      method,
-      headers,
-    }
+    const makeRequest = async (): Promise<{ status: number; data: unknown }> => {
+      const options: RequestInit = {
+        method,
+        headers,
+      }
 
-    if (body) {
-      options.body = JSON.stringify(body)
+      if (body) {
+        options.body = JSON.stringify(body)
+      }
+
+      const response = await fetch(url, options)
+      const data = await response.json()
+      return { status: response.status, data }
     }
 
     try {
-      const response = await fetch(url, options)
-      const data = await response.json()
+      const result = await this.rateLimiter.executeWithRetry(makeRequest)
 
-      if (!response.ok) {
+      if (result.status < 200 || result.status >= 300) {
         return {
-          error: (data as { error?: string }).error || `HTTP ${response.status}`,
-          details: (data as { details?: unknown }).details,
+          error: (result.data as { error?: string }).error || `HTTP ${result.status}`,
+          details: (result.data as { details?: unknown }).details,
         }
       }
 
-      return { success: true, data: data as T }
+      return { success: true, data: result.data as T }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error'
       return { error: errorMessage }
