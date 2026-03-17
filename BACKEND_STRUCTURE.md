@@ -1507,10 +1507,113 @@ User Action → System Check → Credit Calculation → Verification → Balance
 
 ---
 
-**Document Version:** 4.0
-**Last Updated:** 2026-03-16
+## 19. Dual-Track Database Architecture
+
+### 19.1 Architecture Overview
+
+Viblog uses a Dual-Track Database Architecture that separates Platform concerns from User concerns:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│   DUAL-TRACK DATABASE ARCHITECTURE                             │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   PLATFORM TRACK                USER TRACK                      │
+│   =============                ===========                      │
+│   Platform Database             User Database                   │
+│   (Supabase)                    (User-configured)               │
+│                                                                 │
+│   - User profiles               - Raw session data              │
+│   - Articles                    - External links                │
+│   - Knowledge graph             - User insights                 │
+│   - Vector embeddings           - Personal annotations          │
+│   - Time-series analytics                                       │
+│   - MCP registry                                                │
+│   - Authorization tokens                                        │
+│                                                                 │
+│   MANAGED BY PLATFORM           MANAGED BY USER                 │
+│   - Scaling                     - Connection string             │
+│   - Backups                     - Data ownership               │
+│   - Migrations                  - Privacy control               │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 19.2 Key Insight: Platform Migration is Invisible to Users
+
+**Core Principle:** When Viblog upgrades from All-in-One PostgreSQL to microservices architecture (adding Neo4j for graph, TimescaleDB for time-series), users experience ZERO impact.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│   MANAGED PROXY ARCHITECTURE                                   │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   User's Perspective:                                           │
+│   ┌─────────────────────────────────────────────┐               │
+│   │   ONE PostgreSQL Connection String          │               │
+│   │   postgresql://user:pass@user-db.supabase   │               │
+│   └─────────────────────────────────────────────┘               │
+│                           │                                     │
+│                           ▼                                     │
+│   ┌─────────────────────────────────────────────┐               │
+│   │   Viblog Managed Proxy Layer                │               │
+│   │   - Routes queries to appropriate backend   │               │
+│   │   - Handles graph queries → Neo4j/JSONB     │               │
+│   │   - Handles time-series → TimescaleDB/Index │               │
+│   │   - Handles vector → pgvector               │               │
+│   └─────────────────────────────────────────────┘               │
+│                           │                                     │
+│           ┌───────────────┼───────────────┐                     │
+│           ▼               ▼               ▼                     │
+│   ┌───────────┐   ┌───────────┐   ┌───────────┐               │
+│   │PostgreSQL │   │  Neo4j    │   │TimescaleDB│               │
+│   │ (user DB) │   │(platform) │   │(platform) │               │
+│   └───────────┘   └───────────┘   └───────────┘               │
+│                                                                 │
+│   User NEVER needs to:                                          │
+│   - Configure Neo4j connection                                  │
+│   - Configure TimescaleDB connection                            │
+│   - Change any database settings                                │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 19.3 Platform Responsibilities
+
+The Platform manages complexity that users should not need to worry about:
+
+| Feature | Current Implementation | Future Migration | User Impact |
+|---------|----------------------|------------------|-------------|
+| Graph Storage | JSONB (graph_nodes, graph_edges) | Neo4j | None |
+| Time-Series | Indexed tables | TimescaleDB | None |
+| Vector Search | pgvector | pgvector (unchanged) | None |
+| User Database | PostgreSQL (user-configured) | PostgreSQL (unchanged) | None |
+
+### 19.4 Migration Triggers
+
+Documented thresholds for when to migrate from All-in-One to microservices:
+
+| Metric | Current Threshold | Action |
+|--------|------------------|--------|
+| Graph query latency | >500ms (p95) | Consider Neo4j extraction |
+| Graph nodes count | >1M nodes | Evaluate graph DB migration |
+| Time-series data points | >10M rows | Consider TimescaleDB extraction |
+| Platform DB size | >50GB | Evaluate service decomposition |
+
+### 19.5 Detailed Documentation Reference
+
+For complete technical specifications, see:
+- **TECH_STACK.md Section 10.5**: All-in-One PostgreSQL Architecture
+- **TECH_STACK.md Section 10.6**: Dual-Track Database Architecture
+- **TECH_STACK.md Section 10.4**: Microservice Migration Paths
+
+---
+
+**Document Version:** 4.1
+**Last Updated:** 2026-03-17
 **Author:** Viblog Team
 **Key Updates:**
+- v4.1: Added Dual-Track Database Architecture documentation (Section 19)
 - v4.0: Added Multimedia, Social Integration, MCP Governance tables (10 new tables)
 - v3.0: Added AI-Data-Native tables, RLS policies, and API endpoints
 - v2.0: Added Draft Buckets, MCP API schemas

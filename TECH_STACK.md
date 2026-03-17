@@ -481,6 +481,171 @@ interface IVectorRepository {
 
 ---
 
+### 10.6 Dual-Track Database Architecture (CRITICAL)
+
+**Core Principle:** Platform database and User database are decoupled. Platform microservice migration does NOT affect user configuration.
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                     DUAL-TRACK DATABASE ARCHITECTURE                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   Platform Database (Viblog Managed)         User Database (User Managed)   │
+│   ================================         ================================   │
+│   • Published public content                 • Private creation data         │
+│   • Platform interactions (analytics)        • Personal knowledge graph     │
+│   • Credits system                          • External link citations      │
+│   • Authorization tokens                    • Vibe sessions                │
+│                                                                             │
+│   Ownership: Viblog Platform                Ownership: User                 │
+│   Migration: Platform decides independently Migration: User chooses         │
+│                                                                             │
+│   ═════════════════════════════════════════════════════════════════════════ │
+│   KEY INSIGHT: Platform microservice migration is INVISIBLE to users        │
+│   ═════════════════════════════════════════════════════════════════════════ │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Platform Microservice Migration Path
+
+```
+Phase 1 (Current): All-in-One Supabase
+├── Relational: profiles, articles, projects
+├── Vector: article_paragraphs (pgvector)
+├── Graph: graph_nodes, graph_edges (JSONB)
+└── Time-Series: user_interactions (indexed)
+
+        ↓ Platform migrates independently, users unaffected
+
+Phase 2: Extract Graph Service
+├── Supabase: Relational + Vector + Time-Series
+└── Neo4j: graph_nodes, graph_edges migrated
+    └── CDC sync during transition
+
+        ↓
+
+Phase 3: Extract Analytics Service
+├── Supabase: Relational + Vector
+├── Neo4j: Graph data
+└── TimescaleDB: user_interactions migrated
+
+Final State:
+├── Supabase: Core relational + vector search
+├── Neo4j: Knowledge graph queries
+└── TimescaleDB: Behavioral analytics
+```
+
+**User Impact: NONE** - Users continue using their PostgreSQL connection string.
+
+### User Database Architecture: Managed Proxy Pattern
+
+**Problem:** User database also has graph/time-series needs. Should users configure Neo4j/TimescaleDB?
+
+**Solution: Platform Managed Proxy (托管代理架构)**
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                     MANAGED PROXY ARCHITECTURE                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   User Side (Full Control)              Platform Side (Managed Service)    │
+│   ─────────────────────────             ─────────────────────────           │
+│                                                                             │
+│   ┌─────────────────┐                   ┌─────────────────┐                │
+│   │ User PostgreSQL │                   │ Viblog Platform │                │
+│   │ (REQUIRED)      │◄─── Core Data ───►│                 │                │
+│   │                 │    User owns      │ Supabase Main   │                │
+│   │ ├── profiles    │                   │                 │                │
+│   │ ├── articles    │                   │ ┌─────────────┐ │                │
+│   │ ├── user_settings                   │ │ Neo4j       │ │                │
+│   │ └── vibe_sessions                   │ │ (Managed)   │ │                │
+│   │                 │                   │ └─────────────┘ │                │
+│   │ User only needs │                   │                 │                │
+│   │ ONE connection  │                   │ ┌─────────────┐ │                │
+│   └─────────────────┘                   │ │TimescaleDB  │ │                │
+│            │                            │ │(Managed)    │ │                │
+│            │                            │ └─────────────┘ │                │
+│            ▼                            └─────────────────┘                │
+│   ┌─────────────────┐                         │                            │
+│   │ authorization_  │◄── Authorization Token ──┘                            │
+│   │ tokens          │   (User grants platform access)                       │
+│   │                 │                                                       │
+│   │ Controls what   │   Platform can only access                             │
+│   │ platform can    │   user-authorized data                                 │
+│   │ access          │                                                       │
+│   └─────────────────┘                                                       │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Data Layering Strategy
+
+| Data Type | Storage Location | Control | Notes |
+|-----------|------------------|---------|-------|
+| **User Core Data** ||||
+| profiles | User PostgreSQL | User | User profile |
+| articles (draft) | User PostgreSQL | User | Private articles |
+| user_settings | User PostgreSQL | User | User preferences |
+| vibe_sessions | User PostgreSQL | User | Session raw data |
+| **User-Authorized Data** ||||
+| user_insights | User PostgreSQL + Platform Neo4j (replica) | User | Insight graph analysis |
+| external_links | User PostgreSQL + Platform Neo4j (replica) | User | Citation graph |
+| session_fragments | User PostgreSQL + Platform TimescaleDB (replica) | User | Time-series analysis |
+| **Platform Data** ||||
+| published_articles | Platform Supabase | Platform | Public articles |
+| article_paragraphs | Platform Supabase | Platform | Vector retrieval |
+| annotations | Platform Supabase | Platform | Public annotations |
+| user_interactions | Platform TimescaleDB | Platform | Analytics |
+| user_credits | Platform Supabase | Platform | Incentives |
+
+### User Configuration (Simple)
+
+```typescript
+// Phase 10.1 (Current) - User only needs ONE database
+interface UserDatabaseConfig {
+  primary_database: {
+    type: 'supabase' | 'postgresql'
+    connection_url: string  // encrypted
+  }
+  // Graph/Time-Series: Platform managed by default
+}
+
+// Future (Advanced Users) - Optional self-hosting
+interface AdvancedUserConfig {
+  primary_database: {
+    type: 'supabase' | 'postgresql'
+    connection_url: string
+  }
+  graph_database?: {
+    type: 'neo4j' | 'platform_managed'
+    connection_url?: string  // only for self-hosted
+  }
+  timeseries_database?: {
+    type: 'timescaledb' | 'platform_managed'
+    connection_url?: string
+  }
+}
+```
+
+### Migration Triggers
+
+| Service | Extract From | Data Volume Trigger | Performance Trigger | Target Tech |
+|---------|--------------|---------------------|---------------------|--------------|
+| Graph Service | graph_nodes, graph_edges | >1M nodes | >500ms 3-hop query | Neo4j / Neptune |
+| Analytics Service | user_interactions | >100M rows | >5s monthly aggregation | TimescaleDB / ClickHouse |
+| Vector Service | article_paragraphs | >10M vectors | >1s similarity search | Pinecone / Weaviate |
+
+### Key Architecture Insights
+
+1. **Platform migration is invisible to users** - Decoupled databases
+2. **Users only need one PostgreSQL connection** - Platform manages complexity
+3. **Data sovereignty preserved** - User core data stays in user database
+4. **Smooth upgrade path** - No breaking changes when platform scales
+5. **Repository interfaces enable future extraction** - Clean abstraction layers
+
+---
+
 ## 11. Testing
 
 ### 10.1 Unit Testing
