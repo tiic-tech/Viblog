@@ -12,11 +12,11 @@
 
 This document provides a step-by-step build sequence for Viblog post-MVP development. Each step has clear deliverables and dependencies.
 
-**Current Status:** Phase 11.2.1 Complete - Rate Limiting Middleware (2026-03-17 23:31)
+**Current Status:** Phase 11.2.2 Complete - Environment-Based Rate Limiting (2026-03-17 23:38)
 
 **Phase 11 Progress:**
 - Phase 11.1: Test Coverage Expansion - COMPLETE (99.03% coverage)
-- Phase 11.2: Rate Limiting Implementation - IN PROGRESS (Step 11.2.1 COMPLETE)
+- Phase 11.2: Rate Limiting Implementation - COMPLETE (Steps 11.2.1 & 11.2.2)
 - Phase 11.3: Error Handling Improvements - COMPLETE
 
 ---
@@ -1415,13 +1415,22 @@ src/lib/
 ---
 
 #### Step 11.2.2: Apply Rate Limiting to Endpoints
-**Status:** Pending
+**Status:** COMPLETE (2026-03-17 23:38)
 
 **Tasks:**
-- [ ] Apply rate limiting to `/api/vibe-sessions/*`
-- [ ] Apply rate limiting to `/api/v1/ai/*`
-- [ ] Add environment-based configuration (stricter in production)
-- [ ] Add monitoring for rate limit violations
+- [x] Apply rate limiting to `/api/vibe-sessions/*` (via middleware)
+- [x] Apply rate limiting to `/api/v1/ai/*` (via middleware)
+- [x] Add environment-based configuration (stricter in production)
+- [x] Add monitoring for rate limit violations
+
+**Implementation:**
+- Environment-based rate limits: Production = 50% of development limits
+- Statistics tracking: `getRateLimitStats()` for monitoring
+- Structured JSON logging for production violations
+- All API routes automatically protected via middleware
+- 9 new tests added (58 total rate limit tests)
+
+**Commit:** (pending)
 
 ---
 

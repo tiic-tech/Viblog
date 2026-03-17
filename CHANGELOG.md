@@ -15,6 +15,16 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Phase 11.2.2: Environment-Based Rate Limiting & Monitoring - COMPLETE (2026-03-17 23:38):**
+  - Environment-based rate limit configuration (stricter in production)
+  - Production limits are 50% of development limits automatically
+  - Rate limit violation monitoring and statistics tracking
+  - Statistics API: `getRateLimitStats()` for monitoring
+  - Structured JSON logging for production rate limit violations
+  - New exports: `isProduction()`, `getRateLimitStats()`, `clearStats()`
+  - 9 new tests for environment config and statistics (58 total tests)
+  - Updated `.env.local.example` with rate limiting documentation
+  - All API routes automatically protected via middleware integration
 - **Phase 11.2.1: Rate Limiting Middleware - COMPLETE (2026-03-17 23:31):**
   - Implemented sliding window rate limiting algorithm
   - Created in-memory rate limit store with automatic cleanup
