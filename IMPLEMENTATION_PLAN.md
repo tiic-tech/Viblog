@@ -12,7 +12,7 @@
 
 This document provides a step-by-step build sequence for Viblog post-MVP development. Each step has clear deliverables and dependencies.
 
-**Current Status:** Phase 10.4 COMPLETE - MCP Server npm Package Built, CI PASSED (PR #9)
+**Current Status:** Phase 10.4 MVP COMPLETE - MCP Server Production Working (2026-03-17 17:40)
 
 ---
 
@@ -58,13 +58,15 @@ Viblog Backend APIs
 - [x] Created `packages/viblog-mcp-server/README.md` - Usage guide
 - [x] Build npm package successfully (TypeScript compilation passed)
 - [x] CI PASSED (PR #9) - All checks green: Type check, Build, 166 tests
-- [ ] Configure Claude Code with local package
-- [ ] Verify: create_vibe_session works
-- [ ] Verify: session exists in database
-- [ ] Verify: generate_article_draft works
-- [ ] Publish to npm registry
+- [x] Merged to main branch
+- [x] Production API tested - ALL PASSING (2026-03-17 17:40)
+- [x] MCP API Key authentication working in production
+- [x] Critical fix: SUPABASE_SERVICE_SECRET_KEY env variable
+- [ ] Configure global MCP settings for Claude Code auto-loading
+- [ ] End-to-end MCP tool test from Claude Code session
+- [ ] Publish to npm registry (optional)
 
-**Breakpoint:** MCP Server package built, CI PASSED. PR #9 ready for merge. Next: Configure Claude Code with local package for integration testing.
+**Breakpoint:** MVP COMPLETE. Production APIs working. Session fcc763ff-9d3e-460a-8e11-5ddf71e7c428 created for milestone. Next: Configure global MCP settings.
 
 ---
 

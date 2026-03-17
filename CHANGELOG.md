@@ -15,6 +15,12 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **MILESTONE: MCP Server MVP Complete - Production Working (2026-03-17 17:40):**
+  - MCP API Key authentication fully functional in production
+  - Tested endpoints: create session, append fragments - ALL PASSING
+  - Critical fix: SUPABASE_SERVICE_SECRET_KEY (not ROLE_KEY) environment variable
+  - Session created: fcc763ff-9d3e-460a-8e11-5ddf71e7c428 (Milestone recording)
+  - Next: Configure global MCP settings for Claude Code auto-loading
 - **CORE GOAL: Claude Code → Viblog MCP Integration (2026-03-17):**
   - Mission: Enable Claude Code to write and publish directly to Viblog via MCP configuration
   - Eliminates Playwright-based indirect publishing workflow
