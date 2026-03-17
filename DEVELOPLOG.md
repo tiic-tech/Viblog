@@ -4,6 +4,14 @@
 
 ---
 
+## 文档信息
+- **功能**: 开发日志，记录开发过程中的里程碑、教训和坏案例
+- **作用**: 跨会话上下文传递，防止重复错误，沉淀最佳实践
+- **职责**: 记录"做得好的"、"可以改进的"、"需要避免的"
+- **阅读顺序**: 1 - 开工会话必读，了解项目历史和教训
+
+---
+
 ## Overview
 
 This document records the development process of Viblog. It serves as a living record of what worked, what didn't, and how to improve future development cycles.
@@ -155,6 +163,648 @@ This document records the development process of Viblog. It serves as a living r
 - Next.js 16 removed `next lint` command
 - `eslint-config-next` v14 is incompatible with Next.js 16
 - pnpm/action-setup reads version from package.json `packageManager` field
+
+---
+
+### Phase 8: Secure API Key Storage (Completed 2026-03-14)
+
+**What I Did:**
+1. Encryption Utility - AES-256-GCM encryption with PBKDF2 key derivation
+2. API Key Management - GET/PUT/DELETE endpoints for secure key storage
+3. Settings Page - UI for viewing/updating encrypted API keys
+4. Onboarding Update - Modified to use encrypted storage
+5. Tests - 7 unit tests for encryption utilities
+
+**What Went Well:**
+- Encryption implementation using Node.js crypto module (no external dependencies)
+- Masked display of API keys (show only prefix)
+- Server-side only access to decrypted keys
+
+**What Could Be Better:**
+- External SSD caused file corruption during development
+- Had to clone repository to internal drive
+
+---
+
+## Post-MVP Phase 2 Planning (2026-03-15)
+
+### Key Decisions
+
+1. **AI-Native Definition Clarified**
+   - Not just AI writing blogs
+   - AI growing blogs from coding sessions
+   - Dual-layer content: Markdown + JSON
+
+2. **Dual-Track Users Identified**
+   - A2A Users: Vibe Coders using MCP
+   - Human Readers: AI enthusiasts consuming content
+
+3. **Technical Differentiation**
+   - MCP integration as core entry point
+   - Draft Bucket system bridging sessions and articles
+   - Dual-format publishing
+
+4. **Visual Differentiation**
+   - Pinterest-style masonry layout
+   - Premium visual design
+   - Card-centric UI
+
+---
+
+## Phase 9: Competitive Analysis (Completed 2026-03-15)
+
+### What I Did
+
+1. **Analysis Framework Definition (Step 9.1)**
+   - Created 5-dimension evaluation system (IA, Visual, Flow, Features, Tech)
+   - Defined 1-5 scoring rubric with observable indicators
+   - Created design token extraction template
+   - Established analysis templates (quick and detailed)
+
+2. **AI Coding Tools Analysis**
+   - **Claude Code (Step 9.2):** Score 23/25 - MCP protocol analysis, session recording pattern, multi-surface architecture
+   - **Cursor IDE (Step 9.3):** Score 24/25 - Full MCP support, plugin system, checkpoint system, team marketplaces
+
+3. **Visual Design Platforms Analysis**
+   - **Pinterest (Step 9.4):** Score 22/25 - Masonry grid, card hover effects, pin card specs
+   - **Dribbble (Step 9.7):** Score 22/25 - 4-column grid, 4:3 aspect ratio, premium whitespace philosophy
+   - **Awwwards (Step 9.8):** Score 22/25 - SOTD badge, pricing contrast pattern, dashboard grid
+
+4. **Traditional Blog Platforms Analysis**
+   - **Notion (Step 9.5):** Score 24/25 - Block editor, slash commands, AI integration, library view
+   - **Medium (Step 9.6):** Score 21/25 - 21px Georgia typography, progress bar, clap system
+
+5. **Synthesis (Step 9.9)**
+   - Created feature comparison matrix
+   - Identified 5 key differentiation opportunities
+   - Documented technical implementation recommendations
+
+**Total: 7 products analyzed, average score 22.7/25**
+
+---
+
+### What Went Well
+
+#### Good Case 1: Awwwards Screenshot Capture (Final Session)
+
+**Scenario:** User requested to supplement Playwright screenshots, informed that account was logged in, and to explore personal Dashboard deeply.
+
+**What I Did Right:**
+1. **Think First, Implement Second** - Before each action, I explicitly thought through the purpose
+2. **Systematic Exploration:**
+   - Homepage → SOTD detail → User profile → Dashboard → Pricing → Elements → Academy
+   - Each layer captured with full-page screenshots
+3. **Verification After Each Step:**
+   - Took screenshot → Confirmed filename → Listed what was captured
+4. **Deep Exploration:** Captured 12 screenshots across all typical user flows
+5. **Clear Reporting:** Listed all screenshots with descriptions at completion
+
+**Pattern to Internalize:**
+```
+For complex browser automation tasks:
+1. THINK: What pages do I need? What information am I capturing?
+2. PLAN: Sequence of navigation actions
+3. EXECUTE: One action at a time, verify after each
+4. REPORT: Clear summary of what was accomplished
+```
+
+#### Good Case 2: Parallel Visual Analysis
+
+**What I Did Right:**
+- Launched 12 parallel agents for 12 screenshots
+- Each agent used `image-analyzer-kimi` skill (vision-capable model)
+- One image per agent to reduce API load
+- All agents completed successfully with detailed visual specs
+
+**Pattern to Internalize:**
+```
+For visual analysis of multiple images:
+- NEVER use glm-5 (TEXT-ONLY model)
+- ALWAYS use image-analyzer-kimi or image-analyzer-qwen skills
+- ALWAYS parallelize: one image per agent
+- Wait for ALL agents to complete before synthesis
+```
+
+#### Good Case 3: Documentation Updates
+
+**What I Did Right:**
+- Updated PRODUCT_COMP_ANALYSIS.md with complete synthesis
+- Updated IMPLEMENTATION_PLAN.md with Step 9.9 completion
+- Updated CHANGELOG.md with Phase 9 entry
+- Followed RULE 6 (Self-update documents, then report)
+
+---
+
+### What Could Be Better
+
+#### Critical Issue: Repeated Serious Errors During Visual Analysis Phase
+
+**Context:** Between Step 9.4 (Pinterest) and Step 9.8 (Awwwards), multiple serious errors occurred that required session rollbacks and data loss.
+
+---
+
+### Bad Case 7: glm-5 Called for Visual Analysis (CRITICAL - REPEATED)
+
+**What happened:** glm-5 (a TEXT-ONLY model with NO vision capabilities) was incorrectly invoked to analyze screenshots.
+
+**Impact:**
+- Input processing errors
+- Session rollback required
+- Data from previous steps lost
+- Wasted API calls (firecrawl/exa free tier limits)
+- Significant productivity loss
+
+**Root Cause:**
+- Model capability not checked before tool invocation
+- No explicit rule preventing glm-5 from being used on images
+- Workflow documentation didn't specify which models have vision capabilities
+
+**Prevention (Now Codified in PRODUCT_COMP_ANALYSIS.md Section 0):**
+```
+┌─────────────────────────────────────────────────────────────────┐
+│   ⚠️ NEVER use glm-5 for visual analysis ⚠️                    │
+│                                                                 │
+│   glm-5 is a TEXT-ONLY model with NO vision capabilities       │
+│                                                                 │
+│   ✅ ALWAYS use image-analyzer-* skills for vision:             │
+│      - image-analyzer-kimi: Deep analysis (PREFERRED)           │
+│      - image-analyzer-qwen: Quick analysis                      │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Model Responsibilities Now Defined:**
+
+| Model | Role | Vision? | CRITICAL NOTE |
+|-------|------|---------|---------------|
+| glm-5 | Orchestrator, Report Writing | ❌ NO | TEXT-ONLY |
+| kimi-k2.5 | Deep Visual Analysis | ✅ YES | Use via image-analyzer-kimi skill |
+| qwen3.5-plus | Quick Visual Analysis | ✅ YES | Use via image-analyzer-qwen skill |
+
+---
+
+### Bad Case 8: Playwright Exploration Too Shallow
+
+**What happened:** Playwright browser automation only explored 2 layers of pages, missing important user flows and UI patterns.
+
+**Impact:**
+- Incomplete visual analysis
+- Missing design patterns
+- Had to re-run Playwright exploration
+- Wasted time
+
+**Root Cause:**
+- No explicit requirement for exploration depth
+- No checklist of required page types
+- "Good enough" mindset instead of thoroughness
+
+**Prevention (Now Codified as RULE 2):**
+```
+Playwright MUST deep explore ALL typical pages:
+- Homepage (hero, navigation, featured content)
+- User profile pages (self + other users)
+- Detail pages (product/article/shot)
+- Search/filter pages
+- Settings/preferences
+- AI features (if any)
+- Mobile responsive views
+
+Minimum: 5-8 screenshots per product
+Important pages: Full-page screenshots
+```
+
+---
+
+### Bad Case 9: Step 1 and Step 2 Not Decoupled
+
+**What happened:** Web scraping data (Step 1) was not saved to a file before Playwright exploration (Step 2). When Step 2 triggered a rollback, all Step 1 data was lost.
+
+**Impact:**
+- Had to re-scrape web content
+- Wasted firecrawl/exa API calls
+- Time lost re-doing completed work
+
+**Root Cause:**
+- No explicit save step between workflow phases
+- Assumption that data would persist in context
+
+**Prevention (Now Codified as RULE 1):**
+```
+Step 1 完成 firecrawl + exa 原始数据爬取后，必须将获得的数据落入 *.md 文档
+与后续步骤解耦，防止重复爬取
+
+Required Action:
+1. Complete all firecrawl/exa scraping
+2. ⚠️ IMMEDIATELY write results to .comp_product_assets/[category]/[product]-scraped.md
+3. ONLY THEN proceed to Step 2
+```
+
+---
+
+### Bad Case 10: Proceeding Without User Confirmation
+
+**What happened:** After Playwright exploration (Step 2), I proceeded directly to visual analysis (Step 3) without waiting for user confirmation.
+
+**Impact:**
+- Broke workflow when errors occurred
+- User had to intervene and correct
+- Session rollback required
+
+**Root Cause:**
+- No checkpoint/confirmation step in workflow
+- Assumption that proceeding immediately was efficient
+
+**Prevention (Now Codified as RULE 3):**
+```
+Step 2 Playwright 深度探索，截图完成后
+必须停止任务，向我汇报进度
+问询我是否调用 Agent，使用 image-analyzer skill 进行视觉理解
+
+⚠️ NEVER proceed to Step 3 without user confirmation
+```
+
+---
+
+### Lessons Learned: Workflow Engineering
+
+**Key Insight:** Complex multi-step workflows need explicit guardrails, not assumptions.
+
+**What Changed:**
+1. **6 Mandatory Rules** added to PRODUCT_COMP_ANALYSIS.md Section 0
+2. **Model Responsibilities Table** explicitly documents vision capabilities
+3. **Stop-and-Report Checkpoints** at critical workflow transitions
+4. **Save-Before-Proceed** pattern to prevent data loss
+
+**The Workflow Now Looks Like:**
+```
+Step 1: Web Scraping
+    ↓
+⚠️ SAVE TO *.md (RULE 1)
+    ↓
+Step 2: Playwright Deep Explore (RULE 2)
+    ↓
+⚠️ STOP AND REPORT (RULE 3)
+    ↓
+Wait for User Confirmation
+    ↓
+Step 3: Visual Analysis (RULE 4: Parallel Agents, Vision Models Only)
+    ↓
+Step 4: Comprehensive Report (RULE 5)
+    ↓
+Step 5: Update Documents & Report (RULE 6)
+```
+
+---
+
+### Good Cases Summary
+
+| Case | What Went Well | Pattern to Adopt |
+|------|----------------|------------------|
+| Awwwards Screenshots | Think-first, systematic, verify each step | Explicit planning before execution |
+| Parallel Visual Analysis | 12 agents, one image each, vision models | Parallelize image analysis |
+| Documentation Updates | RULE 6 followed correctly | Always update docs before reporting |
+
+### Bad Cases Summary
+
+| Case | Root Cause | Prevention Codified As |
+|------|------------|------------------------|
+| glm-5 for Visual | Model capability unchecked | WARNING box in Section 0.4 |
+| Shallow Playwright | No depth requirement | RULE 2: Deep explore all layers |
+| Data Loss on Rollback | Steps not decoupled | RULE 1: Save before proceeding |
+| Skip User Confirmation | No checkpoint | RULE 3: Stop and report |
+
+---
+
+---
+
+## Phase 9.5: Pre-Phase 10 Brainstorming Sessions (2026-03-16)
+
+### Overview
+
+Before entering Phase 10 MCP development, we conducted two deep brainstorming sessions to ensure architectural decisions were correct. This was not implementation work, but strategic thinking that fundamentally shaped Viblog's direction.
+
+**Key Insight: AI-Native = AI-Data-Native**
+
+---
+
+### Session 1: A2A Architecture & Data Model (2026-03-16 Morning)
+
+**What We Discussed:**
+1. Hybrid Data Architecture - User DB vs Platform DB
+2. Local-first Model Routing Strategy
+3. Draft Bucket Model Decision
+4. Data Ownership and Privacy Principles
+
+**Key Decisions Made:**
+1. **Hybrid Architecture:** Private data stays in user database; published content syncs to platform with user authorization
+2. **Model Routing:** Local LLM first, fallback to Viblog cloud when needed
+3. **Draft Buckets:** Independent table (Option B) for clear session-draft separation
+4. **Data Ownership:** User owns all creation data; platform owns interaction data
+
+**What Went Well:**
+- Systematic decision-making with options analysis
+- Clear trade-off documentation
+- Architecture diagram created for shared understanding
+
+---
+
+### Session 2: Human User Experience & AI-Data-Native Architecture (2026-03-16 Afternoon)
+
+**This Session Was Transformative.**
+
+**What We Discussed:**
+1. Human user writing/reading experience scenarios
+2. Commercial platform data requirements (user behavior, analytics)
+3. Annotation system design (Medium-style highlighting)
+4. Credits and incentives system
+5. **Most Important:** AI-Data-Native Architecture
+
+**The Core Insight:**
+
+> **AI-Native = AI-Data-Native**
+
+Data structure design is what makes AI-Native truly work. The critical question: **How to design data protocols so AI automatically knows how to I/O when accessing Viblog?**
+
+**This Changed Everything:**
+
+From this single insight, we derived:
+1. **Four Data Protocols:**
+   - Structured Data (JSON Schema) - MCP tool param parsing
+   - Vector Embeddings (pgvector) - Semantic retrieval
+   - Knowledge Graph (Apache AGE) - Association reasoning
+   - Time Series (TimescaleDB) - Trend analysis
+
+2. **AIDataSchema Interface:**
+```typescript
+// AI obtains this automatically when accessing Viblog
+interface AIDataSchema {
+  datasources: DataSource[];
+  schemas: JSONSchema[];
+  vectorStores: VectorStore[];
+  knowledgeGraphs: KnowledgeGraph[];
+  timeSeries: TimeSeries[];
+  authorization: AuthorizationStatus;
+}
+```
+
+3. **Three-Level Privacy Authorization:**
+   - Level 1: Sensitive fields desensitized (default)
+   - Level 2: Fully transparent (user confirmation)
+   - Level 3: Training authorization (+50 credits/month)
+
+4. **Data Source Authorization Model:**
+   - user_insights → [ ] Authorize
+   - external_links → [ ] Authorize
+   - vibe_sessions → [ ] Authorize (contribute training data)
+   - knowledge_graph → [ ] Authorize
+
+---
+
+### What Went Well (The Working Method)
+
+#### Good Case 11: From Future Vision Backwards Design
+
+**Scenario:** User asked how to design data schema for future AI model training.
+
+**What We Did Right:**
+1. Started from future vision: "Train Viblog foundation model"
+2. Derived data requirements: "What dataset to build?"
+3. Designed schema: "How should raw data schema be structured?"
+4. Considered behavior: "How to guide user behavior to produce correct data format?"
+5. Then UI/UX: "How to guide user behavior through interface?"
+
+**Pattern to Internalize:**
+```
+Future Vision
+    ↓
+Data Requirements
+    ↓
+Schema Design
+    ↓
+Behavior Guidance
+    ↓
+UI/UX Design
+```
+
+This "backwards design" ensures every UI decision serves the ultimate data goal.
+
+#### Good Case 12: Dual-Perspective Analysis (CTO + CPO)
+
+**Scenario:** Designing the annotation system schema.
+
+**What We Did Right:**
+- User played CPO role: "Users want Medium-style highlighting"
+- I played CTO role: "How to persist annotation position when article is edited?"
+- Discussed token consumption for LLM retrieval
+- Analyzed costs for different approaches
+- Arrived at hybrid solution: Paragraph ID + Vector storage
+
+**Pattern to Internalize:**
+```
+For product-technical decisions:
+1. Start with user experience (CPO)
+2. Translate to technical constraints (CTO)
+3. Find the sweet spot that serves both
+4. Document the trade-offs explicitly
+```
+
+#### Good Case 13: Scenario-Driven Schema Design
+
+**Scenario:** Designing external_links and user_insights tables.
+
+**What We Did Right:**
+1. Described user scenario: "User pastes a link, writes insights, generates article"
+2. Asked: "What data needs to be stored?"
+3. Asked: "What relationships exist?"
+4. Asked: "How does AI access this?"
+5. Only then designed the tables
+
+**Schema Design Pattern:**
+```
+User Scenario → Data Requirements → Relationships → AI Access Patterns → Schema
+```
+
+---
+
+### What Could Be Better
+
+#### Bad Case 11: Initially Overlooked Human User Experience
+
+**What happened:** Previous design sessions focused heavily on A2A (AI-to-AI) architecture. Human user experience was not deeply considered.
+
+**Impact:**
+- Missing user stories for Human users
+- No clear differentiation between A2A and Human scenarios
+- Credits system not designed
+- Annotation system not designed
+
+**Root Cause:**
+- Over-focus on technical differentiation (MCP protocol)
+- Assumption that "blog is just blog"
+- Missing the "dual-track users" in architecture design
+
+**Prevention:**
+```
+For AI-Native products:
+1. Remember: AI serves humans, not replaces them
+2. Always ask: "What does the HUMAN user experience?"
+3. Design A2A and Human experiences in parallel
+4. The "AI" in AI-Native includes the humans who built the AI
+```
+
+**This Session Corrected It:**
+- Added 13 Human user experience user stories to PRD.md
+- Added credits system for data contribution incentives
+- Added annotation system for reading engagement
+- Added authorization settings UI for privacy control
+
+---
+
+### Key Architecture Decisions Documented
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| Data Architecture | Hybrid (User DB + Platform DB) | Privacy-first, user owns creation data |
+| AI-Native Definition | AI-Data-Native | Data protocols enable AI self-discovery |
+| Data Protocols | 4 types (Structured, Vector, Graph, Time Series) | Different access patterns for different needs |
+| Authorization | Data source level (MVP) | Simple to implement, clear to users |
+| Privacy Levels | 3 levels with trade-offs | User choice with clear consequences |
+| Vector Storage | pgvector + OpenAI embeddings | 1536-dim, platform DB for retrieval |
+| Knowledge Graph | Apache AGE (PostgreSQL extension) | Avoid separate infrastructure |
+| Time Series | TimescaleDB | For behavioral analytics |
+
+---
+
+### Documents Updated (6 files)
+
+| Document | Version | Key Updates |
+|----------|---------|-------------|
+| VIBLOG_MCP_SERVICE_DESIGN.md | 2.0 → 3.0 | AI-Data-Native architecture (Section 10) |
+| BACKEND_STRUCTURE.md | 2.0 → 3.0 | 10 new tables, RLS policies |
+| TECH_STACK.md | 2.0 → 3.0 | pgvector, Apache AGE, TimescaleDB |
+| PRD.md | 2.0 → 3.0 | 13 Human UX user stories |
+| FRONTEND_GUIDELINES.md | 3.0 → 4.0 | UI components for new features |
+| IMPLEMENTATION_PLAN.md | 3.0 → 4.0 | Restructured Phase 10 (6-8 weeks) |
+
+---
+
+### The Collaborative Working Method
+
+**What Made This Session Effective:**
+
+1. **Role Clarity:**
+   - User: Partner / CPO / Product Visionary
+   - Claude: Partner / CTO / Technical Architect
+
+2. **Decision Documentation:**
+   - Every major decision explicitly stated
+   - Trade-offs analyzed
+   - "Decision confirmed" moments
+
+3. **From Vision to Implementation:**
+   - Started with "Why" (future vision)
+   - Then "What" (data requirements)
+   - Then "How" (schema design)
+   - Then "UI" (user experience)
+
+4. **Iteration, Not Perfection:**
+   - Proposed options first
+   - Discussed trade-offs
+   - Made decisions
+   - Documented clearly
+
+5. **Think-Aloud Protocol:**
+   - I explained my reasoning
+   - User corrected course when needed
+   - Both aligned on direction
+
+---
+
+### Lessons for Future Brainstorming Sessions
+
+1. **Start with "Why":** Future vision first, then work backwards
+2. **Dual Perspective:** Always consider both CPO (user) and CTO (technical) views
+3. **Scenario-Driven:** User stories before schema design
+4. **Document Decisions:** Explicit "Decision confirmed" moments
+5. **Think of Data as Protocol:** How will AI (not just humans) access this?
+6. **Human-Centered:** AI-Native doesn't mean AI-only
+
+---
+
+**Phase 9.5 Completion:** Architecture finalized, 6 documents updated, ready for Phase 10 implementation
+
+---
+
+## Phase 10: MCP Server Implementation (2026-03-17)
+
+### Overview
+
+Phase 10 implements the core goal of Viblog: enabling AI agents to write and publish directly to Viblog via the MCP (Model Context Protocol). This replaces the Playwright-based indirect workflow with a native stdio-based npm package.
+
+**Core Goal:** Enable Claude Code to write and publish directly to Viblog via MCP configuration.
+
+---
+
+### Phase 10.4: MVP MCP Server npm Package (Completed 2026-03-17)
+
+**What I Did:**
+
+1. **Package Structure Created:**
+   ```
+   packages/viblog-mcp-server/
+   ├── package.json          # @viblog/mcp-server v1.0.0
+   ├── tsconfig.json         # TypeScript ESM config
+   ├── src/
+   │   ├── index.ts          # Entry point (stdio server)
+   │   ├── server.ts         # MCP Server setup
+   │   ├── tools/
+   │   │   ├── index.ts      # 6 tool definitions
+   │   │   └── handlers.ts   # Tool execution logic
+   │   ├── api/
+   │   │   └── client.ts     # REST API client
+   │   └── types.ts          # Shared types
+   └── README.md             # Usage documentation
+   ```
+
+2. **6 MCP Tools Implemented:**
+   | Tool | Purpose | Backend Endpoint |
+   |------|---------|------------------|
+   | `create_vibe_session` | Create recording session | POST /api/vibe-sessions |
+   | `append_session_context` | Add context incrementally | POST /api/vibe-sessions/{id}/fragments |
+   | `upload_session_context` | Batch upload fragments | PUT /api/vibe-sessions/{id}/fragments |
+   | `generate_structured_context` | AI processing | POST /api/vibe-sessions/generate-structured-context |
+   | `generate_article_draft` | Create draft from session | POST /api/vibe-sessions/generate-article-draft |
+   | `list_user_sessions` | List user's sessions | GET /api/vibe-sessions |
+
+3. **TypeScript Build Fixed:**
+   - Initial error: Custom `McpToolCallResult` type didn't match SDK's `CallToolResult`
+   - Solution: Re-exported `CallToolResult` from `@modelcontextprotocol/sdk/types.js`
+   - Build now passes successfully
+
+**What Went Well:**
+
+- SDK types re-used instead of creating custom types
+- Clean separation between tool definitions and handlers
+- REST client handles authentication via X-API-Key header
+- Environment variable validation at startup
+
+**Technical Notes:**
+
+- Transport: stdio (JSON-RPC 2.0)
+- Dependencies: `@modelcontextprotocol/sdk`, `zod`
+- Configuration: `VIBLOG_API_URL` and `VIBLOG_API_KEY` environment variables
+
+**Next Steps:**
+
+1. Configure Claude Code with local package for testing
+2. Verify create_vibe_session works end-to-end
+3. Verify session exists in database
+4. Verify generate_article_draft produces drafts
+5. Publish to npm registry
+
+---
+
+**Phase 10.4 Status:** MVP npm package built, ready for integration testing
 
 ---
 
@@ -364,6 +1014,8 @@ After context compaction/session resume:
 
 ---
 
-**Document Version:** 2.0
-**Last Updated:** 2026-03-14
+**Document Version:** 5.1
+**Last Updated:** 2026-03-17
 **Author:** Claude (with human collaborator)
+**Phase 10.4 Status:** MVP MCP Server npm package built, ready for integration testing
+**Key Insight:** AI-Native = AI-Data-Native

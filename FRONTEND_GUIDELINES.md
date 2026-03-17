@@ -1,13 +1,29 @@
-# Viblog - Frontend Guidelines
+# Viblog - Frontend Design Guidelines
+
+## 文档信息
+- **功能**: 前端设计指南，定义视觉设计系统、组件规范和交互模式
+- **作用**: 确保 UI/UX 一致性，指导前端开发
+- **职责**: 明确"产品长什么样"，覆盖颜色、排版、组件、动效
+- **阅读时机**: 按需阅读 - 当需要了解视觉设计、组件规范或卡片样式时
+
+---
 
 ## 1. Design Philosophy
 
 ### 1.1 Core Principles
 
-- **Beautiful** - Display vibe coding achievements like art pieces
+- **Beautiful** - Display vibe coding achievements like art pieces (Pinterest-inspired)
 - **Minimal** - Clean interfaces that don't distract from content
 - **Fluid** - Smooth animations that feel natural, not flashy
 - **Accessible** - WCAG 2.1 AA compliant for all users
+- **Premium** - High-end visual presentation that inspires confidence
+
+### 1.2 Design Direction
+
+- **Dark-first** - Optimized for dark mode as primary experience
+- **Card-centric** - Pinterest-style masonry layout for content discovery
+- **Motion-enhanced** - Subtle animations that add polish without distraction
+- **Image-focused** - High-quality cover images as primary visual anchors
 
 ---
 
@@ -53,22 +69,6 @@
 }
 ```
 
-### 2.2 Color Usage
-
-| Color | Usage | Examples |
-|-------|-------|----------|
-| `--background` | Page background | All pages |
-| `--card` | Cards, panels | Article cards, sidebar |
-| `--primary` | Primary actions | Buttons, links, highlights |
-| `--accent` | Secondary highlights | Badges, tags |
-| `--success` | Success states | Confirmations, valid inputs |
-| `--error` | Error states | Errors, destructive actions |
-| `--warning` | Warning states | Alerts, cautions |
-
-### 2.3 Dark Mode (Default)
-
-Viblog is designed dark-first. Light mode is not in MVP scope.
-
 ---
 
 ## 3. Typography
@@ -85,49 +85,7 @@ Viblog is designed dark-first. Light mode is not in MVP scope.
 }
 ```
 
-### 3.2 Font Import
-
-```html
-<!-- In layout.tsx head -->
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-```
-
-### 3.3 Type Scale
-
-```css
-:root {
-  /* Font Sizes */
-  --text-xs: 0.75rem;      /* 12px */
-  --text-sm: 0.875rem;     /* 14px */
-  --text-base: 1rem;       /* 16px */
-  --text-lg: 1.125rem;     /* 18px */
-  --text-xl: 1.25rem;      /* 20px */
-  --text-2xl: 1.5rem;      /* 24px */
-  --text-3xl: 1.875rem;    /* 30px */
-  --text-4xl: 2.25rem;     /* 36px */
-  --text-5xl: 3rem;        /* 48px */
-
-  /* Line Heights */
-  --leading-tight: 1.25;
-  --leading-normal: 1.5;
-  --leading-relaxed: 1.75;
-
-  /* Font Weights */
-  --font-normal: 400;
-  --font-medium: 500;
-  --font-semibold: 600;
-  --font-bold: 700;
-
-  /* Letter Spacing */
-  --tracking-tight: -0.025em;
-  --tracking-normal: 0;
-  --tracking-wide: 0.025em;
-}
-```
-
-### 3.4 Typography Components
+### 3.2 Type Scale
 
 | Element | Size | Weight | Line Height | Usage |
 |---------|------|--------|-------------|-------|
@@ -141,168 +99,156 @@ Viblog is designed dark-first. Light mode is not in MVP scope.
 
 ---
 
-## 4. Spacing System
+## 4. Article Card Design (Pinterest-Style)
 
-### 4.1 Spacing Scale
+### 4.1 Card Layout
 
-```css
-:root {
-  --space-0: 0;
-  --space-1: 0.25rem;   /* 4px */
-  --space-2: 0.5rem;    /* 8px */
-  --space-3: 0.75rem;   /* 12px */
-  --space-4: 1rem;      /* 16px */
-  --space-5: 1.25rem;   /* 20px */
-  --space-6: 1.5rem;    /* 24px */
-  --space-8: 2rem;      /* 32px */
-  --space-10: 2.5rem;   /* 40px */
-  --space-12: 3rem;     /* 48px */
-  --space-16: 4rem;     /* 64px */
-  --space-20: 5rem;     /* 80px */
-  --space-24: 6rem;     /* 96px */
-}
+```tsx
+// Article Card Component Structure
+const ArticleCard = ({ article }) => (
+  <div className="group relative overflow-hidden rounded-2xl bg-card
+                  transition-all duration-300 hover:shadow-xl hover:shadow-primary/10
+                  hover:-translate-y-1">
+    {/* Cover Image - Variable Height */}
+    <div className="relative aspect-[4/3] overflow-hidden">
+      <img
+        src={article.cover_image}
+        alt={article.title}
+        className="object-cover w-full h-full
+                   transition-transform duration-500 group-hover:scale-105"
+      />
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+    </div>
+
+    {/* Content Section */}
+    <div className="p-4 space-y-2">
+      {/* Title */}
+      <h3 className="text-lg font-semibold text-foreground line-clamp-2">
+        {article.title}
+      </h3>
+
+      {/* Author & Stats */}
+      <div className="flex items-center justify-between text-sm text-foreground-muted">
+        <div className="flex items-center gap-2">
+          <Avatar src={article.author.avatar_url} size="sm" />
+          <span>@{article.author.username}</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <Star className="w-4 h-4" />
+          <span>{article.stars_count}</span>
+        </div>
+      </div>
+
+      {/* Tags (optional) */}
+      {article.tags && (
+        <div className="flex flex-wrap gap-1">
+          {article.tags.map(tag => (
+            <Badge key={tag} variant="secondary">{tag}</Badge>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+)
 ```
 
-### 4.2 Spacing Usage
-
-| Space | Usage |
-|-------|-------|
-| `--space-1` | Icon padding, tight gaps |
-| `--space-2` | Button padding, inline gaps |
-| `--space-3` | Small component padding |
-| `--space-4` | Default padding, paragraph spacing |
-| `--space-6` | Card padding, section gaps |
-| `--space-8` | Section margins |
-| `--space-12` | Page section gaps |
-| `--space-16` | Major section dividers |
-
----
-
-## 5. Layout
-
-### 5.1 Container Widths
+### 4.2 Masonry Grid Layout
 
 ```css
-:root {
-  --container-sm: 640px;
-  --container-md: 768px;
-  --container-lg: 1024px;
-  --container-xl: 1280px;
-  --container-2xl: 1536px;
-}
-```
-
-### 5.2 Grid System
-
-```css
-/* 12-column grid */
-.grid {
+/* Masonry Grid for Pinterest-style layout */
+.masonry-grid {
   display: grid;
-  gap: var(--space-6);
-  grid-template-columns: repeat(12, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  grid-auto-rows: 10px;
 }
 
-/* Common patterns */
-.grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
-.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
-.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
-.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+.masonry-item {
+  grid-row-end: span var(--row-span, 30);
+}
+
+/* Responsive adjustments */
+@media (min-width: 640px) {
+  .masonry-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .masonry-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .masonry-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
 ```
-
-### 5.3 Responsive Breakpoints
-
-| Breakpoint | Width | Usage |
-|------------|-------|-------|
-| `sm` | 640px | Mobile landscape |
-| `md` | 768px | Tablets |
-| `lg` | 1024px | Small laptops |
-| `xl` | 1280px | Desktops |
-| `2xl` | 1536px | Large screens |
 
 ---
 
-## 6. Components
+## 5. Draft Bucket UI
 
-### 6.1 Buttons
-
-```tsx
-// Button Variants
-const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50",
-  {
-    variants: {
-      variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary-hover",
-        destructive: "bg-error text-white hover:bg-error/90",
-        outline: "border border-border bg-transparent hover:bg-card",
-        secondary: "bg-card text-foreground hover:bg-card-hover",
-        ghost: "hover:bg-card hover:text-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
-      },
-      size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 px-3 text-sm",
-        lg: "h-11 px-8 text-lg",
-        icon: "h-10 w-10",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
-  }
-)
-```
-
-### 6.2 Cards
+### 5.1 Draft Bucket Card
 
 ```tsx
-// Card Component
-const cardStyles = cva(
-  "rounded-xl border border-border bg-card text-card-foreground transition-all duration-200",
-  {
-    variants: {
-      variant: {
-        default: "hover:border-border-hover hover:bg-card-hover",
-        interactive: "hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 cursor-pointer",
-        static: "",
-      },
-      padding: {
-        default: "p-6",
-        compact: "p-4",
-        none: "p-0",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-      padding: "default",
-    },
-  }
-)
-```
+const DraftBucketCard = ({ bucket }) => (
+  <div className="rounded-xl border border-border bg-card p-6
+                  hover:border-primary/50 transition-colors">
+    {/* Header */}
+    <div className="flex items-start justify-between mb-4">
+      <div>
+        <h3 className="text-lg font-semibold">{bucket.title_suggestions[0]}</h3>
+        <p className="text-sm text-foreground-muted">
+          {formatDate(bucket.created_at)}
+        </p>
+      </div>
+      <Badge variant={bucket.status}>{bucket.status}</Badge>
+    </div>
 
-### 6.3 Input Fields
+    {/* Preview */}
+    <div className="space-y-3 mb-4">
+      {/* Code Snippets Preview */}
+      {bucket.code_snippets.slice(0, 2).map((snippet, i) => (
+        <div key={i} className="bg-background-tertiary rounded-lg p-3">
+          <code className="text-sm text-foreground-muted line-clamp-2">
+            {snippet.code}
+          </code>
+        </div>
+      ))}
+    </div>
 
-```tsx
-// Input Component
-const inputStyles = cva(
-  "flex w-full rounded-lg border border-border bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-foreground-dim focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-  {
-    variants: {
-      variant: {
-        default: "",
-        error: "border-error focus-visible:ring-error",
-      },
-    },
-  }
+    {/* Human Touch Status */}
+    {bucket.human_reflections ? (
+      <p className="text-sm text-foreground-muted line-clamp-2 mb-4">
+        {bucket.human_reflections}
+      </p>
+    ) : (
+      <div className="flex items-center gap-2 text-sm text-warning mb-4">
+        <AlertCircle className="w-4 h-4" />
+        <span>Add your reflections to complete</span>
+      </div>
+    )}
+
+    {/* Actions */}
+    <div className="flex gap-2">
+      <Button variant="outline" size="sm">Edit</Button>
+      <Button size="sm" disabled={!bucket.human_reflections}>
+        Generate Article
+      </Button>
+    </div>
+  </div>
 )
 ```
 
 ---
 
-## 7. Animation
+## 6. Animation Guidelines
 
-### 7.1 Motion Values
+### 6.1 Motion Values
 
 ```css
 :root {
@@ -321,31 +267,16 @@ const inputStyles = cva(
 }
 ```
 
-### 7.2 Framer Motion Presets
+### 6.2 Framer Motion Presets
 
 ```tsx
-// Animation Variants
-export const fadeIn = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  exit: { opacity: 0 },
-  transition: { duration: 0.2 },
+// Card hover animation
+export const cardHover = {
+  rest: { scale: 1, y: 0 },
+  hover: { scale: 1.02, y: -4 }
 }
 
-export const slideUp = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: 20 },
-  transition: { duration: 0.3, ease: "easeOut" },
-}
-
-export const scaleIn = {
-  initial: { opacity: 0, scale: 0.95 },
-  animate: { opacity: 1, scale: 1 },
-  exit: { opacity: 0, scale: 0.95 },
-  transition: { duration: 0.2 },
-}
-
+// Stagger animation for grids
 export const staggerContainer = {
   animate: {
     transition: {
@@ -355,116 +286,46 @@ export const staggerContainer = {
 }
 
 export const staggerItem = {
-  initial: { opacity: 0, y: 10 },
+  initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
 }
 ```
 
-### 7.3 Animation Guidelines
-
-| Animation | Duration | Use Case |
-|-----------|----------|----------|
-| Fade | 150-200ms | Simple visibility |
-| Slide | 200-300ms | Page transitions, modals |
-| Scale | 150-200ms | Buttons, cards on hover |
-| Stagger | 50ms delay | List items |
-
 ---
 
-## 8. Icons
+## 7. Responsive Design
 
-### 8.1 Icon Library
+### 7.1 Breakpoints
 
-Using **Lucide React** for consistent iconography.
+| Breakpoint | Width | Usage |
+|------------|-------|-------|
+| `sm` | 640px | Mobile landscape |
+| `md` | 768px | Tablets |
+| `lg` | 1024px | Small laptops |
+| `xl` | 1280px | Desktops |
+| `2xl` | 1536px | Large screens |
 
-### 8.2 Icon Sizes
+### 7.2 Mobile Navigation
 
-| Size | Pixels | Usage |
-|------|--------|-------|
-| xs | 12px | Inline, badges |
-| sm | 16px | Buttons, inputs |
-| md | 20px | Default |
-| lg | 24px | Section headers |
-| xl | 32px | Feature highlights |
-
-### 8.3 Common Icons
-
-```tsx
-import {
-  // Navigation
-  Home, Search, User, Settings, Menu, X,
-
-  // Actions
-  Plus, Edit, Trash2, Save, Send, Star,
-
-  // Status
-  Check, AlertCircle, Info, AlertTriangle,
-
-  // Content
-  FileText, Image, Link, Code, Clock,
-
-  // Social
-  Share2, Heart, MessageCircle,
-
-  // UI
-  ChevronDown, ChevronRight, ArrowRight, ExternalLink,
-} from 'lucide-react'
+```
+┌─────────────────────┐
+│      Mobile Header   │
+│  [Menu]  Viblog  [+] │
+├─────────────────────┤
+│                     │
+│    Main Content     │
+│                     │
+├─────────────────────┤
+│    Bottom Nav Bar   │
+│ [Home] [Search] [+] [Profile] [More] │
+└─────────────────────┘
 ```
 
 ---
 
-## 9. Shadows
+## 8. Accessibility
 
-### 9.1 Shadow Scale
-
-```css
-:root {
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-
-  /* Glow shadows for primary elements */
-  --shadow-primary: 0 0 20px rgb(99 102 241 / 0.3);
-  --shadow-accent: 0 0 20px rgb(139 92 246 / 0.3);
-}
-```
-
----
-
-## 10. Border Radius
-
-### 10.1 Radius Scale
-
-```css
-:root {
-  --radius-sm: 0.25rem;   /* 4px */
-  --radius: 0.5rem;       /* 8px */
-  --radius-md: 0.75rem;   /* 12px */
-  --radius-lg: 1rem;      /* 16px */
-  --radius-xl: 1.5rem;    /* 24px */
-  --radius-2xl: 2rem;     /* 32px */
-  --radius-full: 9999px;  /* Pill */
-}
-```
-
-### 10.2 Radius Usage
-
-| Radius | Usage |
-|--------|-------|
-| `--radius-sm` | Badges, small elements |
-| `--radius` | Inputs, small buttons |
-| `--radius-md` | Default buttons |
-| `--radius-lg` | Cards |
-| `--radius-xl` | Large cards, modals |
-| `--radius-full` | Avatars, pills |
-
----
-
-## 11. Accessibility
-
-### 11.1 Focus States
+### 8.1 Focus States
 
 ```css
 /* Visible focus ring for keyboard navigation */
@@ -473,26 +334,9 @@ import {
   ring: 2px solid var(--primary);
   ring-offset: 2px solid var(--background);
 }
-
-/* Skip to main content link */
-.skip-link {
-  position: absolute;
-  top: -100%;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: var(--space-2) var(--space-4);
-  background: var(--primary);
-  color: var(--primary-foreground);
-  border-radius: var(--radius);
-  z-index: 9999;
-}
-
-.skip-link:focus {
-  top: var(--space-4);
-}
 ```
 
-### 11.2 Color Contrast
+### 8.2 Color Contrast
 
 All text colors meet WCAG 2.1 AA standards:
 - Regular text: 4.5:1 minimum
@@ -500,46 +344,622 @@ All text colors meet WCAG 2.1 AA standards:
 
 ---
 
-## 12. Tailwind Configuration
+## 9. Visual Design Inspiration
 
-```javascript
-// tailwind.config.js
-module.exports = {
-  darkMode: 'class',
-  content: ['./src/**/*.{ts,tsx}'],
-  theme: {
-    extend: {
-      colors: {
-        background: 'var(--background)',
-        foreground: 'var(--foreground)',
-        primary: {
-          DEFAULT: 'var(--primary)',
-          foreground: 'var(--primary-foreground)',
-        },
-        // ... other colors
-      },
-      fontFamily: {
-        sans: ['var(--font-sans)'],
-        mono: ['var(--font-mono)'],
-      },
-      spacing: {
-        // Using CSS variables for spacing
-      },
-      borderRadius: {
-        sm: 'var(--radius-sm)',
-        DEFAULT: 'var(--radius)',
-        md: 'var(--radius-md)',
-        lg: 'var(--radius-lg)',
-        xl: 'var(--radius-xl)',
-        '2xl': 'var(--radius-2xl)',
-      },
-    },
-  },
-  plugins: [],
+### 9.1 Reference Sites
+
+| Site | What to Learn |
+|------|---------------|
+| Pinterest | Masonry layout, card design, image-centric UI |
+| Dribbble | High-end visual polish, creative layouts |
+| Behance | Portfolio presentation, project showcases |
+| Awwwards | Cutting-edge interactions, premium feel |
+| Linear | Clean dark UI, smooth animations |
+
+### 9.2 Design Tokens for Premium Feel
+
+```css
+:root {
+  /* Subtle gradients for depth */
+  --gradient-subtle: linear-gradient(180deg, transparent, rgba(0,0,0,0.4));
+
+  /* Soft shadows */
+  --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.15);
+
+  /* Glass effect */
+  --glass-bg: rgba(23, 23, 23, 0.8);
+  --glass-blur: backdrop-filter: blur(12px);
 }
 ```
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** 2026-03-13
+## 10. Key Design Principles (From Competitive Analysis)
+
+### 10.1 Design Philosophy
+
+> **"Treat every coding session as a masterpiece in the making - transforming developer experiences into gallery-worthy content through AI-native design."**
+
+### 10.2 Core Principles
+
+| Principle | Source Products | Key Metric | Priority |
+|-----------|-----------------|------------|----------|
+| AI-Native by Design | Claude Code, Notion, Cursor | <5% AI info loss | P0 |
+| Content as Visual Art | Pinterest, Dribbble, Awwwards | >= 22/25 visual score | P0 |
+| Code-First Reading | Medium, Notion, Cursor | >= 21/25 reading score | P0 |
+| Effortless Flow | Claude Code, Notion, Pinterest | <5 min to publish | P0 |
+| Dark-First, Always Polished | Cursor, Awwwards, Dribbble | WCAG 2.1 AA | P1 |
+| Motion with Purpose | Pinterest, Dribbble, Awwwards | >= 60fps | P1 |
+| Progressive Complexity | Notion, Medium, Awwwards | <30s to first action | P1 |
+
+### 10.3 Principle Details
+
+#### P0-1: AI-Native by Design
+
+Every feature built assuming AI as a primary user. Content flows seamlessly between human and AI consumption.
+
+**Evidence from Analysis:**
+- Claude Code (23/25): MCP protocol enables seamless tool integration
+- Notion (24/25): Block-based content for AI parsing
+- Cursor (24/25): Session context capture and persistence
+
+**Implementation:**
+- Dual-layer content format (Markdown + JSON)
+- MCP tools following Claude Code patterns
+- Token estimates for AI consumption
+
+#### P0-2: Content as Visual Art
+
+Developer achievements deserve the same visual treatment as design portfolios. Every article card is a "shot" worthy of a gallery wall.
+
+**Evidence from Analysis:**
+- Pinterest (22/25): Masonry grid, image-centric cards
+- Dribbble (22/25): Premium feel, 60-80px section gaps
+- Awwwards (22/25): High-end typography
+
+**Implementation:**
+- Article cards with 12px border-radius, 4:3 aspect ratio
+- Hover lift effect: `translateY(-4px)` + box-shadow
+- Premium whitespace: 60px section gaps
+
+#### P0-3: Code-First Reading Experience
+
+Reading experiences optimized for developer content, where code blocks are first-class citizens.
+
+**Evidence from Analysis:**
+- Medium (21/25): 21px Georgia, 1.6 line-height, 680px max-width
+- Notion (24/25): Block-based code with language labels
+- Cursor (24/25): VS Code dark theme
+
+**Implementation:**
+- Prose: 21px Georgia, 1.6 line-height, 680px max-width
+- Code: JetBrains Mono, 14px, VS Code dark background
+- Reading progress indicator
+
+#### P0-4: Effortless Flow from Code to Content
+
+The path from coding session to published article should feel magical - minimal friction, maximum automation.
+
+**Evidence from Analysis:**
+- Claude Code (23/25): Session-based interaction model
+- Notion (24/25): AI integration as dedicated nav item
+- Pinterest (22/25): Collections/Boards organization
+
+**Implementation:**
+- Draft Bucket system for session-to-article transformation
+- Human touch prompts at critical moments
+- One-click publish with dual-layer format
+
+---
+
+## 11. AI-Data-Native UI Components (New - 2026-03-16)
+
+### 11.1 Smart Markdown Editor
+
+**Design Philosophy:** Minimalist interface with intelligent assistance
+
+```tsx
+// Editor Component Structure
+const SmartMarkdownEditor = ({ article, onChange }) => (
+  <div className="flex flex-col h-full">
+    {/* Toolbar - Minimal */}
+    <div className="flex items-center justify-between p-4 border-b border-border">
+      <div className="flex items-center gap-2">
+        <Button variant="ghost" size="sm">
+          <Bold className="w-4 h-4" />
+        </Button>
+        <Button variant="ghost" size="sm">
+          <Italic className="w-4 h-4" />
+        </Button>
+        <Button variant="ghost" size="sm">
+          <Code className="w-4 h-4" />
+        </Button>
+        <Button variant="ghost" size="sm">
+          <Link className="w-4 h-4" />
+        </Button>
+      </div>
+      <div className="flex items-center gap-2">
+        <Button variant="outline" size="sm">
+          <Sparkles className="w-4 h-4 mr-2" />
+          AI Format
+        </Button>
+      </div>
+    </div>
+
+    {/* Editor Area */}
+    <div className="flex-1 p-6">
+      <textarea
+        className="w-full h-full resize-none bg-transparent
+                   text-foreground font-mono text-base leading-relaxed
+                   focus:outline-none"
+        placeholder="Start writing..."
+        value={article.content}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </div>
+
+    {/* AI Suggestions Panel */}
+    <div className="border-t border-border p-4 bg-background-secondary">
+      <h4 className="text-sm font-medium text-foreground-muted mb-2">
+        AI Suggestions
+      </h4>
+      <div className="flex gap-2 flex-wrap">
+        {suggestions.map((s, i) => (
+          <Badge
+            key={i}
+            variant="secondary"
+            className="cursor-pointer hover:bg-primary/20"
+          >
+            {s}
+          </Badge>
+        ))}
+      </div>
+    </div>
+  </div>
+)
+```
+
+**Typography for Editing:**
+```css
+.editor-textarea {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+}
+```
+
+### 11.2 Annotation UI Design
+
+**Design Philosophy:** Non-intrusive highlighting with elegant margin notes
+
+```tsx
+// Annotation Highlight Component
+const AnnotationHighlight = ({ text, annotation, onClick }) => (
+  <span
+    className="relative cursor-pointer group"
+    onClick={onClick}
+  >
+    {/* Highlighted text */}
+    <span className="bg-primary/20 border-b-2 border-primary/50
+                   transition-colors hover:bg-primary/30">
+      {text}
+    </span>
+
+    {/* Annotation indicator */}
+    <span className="absolute -top-1 -right-1 w-2 h-2
+                   bg-primary rounded-full
+                   group-hover:scale-125 transition-transform" />
+  </span>
+)
+
+// Annotation Sidebar Component
+const AnnotationSidebar = ({ annotations, activeId }) => (
+  <div className="w-80 border-l border-border p-4
+                bg-background-secondary overflow-y-auto">
+    <div className="flex items-center justify-between mb-4">
+      <h3 className="font-semibold">Annotations</h3>
+      <Badge variant="secondary">{annotations.length}</Badge>
+    </div>
+
+    <div className="space-y-4">
+      {annotations.map((annotation) => (
+        <div
+          key={annotation.id}
+          className={cn(
+            "p-3 rounded-lg border transition-colors",
+            activeId === annotation.id
+              ? "border-primary bg-primary/10"
+              : "border-border hover:border-primary/50"
+          )}
+        >
+          {/* Quoted text */}
+          <p className="text-sm text-foreground-muted italic mb-2">
+            "{annotation.selected_text}"
+          </p>
+
+          {/* Annotation content */}
+          <p className="text-sm text-foreground mb-2">
+            {annotation.content}
+          </p>
+
+          {/* Author and timestamp */}
+          <div className="flex items-center gap-2 text-xs text-foreground-dim">
+            <Avatar src={annotation.author.avatar} size="xs" />
+            <span>@{annotation.author.username}</span>
+            <span>•</span>
+            <span>{formatTimeAgo(annotation.created_at)}</span>
+          </div>
+
+          {/* Reply count */}
+          {annotation.discussion?.length > 0 && (
+            <div className="mt-2 pt-2 border-t border-border">
+              <Button variant="ghost" size="sm" className="text-xs">
+                {annotation.discussion.length} replies
+              </Button>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  </div>
+)
+
+// Annotation Creation Modal
+const AnnotationModal = ({ isOpen, onClose, selectedText, onSubmit }) => (
+  <Dialog open={isOpen} onOpenChange={onClose}>
+    <DialogContent className="max-w-md">
+      <DialogHeader>
+        <DialogTitle>Add Annotation</DialogTitle>
+      </DialogHeader>
+
+      {/* Selected text preview */}
+      <div className="p-3 bg-background-tertiary rounded-lg">
+        <p className="text-sm italic text-foreground-muted">
+          "{selectedText}"
+        </p>
+      </div>
+
+      {/* Annotation input */}
+      <textarea
+        className="w-full h-32 p-3 bg-background rounded-lg border
+                 border-border focus:border-primary focus:outline-none
+                 text-foreground resize-none"
+        placeholder="Write your thoughts..."
+      />
+
+      {/* Privacy toggle */}
+      <div className="flex items-center gap-2">
+        <Switch id="public" defaultChecked />
+        <Label htmlFor="public" className="text-sm">
+          Public annotation
+        </Label>
+      </div>
+
+      <DialogFooter>
+        <Button variant="outline" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button onClick={onSubmit}>
+          Save Annotation
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
+)
+```
+
+**Annotation Color Palette:**
+```css
+:root {
+  --annotation-highlight: rgba(99, 102, 241, 0.2);    /* Primary indigo */
+  --annotation-underline: rgba(99, 102, 241, 0.5);
+  --annotation-hover: rgba(99, 102, 241, 0.3);
+}
+```
+
+### 11.3 Authorization Settings UI
+
+**Design Philosophy:** Clear trade-offs with easy toggles
+
+```tsx
+// Authorization Settings Page
+const AuthorizationSettings = () => (
+  <div className="max-w-2xl mx-auto p-6 space-y-8">
+    {/* Header */}
+    <div>
+      <h1 className="text-2xl font-bold">AI Data Access</h1>
+      <p className="text-foreground-muted mt-1">
+        Control what data AI tools can access
+      </p>
+    </div>
+
+    {/* Data Source Toggles */}
+    <Card>
+      <CardHeader>
+        <CardTitle>Data Sources</CardTitle>
+        <CardDescription>
+          Grant access to your private data for enhanced AI features
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {datasources.map((source) => (
+          <div
+            key={source.id}
+            className="flex items-center justify-between p-4
+                     rounded-lg border border-border hover:border-primary/50
+                     transition-colors"
+          >
+            <div className="flex items-center gap-4">
+              <div className={cn(
+                "w-10 h-10 rounded-lg flex items-center justify-center",
+                source.authorized
+                  ? "bg-primary/20 text-primary"
+                  : "bg-background-tertiary text-foreground-muted"
+              )}>
+                {source.icon}
+              </div>
+              <div>
+                <h4 className="font-medium">{source.name}</h4>
+                <p className="text-sm text-foreground-muted">
+                  {source.description}
+                </p>
+              </div>
+            </div>
+            <Switch
+              checked={source.authorized}
+              onCheckedChange={(checked) => toggleSource(source.id, checked)}
+            />
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+
+    {/* Privacy Level */}
+    <Card>
+      <CardHeader>
+        <CardTitle>Privacy Level</CardTitle>
+        <CardDescription>
+          Choose how much detail AI can see
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <RadioGroup value={privacyLevel} onValueChange={setPrivacyLevel}>
+          <div className="space-y-3">
+            <div className="flex items-start gap-3 p-4 rounded-lg border
+                          border-border hover:border-primary/50 cursor-pointer
+                          data-[state=checked]:border-primary">
+              <RadioGroupItem value="1" id="level1" />
+              <div className="flex-1">
+                <Label htmlFor="level1" className="font-medium cursor-pointer">
+                  Sensitive fields desensitized
+                </Label>
+                <p className="text-sm text-foreground-muted">
+                  Email, phone numbers, and other PII are masked
+                </p>
+                <Badge variant="secondary" className="mt-2">Recommended</Badge>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-4 rounded-lg border
+                          border-border hover:border-primary/50 cursor-pointer">
+              <RadioGroupItem value="2" id="level2" />
+              <div className="flex-1">
+                <Label htmlFor="level2" className="font-medium cursor-pointer">
+                  Fully transparent
+                </Label>
+                <p className="text-sm text-foreground-muted">
+                  AI can access all raw data
+                </p>
+                <Badge variant="warning" className="mt-2">⚠️ Risk warning</Badge>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-4 rounded-lg border
+                          border-border hover:border-primary/50 cursor-pointer">
+              <RadioGroupItem value="3" id="level3" />
+              <div className="flex-1">
+                <Label htmlFor="level3" className="font-medium cursor-pointer">
+                  Training authorization
+                </Label>
+                <p className="text-sm text-foreground-muted">
+                  Data can be used to train Viblog models
+                </p>
+                <Badge variant="success" className="mt-2">+50 credits/month</Badge>
+              </div>
+            </div>
+          </div>
+        </RadioGroup>
+      </CardContent>
+    </Card>
+
+    {/* Token Management */}
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>Access Tokens</CardTitle>
+          <CardDescription>
+            Tokens used by MCP tools to access your data
+          </CardDescription>
+        </div>
+        <Button size="sm">
+          <Plus className="w-4 h-4 mr-2" />
+          New Token
+        </Button>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Token</TableHead>
+              <TableHead>Created</TableHead>
+              <TableHead>Last Used</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {tokens.map((token) => (
+              <TableRow key={token.id}>
+                <TableCell className="font-mono">
+                  vb_{token.prefix}••••••••••••••••
+                </TableCell>
+                <TableCell>{formatDate(token.created_at)}</TableCell>
+                <TableCell>{formatTimeAgo(token.last_used_at)}</TableCell>
+                <TableCell>
+                  <Badge variant={token.is_active ? "success" : "secondary"}>
+                    {token.is_active ? "Active" : "Revoked"}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <Button variant="ghost" size="sm">
+                    Revoke
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  </div>
+)
+```
+
+### 11.4 Credits Dashboard UI
+
+```tsx
+// Credits Dashboard Component
+const CreditsDashboard = () => (
+  <div className="max-w-4xl mx-auto p-6 space-y-6">
+    {/* Balance Card */}
+    <Card className="bg-gradient-to-r from-primary/20 to-accent/20">
+      <CardContent className="p-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-foreground-muted">Your Balance</p>
+            <h2 className="text-5xl font-bold mt-2">
+              {balance.toLocaleString()}
+              <span className="text-lg font-normal text-foreground-muted ml-2">
+                credits
+              </span>
+            </h2>
+          </div>
+          <Button size="lg">
+            Redeem Credits
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-3 gap-4 mt-8">
+          <div className="text-center">
+            <p className="text-2xl font-semibold">{totalEarned}</p>
+            <p className="text-sm text-foreground-muted">Total Earned</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-semibold">{totalSpent}</p>
+            <p className="text-sm text-foreground-muted">Total Spent</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-semibold">{redeemable}</p>
+            <p className="text-sm text-foreground-muted">Redeemable Months</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+
+    {/* Earning Opportunities */}
+    <Card>
+      <CardHeader>
+        <CardTitle>Earning Opportunities</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {opportunities.map((opp) => (
+            <div
+              key={opp.id}
+              className="flex items-center justify-between p-4
+                       rounded-lg border border-border"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-success/20
+                              flex items-center justify-center">
+                  {opp.icon}
+                </div>
+                <div>
+                  <h4 className="font-medium">{opp.title}</h4>
+                  <p className="text-sm text-foreground-muted">
+                    {opp.description}
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-lg font-semibold text-success">
+                  +{opp.credits}
+                </p>
+                <p className="text-xs text-foreground-muted">credits/month</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+
+    {/* Transaction History */}
+    <Card>
+      <CardHeader>
+        <CardTitle>Transaction History</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Date</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead className="text-right">Amount</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {transactions.map((tx) => (
+              <TableRow key={tx.id}>
+                <TableCell>{formatDate(tx.created_at)}</TableCell>
+                <TableCell>
+                  <Badge variant="secondary">{tx.type}</Badge>
+                </TableCell>
+                <TableCell>{tx.description}</TableCell>
+                <TableCell className={cn(
+                  "text-right font-mono",
+                  tx.amount > 0 ? "text-success" : "text-foreground"
+                )}>
+                  {tx.amount > 0 ? "+" : ""}{tx.amount}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  </div>
+)
+```
+
+---
+
+## 12. Implementation Checklist
+
+- [ ] Article cards with Pinterest-style hover effects
+- [ ] Reading typography matching Medium standards
+- [ ] Code blocks with VS Code dark theme
+- [ ] Progress indicator for article reading
+- [ ] Token estimate display for AI consumers
+- [ ] Dark mode as primary, light mode equally polished
+
+---
+
+---
+
+**Document Version:** 4.0
+**Last Updated:** 2026-03-16
+**Author:** Viblog Team
+**Key Design Principles:** From 7-product competitive analysis (avg score 22.7/25)
+**Key Updates:** Added AI-Data-Native UI components (Smart Markdown Editor, Annotations, Authorization Settings, Credits Dashboard)

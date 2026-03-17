@@ -2,57 +2,276 @@
 
 **Viblog** - An AI-Native Blogging Platform for Vibe Coders.
 
-**Mission:** Help Vibe Coders effortlessly capture, share, and grow from their AI-assisted development experiences.
+**Mission:** Make Viblog the #1 AI-Native Blog Platform globally.
 
 **Core Values:**
 - Record - Capture the authentic vibe coding context
 - Share - Transform experiences into beautiful content
 - Grow - Build a personal knowledge base
 
+---
+
+## Agent Team Architecture
+
+### Executive Layer
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    VIBLOG EXECUTIVE TEAM                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   Chief Technology Officer      Chief UI Designer               │
+│   ========================      ==================               │
+│                                                                 │
+│   10 Technical Metrics          10 Design Metrics               │
+│   ├── Architecture Alignment    ├── Visual Hierarchy            │
+│   ├── Code Quality              ├── Balance & Layout            │
+│   ├── Performance Impact        ├── Typography                  │
+│   ├── Security Posture          ├── Color Harmony               │
+│   ├── Test Coverage             ├── Spacing System              │
+│   ├── Error Handling            ├── Component Design            │
+│   ├── Maintainability           ├── Micro-interactions          │
+│   ├── Scalability               ├── Responsive Design           │
+│   ├── Documentation             ├── Brand Identity              │
+│   └── Technical Debt            └── Premium Feel                │
+│                                                                 │
+│   Target: Grade A (80+)         Target: Grade A (80+)           │
+│   Grade C or below = BLOCK      Grade C or below = BLOCK        │
+│                                                                 │
+│   Sub-Agents:                                                   │
+│   ├── code-reviewer                                             │
+│   ├── security-reviewer                                         │
+│   ├── database-reviewer                                         │
+│   └── architect                                                 │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Full Agent Roster
+
+| Agent | Role | Level | Focus |
+|-------|------|-------|-------|
+| `chief-technology-officer` | Technical Executive | Executive | System quality, architecture |
+| `chief-ui-designer` | Design Executive | Executive | Visual quality, aesthetics |
+| `develop_reviewer` | Engineering Publisher | Independent | Tech blog, functional testing |
+| `design_reviewer` | Design Publisher | Independent | Design blog, UI analysis |
+| `planner` | Implementation Planner | Engineer | Task breakdown, dependencies |
+| `architect` | System Architect | Architect | Architecture decisions |
+| `code-reviewer` | Code Quality Specialist | Specialist | PEP8, idioms, patterns |
+| `security-reviewer` | Security Specialist | Specialist | OWASP, secrets, injection |
+| `database-reviewer` | Database Specialist | Specialist | Queries, indexes, RLS |
+| `tdd-guide` | Test-Driven Development | Engineer | 80%+ coverage |
+| `e2e-runner` | E2E Testing | Engineer | Playwright tests |
+
+---
+
+## Dual-Track Development
+
+### Backend/Frontend Split
+
+Every Phase/Step is split into TWO independent tracks:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│   DUAL-TRACK PLANNING                                           │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   BACKEND TRACK                 FRONTEND TRACK                  │
+│   =============                ================                 │
+│   - Database schema            - UI components                  │
+│   - API endpoints              - Page layouts                   │
+│   - Server logic               - Client state                   │
+│   - Migrations                 - Styling                        │
+│   - Tests (API/Unit)           - Tests (E2E)                    │
+│                                                                 │
+│   Independent execution         Independent execution           │
+│   Can be parallelized           Can be parallelized             │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Parallel Development with Git Worktrees
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│   PARALLEL DEVELOPMENT WORKFLOW                                 │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   Main Repository                                               │
+│   ├── branch: feature/phaseX-backend                           │
+│   │   └── worktree: .claude/worktrees/backend/                 │
+│   │       └── Agent: backend-developer                         │
+│   │                                                            │
+│   └── branch: feature/phaseX-frontend                          │
+│       └── worktree: .claude/worktrees/frontend/                │
+│           └── Agent: frontend-developer                        │
+│                                                                 │
+│   Benefits:                                                     │
+│   - No context switching between backend/frontend              │
+│   - True parallel development                                  │
+│   - Isolated testing environments                              │
+│   - Independent commit histories                               │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Worktree Commands
+
+```bash
+# Create backend worktree
+git worktree add .claude/worktrees/backend -b feature/phase10-backend
+
+# Create frontend worktree
+git worktree add .claude/worktrees/frontend -b feature/phase10-frontend
+
+# List worktrees
+git worktree list
+
+# Remove after merge
+git worktree remove .claude/worktrees/backend
+git worktree remove .claude/worktrees/frontend
+```
+
+---
+
+## Quality Gates
+
+### Technical Review Gate (CTO)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│   TECHNICAL QUALITY GATE                                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   Grade A (80-89):  APPROVE merge                              │
+│   Grade B (70-79):  CONDITIONAL (fix P0 issues first)          │
+│   Grade C (60-69):  REJECT, substantial rework needed          │
+│   Grade D/F (<60):  REJECT, redesign required                   │
+│                                                                 │
+│   P0 issues BLOCK merge regardless of score                    │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Design Review Gate (Chief UI Designer)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│   DESIGN QUALITY GATE                                           │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   Grade A (80-89):  APPROVE for production                     │
+│   Grade B (70-79):  Publish with P0 documented                 │
+│   Grade C (60-69):  Block, document as design debt             │
+│   Grade D/F (<60):  Block, needs redesign                       │
+│                                                                 │
+│   Target: Grade A for every page                               │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Independent Blog Publishing
+
+### develop_reviewer → Engineering Blog
+
+**Focus:** Technical implementation
+**Output:** `[Step X.Y] Feature - Development Log`
+
+**Content Structure:**
+```markdown
+## Engineering Development Record
+- What I Built
+- Technical Approach
+- Key Files Changed
+- Challenges & Solutions
+- Functional Testing Results
+```
+
+### design_reviewer → Design Blog
+
+**Focus:** UI/UX analysis
+**Output:** `[Page/Feature] - Design Review`
+
+**Content Structure:**
+```markdown
+## Design Review
+- Overall Score (XX/100, Grade X)
+- 10 Metrics Score Breakdown
+- P0/P1/P2 Issues
+- Specific CSS Fixes
+- Competitive Comparison
+```
+
+### Parallel Publishing Workflow
+
+```
+Step Completed
+    │
+    ├── develop_reviewer (PARALLEL)
+    │   ├── Gathers git context
+    │   ├── Documents engineering analysis
+    │   └── Publishes: "Step X.Y - Development Log"
+    │
+    └── design_reviewer (PARALLEL)
+        ├── Captures screenshots
+        ├── Invokes chief-ui-designer
+        └── Publishes: "Page - Design Review"
+
+BOTH run independently and concurrently
+```
+
+---
+
 ## Documentation
 
-This project uses 8 core documents:
+### Required Reading (Every Session)
 
-**Planning Documents:**
-- `PRD.md` - Product Requirements Document
-- `APP_FLOW.md` - Application Flow Document
-- `TECH_STACK.md` - Technology Stack Document
-- `FRONTEND_GUIDELINES.md` - Frontend Design Guidelines
-- `BACKEND_STRUCTURE.md` - Backend Structure Document
+| Document | Purpose | Order |
+|----------|---------|-------|
+| `DEVELOPLOG.md` | Project history, lessons, bad cases | **1 - First** |
+| `CHANGELOG.md` | Latest changes, current status | **2 - Second** |
+| `IMPLEMENTATION_PLAN.md` | Current tasks, next steps | **3 - Third** |
 
-**Execution Documents (Updated during development):**
-- `IMPLEMENTATION_PLAN.md` - Step-by-step task breakdown with technical details
-- `CHANGELOG.md` - Change records (Added/Changed/Fixed/Deprecated)
-- `DEVELOPLOG.md` - Milestones, lessons learned, and bad cases
+### On-Demand Reading
 
-### Document Responsibilities
+| Document | Purpose | When to Read |
+|----------|---------|--------------|
+| `PRD.md` | Product positioning, user stories | Product decisions |
+| `PRODUCT_COMP_ANALYSIS.md` | Competitive analysis | Differentiation design |
+| `TECH_STACK.md` | Technology choices | Technical details |
+| `FRONTEND_GUIDELINES.md` | Visual design, components | UI work |
+| `BACKEND_STRUCTURE.md` | Database, APIs | Backend work |
+| `APP_FLOW.md` | Page structure, user flows | User journey |
 
-| Document | Purpose | Update Timing | Content |
-|----------|---------|---------------|---------|
-| **IMPLEMENTATION_PLAN.md** | Implementation plan | When designing plans | Phase→Step tasks, technical details, dependencies, current status |
-| **CHANGELOG.md** | Change log | After each Step completion | Added/Changed/Fixed/Deprecated (Keep a Changelog format) |
-| **DEVELOPLOG.md** | Development log | After each Phase completion | What I Did/What Went Well/What Could Be Better/Bad Cases |
+---
 
-### Session Startup Checklist
+## Session Startup Checklist
 
-**Reading Order:**
-1. [ ] Read `DEVELOPLOG.md` - Understand project history, lessons learned, bad cases
-2. [ ] Read `CHANGELOG.md` - Check latest changes and current version state
-3. [ ] Read `IMPLEMENTATION_PLAN.md` - Identify next tasks and technical approach
-4. [ ] Verify environment variables are set
+### 1. Document Navigation Scan (MANDATORY)
 
-### Update Priority
+```bash
+head -15 DEVELOPLOG.md CHANGELOG.md IMPLEMENTATION_PLAN.md
+```
 
-**When designing a plan:** Update `IMPLEMENTATION_PLAN.md` first
+### 2. Deep Reading (Based on Task)
 
-**When completing a Step:** Update `CHANGELOG.md`
+| Task Type | Read These |
+|-----------|------------|
+| Project status | DEVELOPLOG → CHANGELOG → IMPLEMENTATION_PLAN |
+| Feature development | PRD + relevant technical docs |
+| Competitive analysis | PRODUCT_COMP_ANALYSIS → PRD |
+| Frontend work | FRONTEND_GUIDELINES → APP_FLOW |
+| Backend work | BACKEND_STRUCTURE → TECH_STACK |
 
-**When completing a Phase:** Update `DEVELOPLOG.md`
+### 3. Environment Verification
 
-**CRITICAL: Document Boundaries**
-- NEVER mix Progress Tracking in CHANGELOG.md (belongs in IMPLEMENTATION_PLAN.md)
-- NEVER mix Urgent Tasks in DEVELOPLOG.md (belongs in IMPLEMENTATION_PLAN.md)
-- NEVER mix Session Logs in CHANGELOG.md (belongs in DEVELOPLOG.md)
+- [ ] Environment variables set
+- [ ] Dependencies installed
+- [ ] Database connected
+
+---
 
 ## Critical Rules
 
@@ -87,330 +306,209 @@ This project uses 8 core documents:
 - Parameterized queries only
 - CSRF protection enabled
 
-## File Structure
+### 5. Quality Gates
+
+- Technical review: Grade A required for merge
+- Design review: Grade A target for every page
+- P0 issues block merge/publish
+
+---
+
+## Agent Invocation Rules
+
+### Mandatory Agent Usage
+
+| Scenario | Agent | Trigger |
+|----------|-------|---------|
+| Complex feature planning | `planner` | Before implementation |
+| Step completion | `develop_reviewer` | After git commit |
+| UI/UX analysis | `design_reviewer` | After frontend changes |
+| Technical review | `chief-technology-officer` | Before merge |
+| Design critique | `chief-ui-designer` | Via design_reviewer |
+| Code quality | `code-reviewer` | Via CTO |
+| Security audit | `security-reviewer` | Via CTO |
+| Database optimization | `database-reviewer` | SQL/migrations |
+| TDD development | `tdd-guide` | When writing features |
+| Competitive analysis | `competitive-analyzer` | Analyzing competitors |
+
+### Proactive Agent Invocation
+
+**After Step completion, invoke in parallel:**
 
 ```
-src/
-|-- app/              # Next.js app router
-|-- components/       # Reusable UI components
-|-- hooks/            # Custom React hooks
-|-- lib/              # Utility libraries
-|-- types/            # TypeScript definitions
+1. develop_reviewer → Engineering blog
+2. design_reviewer → Design blog
+3. chief-technology-officer → Technical review (optional, for major changes)
 ```
 
-## Key Patterns
+---
 
-### API Response Format
+## Step Completion Workflow
 
-```typescript
-interface ApiResponse<T> {
-  success: boolean
-  data?: T
-  error?: string
-}
+### Standard Flow
+
+```
+Complete Step
+    │
+    ├── Update CHANGELOG.md
+    ├── Commit to Git
+    │
+    ├── develop_reviewer (PARALLEL)
+    │   └── Publish Engineering Blog
+    │
+    ├── design_reviewer (PARALLEL)
+    │   └── Publish Design Blog
+    │
+    └── Update IMPLEMENTATION_PLAN.md
 ```
 
-### Error Handling
+### Quality Gate Enforcement
 
-```typescript
-try {
-  const result = await operation()
-  return { success: true, data: result }
-} catch (error) {
-  console.error('Operation failed:', error)
-  return { success: false, error: 'User-friendly message' }
-}
+```
+Before Merge:
+├── Technical Review (CTO)
+│   └── Grade A required, or fix P0 issues
+│
+└── Design Review (Chief UI Designer)
+    └── Grade A target, or document P0 issues
 ```
 
-## Environment Variables
+---
 
-```bash
-# Required
-DATABASE_URL=
-API_KEY=
+## Model Capabilities (CRITICAL)
 
-# Optional
-DEBUG=false
+| Model | Vision? | CRITICAL NOTE |
+|-------|---------|---------------|
+| **glm-5** | ❌ **NO** | TEXT-ONLY - NEVER use for images |
+| **kimi-k2.5** | ✅ YES | Use via `image-analyzer-kimi` skill |
+| **qwen3.5-plus** | ✅ YES | Use via `image-analyzer-qwen` skill |
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│   ⚠️ NEVER use glm-5 for visual analysis ⚠️                    │
+│   glm-5 is TEXT-ONLY - will cause input errors and rollbacks   │
+│   ✅ ALWAYS use image-analyzer-kimi or image-analyzer-qwen     │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-## Available Commands
+---
 
-- `/tdd` - Test-driven development workflow
-- `/plan` - Create implementation plan
-- `/code-review` - Review code quality
-- `/build-fix` - Fix build errors
+## Visual Analysis Workflow
+
+### Sequential Batch Processing (MANDATORY)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│   FOR EACH screenshot (ONE AT A TIME):                          │
+│                                                                 │
+│   1. Invoke image-analyzer-kimi skill with ONE screenshot       │
+│   2. Receive visual analysis result                             │
+│   3. SAVE result to tmp file immediately                        │
+│   4. Clear context before next image                            │
+│   5. Repeat for next screenshot                                 │
+│                                                                 │
+│   ❌ NEVER process multiple images in parallel                   │
+│   ❌ NEVER accumulate outputs in single context                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Context Management
+
+### Token Thresholds
+
+| Model | Warning Threshold |
+|-------|-------------------|
+| glm-5 | ~59,000 tokens |
+| MiniMax-M2.5 | ~90,000 tokens |
+| qwen3.5-plus | ~59,000 tokens |
+
+### Context Overflow Protocol
+
+1. Update CHANGELOG.md with current state
+2. Commit: `docs: context overflow - update CHANGELOG`
+3. Execute `/strategic-compact`
+4. Repeat if still approaching threshold
+5. Notify user for `/clear` if needed
+
+---
 
 ## Git Workflow
 
 - Conventional commits: `feat:`, `fix:`, `refactor:`, `docs:`, `test:`
 - Never commit to main directly
-- PRs require review
+- PRs require Grade A technical review
 - All tests must pass before merge
-
----
-
-## Development Workflow Rules
-
-### Agent & Skill Usage
-
-**MUST proactively use appropriate agents and skills:**
-
-| Scenario | Agent/Skill | Trigger |
-|----------|-------------|---------|
-| Complex feature planning | `planner` agent | Before implementation |
-| Code quality check | `code-reviewer` agent | After writing code |
-| TDD development | `tdd-guide` agent / `/tdd` | When writing features |
-| Security analysis | `security-reviewer` agent | Before commits |
-| Build errors | `build-error-resolver` agent | When build fails |
-| E2E testing | `e2e-runner` agent | Critical user flows |
-| Database operations | `database-reviewer` agent | SQL/migrations |
-| Documentation | `doc-updater` agent | After changes |
-
-### Context Management
-
-**MUST manage context length proactively:**
-
-1. **Read CHANGELOG.md** at the start of each session
-2. **Update CHANGELOG.md** after completing tasks
-3. **Use `/compact`** when context approaches limits
-4. **Save session state** before major context switches
-
-### Development Isolation
-
-**Use isolation modes appropriately:**
-
-| Mode | When to Use |
-|------|-------------|
-| `/sandbox` | Testing uncertain code, experiments |
-| `git worktree` | Parallel feature development |
-| `claude --worktrees` | Multiple independent features |
-
-**Worktree workflow:**
-```bash
-# Create worktree for new feature
-git worktree add .claude/worktrees/feature-name -b feature/feature-name
-
-# Work in isolated environment
-cd .claude/worktrees/feature-name
-
-# After completion, merge and clean up
-git worktree remove .claude/worktrees/feature-name
-```
-
-### Environment Setup
-
-**Use appropriate package managers:**
-
-| Dependency Type | Tool | Command |
-|-----------------|------|---------|
-| Node.js packages | `pnpm` | `pnpm add package-name` |
-| Python packages | `uv` | `uv add package-name` |
-| System packages | `brew` | `brew install package-name` |
-| Containerization | `docker` | `docker compose up` |
-
-**Global dependencies via Homebrew:**
-```bash
-# Node.js
-brew install node@20
-
-# pnpm
-brew install pnpm
-
-# Python/uv
-brew install python
-brew install uv
-```
-
-### CI/CD Configuration
-
-**Docker-based CI/CD setup:**
-```bash
-# Build
-docker compose build
-
-# Test
-docker compose run --rm app pnpm test
-
-# Deploy preparation
-docker compose -f docker-compose.prod.yml up --build
-```
-
----
-
-## Step & Phase Completion Workflow
-
-### After Completing Each Step:
-
-1. **Update CHANGELOG.md**
-   - Add entry to appropriate section (Added/Changed/Fixed)
-   - Describe the change briefly
-   - Commit with message: `docs: update CHANGELOG for Step X.Y`
-
-2. **Update IMPLEMENTATION_PLAN.md**
-   - Mark Step status as "Completed"
-   - Update any relevant notes
-
-### After Completing Each Phase:
-
-1. **Update DEVELOPLOG.md**
-   - Add "What I Did" section
-   - Add "What Went Well" section
-   - Add "What Could Be Better" section
-   - Document any new Bad Cases if mistakes occurred
-
-2. **Update IMPLEMENTATION_PLAN.md**
-   - Mark Phase as "Completed"
-   - Update current phase indicator
-
-3. **Create PR and Merge**
-   - Push branch to remote
-   - Create PR with summary
-   - Merge to main when approved
-
----
-
-## Model Context Window Limits
-
-**CRITICAL: Prevent context overflow by monitoring token usage.**
-
-### Context Window Specifications (from official docs)
-
-| Model | Max Context (tokens) | Available (50%) | Warning (90% of Available) |
-|-------|---------------------|-----------------|---------------------------|
-| **glm-5** | 131,072 (128K) | 65,536 (64K) | 58,982 (~59K) |
-| **glm-4.7** | 131,072 (128K) | 65,536 (64K) | 58,982 (~59K) |
-| **glm-4.6** | 131,072 (128K) | 65,536 (64K) | 58,982 (~59K) |
-| **glm-4.5** | 98,304 (96K) | 49,152 (48K) | 44,237 (~44K) |
-| **MiniMax-M2.5** | 200,000 (200K) | 100,000 (100K) | 90,000 (90K) |
-| **qwen3.5-plus** | 131,072 (128K) | 65,536 (64K) | 58,982 (~59K) |
-
-**Sources:**
-- GLM: https://docs.z.ai/guides/overview/concept-param
-- MiniMax: https://platform.minimax.io/docs/coding-plan/best-practices
-- Qwen: https://qwenlm.github.io/blog/qwen2.5-turbo/
-
-### Context Management Rules
-
-**Available Context = 50% of Max Context Window**
-
-Why 50%? Because:
-1. System prompts consume ~10-15K tokens
-2. Extended thinking reserves up to 32K tokens
-3. Output generation needs headroom
-4. Safety margin prevents abrupt truncation
-
-### Step-Level Context Check Protocol
-
-**After completing EACH Step (not Phase):**
-
-1. **Check current token usage** via `~/.claude.json`:
-   - Look for `lastTotalInputTokens` and `lastTotalOutputTokens`
-   - Calculate: `current_usage = inputTokens + outputTokens`
-
-2. **Compare against thresholds:**
-   - If `current_usage >= Warning Threshold` (90% of Available):
-     - STOP and execute Context Overflow Protocol
-
-3. **Context Overflow Protocol:**
-   a. Update CHANGELOG.md immediately:
-      - Mark current step status
-      - List completed files
-      - Note any pending work
-      - Add session notes for next session
-   b. Commit all changes with message: `docs: context overflow - update CHANGELOG`
-   c. **Auto-compact:** Execute `/strategic-compact` to compress context
-   d. **Repeat compact** if still approaching threshold after first compression
-   e. **Notify user for /clear** only when:
-      - Multiple compacts failed to reduce context below threshold
-      - AND CHANGELOG.md + git status provide complete recovery information:
-        - All completed steps documented
-        - All pending work clearly listed
-        - File changes committed or staged
-        - Next step clearly identified
-
-### Token Usage Detection Method
-
-Check `~/.claude.json` at project path:
-```json
-{
-  "projects": {
-    "/Volumes/Workspace/StartUp/TiicBlog": {
-      "lastTotalInputTokens": XXXXX,
-      "lastTotalOutputTokens": XXXXX,
-      "lastModelUsage": {
-        "glm-5[1m]": {
-          "inputTokens": XXXXX,
-          "outputTokens": XXXXX
-        }
-      }
-    }
-  }
-}
-```
-
-**Calculation:** `total_tokens = lastTotalInputTokens + lastTotalOutputTokens`
-
----
-
-## Context Compaction Strategy
-
-**Compact at Phase boundaries, NOT Step boundaries:**
-
-| Timing | Action | Reason |
-|--------|--------|--------|
-| After Step | Check tokens, update CHANGELOG if near limit | Preserve context for related steps |
-| After Phase | Strategic compact | Phases are independent units |
-
-**Why compact after Phase completion:**
-- Steps within a Phase are tightly coupled
-- Compacting mid-Phase loses shared context
-- Phase boundaries are natural stopping points
-- CHANGELOG.md preserves all progress details
-
-**Compact trigger:** When a Phase is marked complete in CHANGELOG.md OR when approaching context limit
 
 ---
 
 ## Session Checklist
 
-### At the start of each session:
-- [ ] Read `DEVELOPLOG.md` for history, lessons learned, bad cases
-- [ ] Read `CHANGELOG.md` for latest changes
-- [ ] Read `IMPLEMENTATION_PLAN.md` for next steps
-- [ ] Verify environment variables are set
+### Start of Session
+- [ ] Scan document headers: `head -15 *.md`
+- [ ] Read DEVELOPLOG → CHANGELOG → IMPLEMENTATION_PLAN
+- [ ] Verify environment variables
 
-### During development:
-- [ ] Use appropriate agents/skills proactively
-- [ ] Reference `DEVELOPLOG.md` "Bad Cases" to avoid repeat mistakes
-- [ ] Monitor context length (check tokens after each Step)
+### During Development
+- [ ] Use appropriate agents proactively
+- [ ] Monitor context length
+- [ ] Reference relevant documentation
 
-### After completing each Step:
-- [ ] Update `CHANGELOG.md` with changes
-- [ ] Update `IMPLEMENTATION_PLAN.md` step status
-- [ ] Check token usage in `~/.claude.json`
-- [ ] If approaching 90% of Available Context:
-  - [ ] Commit changes: `docs: step X.Y complete`
-  - [ ] Execute `/strategic-compact` to compress context
+### After Step Completion
+- [ ] Update CHANGELOG.md
+- [ ] Commit to Git
+- [ ] Invoke develop_reviewer (engineering blog)
+- [ ] Invoke design_reviewer (design blog)
+- [ ] Update IMPLEMENTATION_PLAN.md
 
-### After completing each Phase:
-- [ ] Update `DEVELOPLOG.md` with lessons learned
-- [ ] Update `IMPLEMENTATION_PLAN.md` phase status
-- [ ] Commit changes with conventional commits
-- [ ] Note any blockers for next session
-
-### At the end of each session:
-- [ ] Ensure all completed steps are documented
-- [ ] Ensure `IMPLEMENTATION_PLAN.md` reflects current state
-- [ ] Commit all pending changes
+### After Phase Completion
+- [ ] Update DEVELOPLOG.md
+- [ ] Create PR and merge
+- [ ] Strategic compact if needed
 
 ---
 
-## Quick Reference: Token Thresholds
+## Quick Reference
 
-| Model | Stop & Update CHANGELOG at |
-|-------|---------------------------|
-| glm-5 | ~59,000 tokens |
-| MiniMax-M2.5 | ~90,000 tokens |
-| qwen3.5-plus | ~59,000 tokens |
+### 10 Technical Metrics (CTO)
 
-**Current session model:** Check your model and use the corresponding threshold.
+1. Architecture Alignment
+2. Code Quality
+3. Performance Impact
+4. Security Posture
+5. Test Coverage
+6. Error Handling
+7. Maintainability
+8. Scalability
+9. Documentation
+10. Technical Debt
+
+### 10 Design Metrics (Chief UI Designer)
+
+1. Visual Hierarchy
+2. Balance & Layout
+3. Typography
+4. Color Harmony
+5. Spacing System
+6. Component Design
+7. Micro-interactions
+8. Responsive Design
+9. Brand Identity
+10. Premium Feel
+
+### Grade Scale
+
+| Score | Grade | Action |
+|-------|-------|--------|
+| 90-100 | S | Reference implementation |
+| 80-89 | A | Approve merge/publish |
+| 70-79 | B | Conditional (fix P0) |
+| 60-69 | C | Reject, rework needed |
+| <60 | D/F | Redesign required |
+
+---
+
+**Document Version:** 3.0
+**Last Updated:** 2026-03-16
+**Mission:** Make Viblog the #1 AI-Native Blog Platform globally
