@@ -85,13 +85,23 @@ Think First → Plan Second → Implement Last
 - Border radius scale: 4px/8px/12px/16px
 - Hero/Display line heights: 1.1/1.15
 - Tag/Badge system tokens
+- Reference: `docs/dev-logs/phase-1-design-token-refinement.md`
 
-### Phase 2: Card Component Polish ⏳
+### Phase 2: Card Component Polish ✅
 
-- 迁移 `rounded-2xl` → `rounded-xl`
-- 添加 hover overlay 效果
-- 16:10 aspect ratio 图片容器
-- Outlined tag 组件
+- Border radius migration: `rounded-2xl` → `rounded-xl`
+- Hover overlay with arrow icon reveal
+- 16:10 aspect ratio image containers
+- Outlined tag component for vibe metadata
+- Design Score: 83/100 (Grade A-)
+- Reference: `docs/dev-logs/phase-2-card-component-polish.md`
+
+### Phase 3: Article Detail Polish ⏳
+
+- Reading typography optimization
+- Code block theming
+- Annotation UI patterns
+- Author section enhancement
 
 ---
 
