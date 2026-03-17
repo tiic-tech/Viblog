@@ -1,11 +1,27 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { dualAuthenticate } from '@/lib/auth/dual-auth'
 import {
   createVibeSessionSchema,
   updateVibeSessionSchema,
   listVibeSessionsSchema,
 } from '@/lib/validations/vibe-session'
+
+/**
+ * Get the appropriate Supabase client based on authentication method.
+ * Uses service role client for MCP API Key auth (bypasses RLS).
+ * Uses regular client for session auth (respects RLS with user context).
+ */
+function getSupabaseClient(authMethod: 'session' | 'mcp_api') {
+  if (authMethod === 'mcp_api') {
+    // Use service role client for MCP API Key auth
+    // This bypasses RLS, but we've already validated the user via the API key
+    return createServiceRoleClient()
+  }
+  // Use regular client for session auth
+  return createClient()
+}
 
 /**
  * GET /api/vibe-sessions
@@ -17,9 +33,9 @@ export async function GET(request: Request) {
     if (!authResult.success) {
       return authResult.error
     }
-    const { userId } = authResult.data
+    const { userId, authMethod } = authResult.data
 
-    const supabase = await createClient()
+    const supabase = await getSupabaseClient(authMethod)
 
     const { searchParams } = new URL(request.url)
     const params = {
@@ -100,9 +116,9 @@ export async function POST(request: Request) {
     if (!authResult.success) {
       return authResult.error
     }
-    const { userId } = authResult.data
+    const { userId, authMethod } = authResult.data
 
-    const supabase = await createClient()
+    const supabase = await getSupabaseClient(authMethod)
 
     const body = await request.json()
     const validated = createVibeSessionSchema.safeParse(body)
@@ -154,9 +170,9 @@ export async function PATCH(request: Request) {
     if (!authResult.success) {
       return authResult.error
     }
-    const { userId } = authResult.data
+    const { userId, authMethod } = authResult.data
 
-    const supabase = await createClient()
+    const supabase = await getSupabaseClient(authMethod)
 
     const body = await request.json()
     const validated = updateVibeSessionSchema.safeParse(body)
@@ -203,9 +219,9 @@ export async function DELETE(request: Request) {
     if (!authResult.success) {
       return authResult.error
     }
-    const { userId } = authResult.data
+    const { userId, authMethod } = authResult.data
 
-    const supabase = await createClient()
+    const supabase = await getSupabaseClient(authMethod)
 
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')

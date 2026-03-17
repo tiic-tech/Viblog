@@ -1,24 +1,37 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { dualAuthenticate } from '@/lib/auth/dual-auth'
-import { appendSessionContextSchema, uploadSessionContextSchema } from '@/lib/validations/vibe-session'
+import {
+  appendSessionContextSchema,
+  uploadSessionContextSchema,
+} from '@/lib/validations/vibe-session'
+
+/**
+ * Get the appropriate Supabase client based on authentication method.
+ * Uses service role client for MCP API Key auth (bypasses RLS).
+ * Uses regular client for session auth (respects RLS with user context).
+ */
+function getSupabaseClient(authMethod: 'session' | 'mcp_api') {
+  if (authMethod === 'mcp_api') {
+    return createServiceRoleClient()
+  }
+  return createClient()
+}
 
 /**
  * GET /api/vibe-sessions/[id]/fragments
  * List all fragments for a session
  */
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const authResult = await dualAuthenticate(request)
     if (!authResult.success) {
       return authResult.error
     }
-    const { userId } = authResult.data
+    const { userId, authMethod } = authResult.data
 
-    const supabase = await createClient()
+    const supabase = await getSupabaseClient(authMethod)
     const { id } = await params
 
     // Verify session ownership
@@ -53,18 +66,15 @@ export async function GET(
  * POST /api/vibe-sessions/[id]/fragments
  * Append a single fragment to a session (for incremental updates)
  */
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const authResult = await dualAuthenticate(request)
     if (!authResult.success) {
       return authResult.error
     }
-    const { userId } = authResult.data
+    const { userId, authMethod } = authResult.data
 
-    const supabase = await createClient()
+    const supabase = await getSupabaseClient(authMethod)
     const { id } = await params
     const body = await request.json()
 
@@ -94,10 +104,7 @@ export async function POST(
     }
 
     if (session.status !== 'active') {
-      return NextResponse.json(
-        { error: 'Cannot append to inactive session' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Cannot append to inactive session' }, { status: 400 })
     }
 
     // Auto-assign sequence_number if not provided
@@ -143,18 +150,15 @@ export async function POST(
  * PUT /api/vibe-sessions/[id]/fragments
  * Batch upload multiple fragments (for complete session context)
  */
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const authResult = await dualAuthenticate(request)
     if (!authResult.success) {
       return authResult.error
     }
-    const { userId } = authResult.data
+    const { userId, authMethod } = authResult.data
 
-    const supabase = await createClient()
+    const supabase = await getSupabaseClient(authMethod)
     const { id } = await params
     const body = await request.json()
 
@@ -184,10 +188,7 @@ export async function PUT(
     }
 
     if (session.status !== 'active') {
-      return NextResponse.json(
-        { error: 'Cannot upload to inactive session' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Cannot upload to inactive session' }, { status: 400 })
     }
 
     // Prepare batch insert
@@ -222,18 +223,15 @@ export async function PUT(
  * DELETE /api/vibe-sessions/[id]/fragments
  * Delete all fragments for a session (reset context)
  */
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const authResult = await dualAuthenticate(request)
     if (!authResult.success) {
       return authResult.error
     }
-    const { userId } = authResult.data
+    const { userId, authMethod } = authResult.data
 
-    const supabase = await createClient()
+    const supabase = await getSupabaseClient(authMethod)
     const { id } = await params
 
     // Verify session ownership
@@ -248,10 +246,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Session not found' }, { status: 404 })
     }
 
-    const { error } = await supabase
-      .from('session_fragments')
-      .delete()
-      .eq('session_id', id)
+    const { error } = await supabase.from('session_fragments').delete().eq('session_id', id)
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/service-role'
 import { dualAuthenticate } from '@/lib/auth/dual-auth'
 import { generateArticleDraft, generateStructuredContext } from '@/lib/llm-service'
 import {
@@ -7,6 +8,16 @@ import {
   ArticleDraftSchema,
   StructuredVibeContext,
 } from '@/lib/validations/structured-context'
+
+/**
+ * Get the appropriate Supabase client based on authentication method.
+ */
+function getSupabaseClient(authMethod: 'session' | 'mcp_api') {
+  if (authMethod === 'mcp_api') {
+    return createServiceRoleClient()
+  }
+  return createClient()
+}
 
 /**
  * POST /api/vibe-sessions/generate-article-draft
@@ -18,9 +29,9 @@ export async function POST(request: Request) {
     if (!authResult.success) {
       return authResult.error
     }
-    const { userId } = authResult.data
+    const { userId, authMethod } = authResult.data
 
-    const supabase = await createClient()
+    const supabase = await getSupabaseClient(authMethod)
 
     const body = await request.json()
     const validated = GenerateArticleDraftInputSchema.safeParse(body)
