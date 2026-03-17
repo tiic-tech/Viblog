@@ -943,6 +943,49 @@ After context compaction/session resume:
 
 ---
 
+## Phase 11: Error Handling & Validation (2026-03-17)
+
+### Phase 11.1: Test Coverage Expansion
+
+**Context:** Need comprehensive test coverage before implementing error handling improvements.
+
+**What I Built:**
+- Vitest testing framework with v8 coverage
+- 68 comprehensive tests across 5 test files
+- Achieved 99.03% overall coverage (target: 90%+)
+
+**Key Files:**
+- `src/api/client.test.ts` - 23 tests for ViblogApiClient
+- `src/tools/handlers.test.ts` - 22 tests for ToolHandler
+- `src/tools/index.test.ts` - 17 tests for tool definitions
+- `src/types.test.ts` - 4 tests for getServerConfig
+- `src/server.test.ts` - 2 tests for server creation
+
+### Phase 11.3: Error Handling Improvements
+
+**Context:** Implement consistent error handling across MCP Server.
+
+**What I Built:**
+- Custom error class hierarchy:
+  - `McpServerError` - Base class with toJSON(), toUserMessage()
+  - `ConfigurationError` - Missing/invalid config (statusCode: 500)
+  - `ValidationError` - Input validation failures (statusCode: 400)
+  - `ApiError` - External API errors with isRetryable(), getSuggestedAction()
+  - `RateLimitError` - Rate limiting with retryAfter support
+  - `NetworkError` - Network connectivity issues (statusCode: 503)
+  - `UnknownError` - Catch-all for unexpected errors
+- Zod validation schemas for all 6 MCP tools
+- Helper functions: `toMcpError()`, `isMcpError()`
+
+**Test Coverage:**
+- 198 tests across 8 test files
+- 99%+ coverage on error and validation modules
+- All edge cases covered: null, undefined, non-Error exceptions
+
+**Commit:** 8843891 (19 files changed)
+
+---
+
 ## Key Insights: Vibe Coding Principles
 
 ### 1. Token Monitoring is Critical

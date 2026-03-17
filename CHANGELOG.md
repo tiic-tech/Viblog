@@ -27,6 +27,18 @@ All notable changes to this project will be documented in this file.
     - `src/types.test.ts` - 4 tests for getServerConfig
     - `src/server.test.ts` - 2 tests for server creation
   - Phase 11.1 P0 BLOCKER resolved
+- **Phase 11.3: Error Handling Improvements - COMPLETE (2026-03-17 22:48):**
+  - Created custom error class hierarchy for MCP Server:
+    - `McpServerError` (base class with toJSON, toUserMessage)
+    - `ConfigurationError`, `ValidationError`, `ApiError`
+    - `RateLimitError`, `NetworkError`, `UnknownError`
+  - Implemented Zod validation schemas for all 6 MCP tools:
+    - `create_vibe_session`, `append_session_context`, `upload_session_context`
+    - `generate_structured_context`, `generate_article_draft`, `list_user_sessions`
+  - Added helper functions: `toMcpError()` (error conversion), `isMcpError()` (type guard)
+  - 198 tests passing across 8 test files (99%+ coverage)
+  - Commit 8843891: 19 files changed
+  - Files: `src/errors.ts`, `src/validation.ts`, `src/errors.test.ts`, `src/validation.test.ts`
 - **MILESTONE: End-to-End MCP Verification Complete (2026-03-17 20:55):**
   - All 6 MCP tools verified working in Claude Code session
   - Verified tools: list_user_sessions, create_vibe_session, append_session_context
