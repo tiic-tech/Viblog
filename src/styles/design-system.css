@@ -164,14 +164,31 @@
   --section-gap-compact: var(--space-12);
 
   /* ============================================
-     12. RADIUS SYSTEM
+     12. RADIUS SYSTEM - Premium Standards
+     Aligned with Effortel's 16px card standard
      ============================================ */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 20px;
-  --radius-2xl: 28px;
+  --radius-sm: 4px;    /* Tags, small elements */
+  --radius-md: 8px;    /* Buttons, inputs */
+  --radius-lg: 12px;   /* Cards, modals */
+  --radius-xl: 16px;   /* Large cards, sections (Effortel standard) */
+  --radius-2xl: 16px;  /* DEPRECATED - use radius-xl */
   --radius-full: 9999px;
+
+  /* ============================================
+     13. TAG/BADGE SYSTEM
+     ============================================ */
+  --tag-bg: transparent;
+  --tag-border: rgba(255, 255, 255, 0.15);
+  --tag-radius: 4px;
+  --tag-padding: 4px 8px;
+  --tag-font-size: 11px;
+  --tag-letter-spacing: 0.1em;
+
+  /* ============================================
+     14. HERO/DISPLAY LINE HEIGHTS
+     ============================================ */
+  --leading-hero: 1.1;      /* For hero headlines */
+  --leading-display: 1.15;  /* For section titles */
 
   /* ============================================
      13. TYPOGRAPHY SYSTEM

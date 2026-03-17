@@ -67,7 +67,7 @@ const config: Config = {
           function: 'var(--code-function)',
           variable: 'var(--code-variable)',
           operator: 'var(--code-operator)',
-          'class': 'var(--code-class)',
+          class: 'var(--code-class)',
         },
 
         // Legacy shadcn/ui compatibility
@@ -162,25 +162,46 @@ const config: Config = {
       },
 
       /* ============================================
-         BORDER RADIUS
+         BORDER RADIUS - Premium Standards
          ============================================ */
       borderRadius: {
-        'sm': 'var(--radius-sm)',
-        'md': 'var(--radius-md)',
-        'lg': 'var(--radius-lg)',
-        'xl': 'var(--radius-xl)',
-        '2xl': 'var(--radius-2xl)',
-        'full': 'var(--radius-full)',
+        sm: 'var(--radius-sm)' /* 4px - Tags, small elements */,
+        md: 'var(--radius-md)' /* 8px - Buttons, inputs */,
+        lg: 'var(--radius-lg)' /* 12px - Cards, modals */,
+        xl: 'var(--radius-xl)' /* 16px - Large cards, sections */,
+        '2xl': 'var(--radius-xl)' /* DEPRECATED - same as xl */,
+        full: 'var(--radius-full)',
+      },
+
+      /* ============================================
+         LINE HEIGHT - Hero/Display
+         ============================================ */
+      lineHeight: {
+        hero: 'var(--leading-hero)' /* 1.1 - Hero headlines */,
+        display: 'var(--leading-display)' /* 1.15 - Section titles */,
+      },
+
+      /* ============================================
+         TAG SYSTEM
+         ============================================ */
+      padding: {
+        tag: 'var(--tag-padding)',
+      },
+      fontSize: {
+        tag: [
+          'var(--tag-font-size)',
+          { lineHeight: '1.2', letterSpacing: 'var(--tag-letter-spacing)' },
+        ],
       },
 
       /* ============================================
          BOX SHADOW
          ============================================ */
       boxShadow: {
-        'sm': 'var(--shadow-sm)',
-        'md': 'var(--shadow-md)',
-        'lg': 'var(--shadow-lg)',
-        'xl': 'var(--shadow-xl)',
+        sm: 'var(--shadow-sm)',
+        md: 'var(--shadow-md)',
+        lg: 'var(--shadow-lg)',
+        xl: 'var(--shadow-xl)',
         'glow-primary': 'var(--glow-primary)',
         'glow-secondary': 'var(--glow-secondary)',
         'glow-tertiary': 'var(--glow-tertiary)',
@@ -192,22 +213,22 @@ const config: Config = {
          ANIMATIONS
          ============================================ */
       transitionDuration: {
-        'instant': 'var(--duration-instant)',
-        'fast': 'var(--duration-fast)',
-        'normal': 'var(--duration-normal)',
-        'slow': 'var(--duration-slow)',
-        'slower': 'var(--duration-slower)',
-        'slowest': 'var(--duration-slowest)',
+        instant: 'var(--duration-instant)',
+        fast: 'var(--duration-fast)',
+        normal: 'var(--duration-normal)',
+        slow: 'var(--duration-slow)',
+        slower: 'var(--duration-slower)',
+        slowest: 'var(--duration-slowest)',
       },
 
       transitionTimingFunction: {
-        'default': 'var(--ease-default)',
-        'out': 'var(--ease-out)',
-        'in': 'var(--ease-in)',
+        default: 'var(--ease-default)',
+        out: 'var(--ease-out)',
+        in: 'var(--ease-in)',
         'in-out': 'var(--ease-in-out)',
-        'spring': 'var(--ease-spring)',
-        'dramatic': 'var(--ease-dramatic)',
-        'smooth': 'var(--ease-smooth)',
+        spring: 'var(--ease-spring)',
+        dramatic: 'var(--ease-dramatic)',
+        smooth: 'var(--ease-smooth)',
       },
 
       /* ============================================
@@ -218,11 +239,11 @@ const config: Config = {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0.5' },
         },
-        'float': {
+        float: {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-10px)' },
         },
-        'shimmer': {
+        shimmer: {
           '0%': { backgroundPosition: '-200% 0' },
           '100%': { backgroundPosition: '200% 0' },
         },
@@ -242,8 +263,8 @@ const config: Config = {
 
       animation: {
         'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
-        'float': 'float 6s ease-in-out infinite',
-        'shimmer': 'shimmer 2s linear infinite',
+        float: 'float 6s ease-in-out infinite',
+        shimmer: 'shimmer 2s linear infinite',
         'fade-in-up': 'fade-in-up 0.3s ease-out',
         'scale-in': 'scale-in 0.25s ease-out',
         'slide-in-right': 'slide-in-right 0.3s ease-out',
@@ -253,28 +274,28 @@ const config: Config = {
          BACKDROP BLUR
          ============================================ */
       backdropBlur: {
-        'glass': 'var(--glass-blur)',
+        glass: 'var(--glass-blur)',
       },
 
       /* ============================================
          LETTER SPACING
          ============================================ */
       letterSpacing: {
-        'tighter': 'var(--tracking-tighter)',
-        'tight': 'var(--tracking-tight)',
-        'normal': 'var(--tracking-normal)',
-        'wide': 'var(--tracking-wide)',
-        'wider': 'var(--tracking-wider)',
-        'widest': 'var(--tracking-widest)',
+        tighter: 'var(--tracking-tighter)',
+        tight: 'var(--tracking-tight)',
+        normal: 'var(--tracking-normal)',
+        wide: 'var(--tracking-wide)',
+        wider: 'var(--tracking-wider)',
+        widest: 'var(--tracking-widest)',
       },
 
       /* ============================================
          MAX WIDTH - For Reading
          ============================================ */
       maxWidth: {
-        'reading': '680px',
-        'content': '768px',
-        'wide': '1024px',
+        reading: '680px',
+        content: '768px',
+        wide: '1024px',
       },
     },
   },
