@@ -12,12 +12,14 @@
 
 This document provides a step-by-step build sequence for Viblog post-MVP development. Each step has clear deliverables and dependencies.
 
-**Current Status:** Phase 11.2.2 Complete - Environment-Based Rate Limiting (2026-03-17 23:38)
+**Current Status:** Phase 11.5.2 Complete - Health Check Endpoints (2026-03-18 00:30)
 
 **Phase 11 Progress:**
 - Phase 11.1: Test Coverage Expansion - COMPLETE (99.03% coverage)
 - Phase 11.2: Rate Limiting Implementation - COMPLETE (Steps 11.2.1 & 11.2.2)
 - Phase 11.3: Error Handling Improvements - COMPLETE
+- Phase 11.4: Caching Layer - COMPLETE
+- Phase 11.5: Logging and Monitoring - IN PROGRESS (Steps 11.5.1 & 11.5.2 complete)
 
 ---
 
@@ -1569,15 +1571,38 @@ src/lib/
 ---
 
 #### Step 11.5.2: Health Check Endpoints
-**Status:** Pending
+**Status:** Complete (2026-03-18)
 
 **Tasks:**
-- [ ] Create `/api/health` endpoint
-  - [ ] Database connectivity
-  - [ ] Redis connectivity (if configured)
-  - [ ] External API status
-- [ ] Create `/api/health/ready` for Kubernetes readiness
-- [ ] Create `/api/health/live` for Kubernetes liveness
+- [x] Create `/api/health` endpoint
+  - [x] Database connectivity check with latency measurement
+  - [x] Cache (Redis) connectivity check with fallback detection
+  - [x] Component health status (healthy/degraded/unhealthy)
+  - [x] Overall status aggregation
+  - [x] Request ID tracking for distributed tracing
+- [x] Create `/api/health/ready` for Kubernetes readiness
+  - [x] Database readiness check
+  - [x] Cache readiness check (always true with memory fallback)
+- [x] Create `/api/health/live` for Kubernetes liveness
+  - [x] Simple alive check with uptime tracking
+  - [x] No external dependencies (always returns 200)
+- [x] Add comprehensive tests (12 tests)
+
+**Files Created:**
+```
+src/app/api/health/
+├── route.ts           # Main health check endpoint
+├── ready/route.ts     # Kubernetes readiness probe
+├── live/route.ts      # Kubernetes liveness probe
+└── health.test.ts     # 12 passing tests
+```
+
+**Features:**
+- Database connectivity with latency measurement
+- Cache health with Redis/memory mode detection
+- Kubernetes-ready readiness/liveness probes
+- Structured logging integration
+- Request ID tracking for observability
 
 ---
 

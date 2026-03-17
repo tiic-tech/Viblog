@@ -15,6 +15,18 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Phase 11.5.2: Health Check Endpoints - COMPLETE (2026-03-18 00:30):**
+  - Created `/api/health` - Comprehensive health check with component status
+  - Created `/api/health/ready` - Kubernetes readiness probe endpoint
+  - Created `/api/health/live` - Kubernetes liveness probe endpoint
+  - Features:
+    - Database connectivity check with latency measurement
+    - Cache health with Redis/memory mode detection
+    - Overall status aggregation (healthy/degraded/unhealthy)
+    - Request ID tracking for distributed tracing
+    - Uptime tracking for liveness probe
+  - 12 comprehensive tests covering all endpoints
+  - Structured logging integration for health events
 - **Phase 11.5.1: Structured Logging - COMPLETE (2026-03-18 00:24):**
   - Created structured JSON logging utility with request ID tracking
   - Implemented performance timing with `logger.time()` and `startTimer()`
