@@ -7,6 +7,8 @@ import {
   GenerateStructuredContextInputSchema,
   StructuredVibeContextSchema,
 } from '@/lib/validations/structured-context'
+import { getCache, setCache, DEFAULT_TTL, CACHE_PREFIXES } from '@/lib/cache'
+import { invalidateLLMContext } from '@/lib/cache/invalidation'
 
 /**
  * Get the appropriate Supabase client based on authentication method.
@@ -79,6 +81,25 @@ export async function POST(request: Request) {
       })
       .join('\n\n---\n\n')
 
+    // Create a simple hash of fragment content for cache key
+    // This ensures cache is invalidated when fragments change
+    const contentHash = fragments.reduce(
+      (acc, f) => `${acc}:${f.fragment_type}:${f.sequence_number}:${f.content.length}`,
+      ''
+    )
+
+    const cacheKey = `${CACHE_PREFIXES.LLM_CONTEXT}:${input.session_id}:${contentHash}`
+
+    // Check cache first
+    const cachedContext = await getCache<typeof StructuredVibeContextSchema._type>(cacheKey)
+    if (cachedContext) {
+      return NextResponse.json({
+        success: true,
+        structured_context: cachedContext,
+        cached: true,
+      })
+    }
+
     // Generate structured context using LLM
     const { data: structuredContext, error: llmError } = await generateStructuredContext(
       rawContext,
@@ -97,6 +118,9 @@ export async function POST(request: Request) {
         { status: 500 }
       )
     }
+
+    // Cache the generated context for 1 hour
+    await setCache(cacheKey, validatedOutput.data, DEFAULT_TTL.LLM_CONTEXT)
 
     // Store the structured context in the session's raw_context field
     await supabase

@@ -1508,33 +1508,34 @@ src/lib/
 **Deliverable:** Redis caching for frequently accessed data
 
 #### Step 11.4.1: Implement Cache Layer
-**Status:** Pending
+**Status:** Complete (2026-03-17)
 
 **Tasks:**
-- [ ] Add Redis client configuration
-- [ ] Create cache utility with TTL support
-- [ ] Implement cache-aside pattern
-- [ ] Add cache invalidation hooks
+- [x] Add Redis client configuration
+- [x] Create cache utility with TTL support
+- [x] Implement cache-aside pattern
+- [x] Add cache invalidation hooks
 
-**Files to Create:**
+**Files Created:**
 ```
 src/lib/
 ├── cache/
-│   ├── client.ts         # Redis client
-│   ├── cache.ts          # Cache utility
-│   └── invalidation.ts   # Cache invalidation
+│   ├── client.ts         # Redis client (Upstash compatible)
+│   ├── cache.ts          # Cache utility with getCache, setCache, getOrSetCache
+│   └── invalidation.ts   # Cache invalidation functions
 ```
 
 ---
 
 #### Step 11.4.2: Apply Caching to Endpoints
-**Status:** Pending
+**Status:** Complete (2026-03-17)
 
 **Tasks:**
-- [ ] Cache `list_user_sessions` results (5 min TTL)
-- [ ] Cache user authentication validation (15 min TTL)
-- [ ] Cache LLM-generated structured context (1 hour TTL)
-- [ ] Add cache headers for static responses
+- [x] Cache `list_user_sessions` results (5 min TTL)
+- [x] Cache MCP API key authentication validation (5 min TTL)
+- [x] Cache LLM-generated structured context (1 hour TTL)
+- [x] Cache invalidation on token mutations (DELETE/PATCH)
+- [ ] Add cache headers for static responses (optional optimization)
 
 ---
 

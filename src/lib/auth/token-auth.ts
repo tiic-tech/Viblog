@@ -8,6 +8,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { getCache, setCache, DEFAULT_TTL, CACHE_PREFIXES } from '@/lib/cache'
 
 // Token prefixes
 export const MCP_API_KEY_PREFIX = 'vb_'
@@ -156,7 +157,22 @@ export async function validateToken(authHeader: string | null): Promise<TokenAut
     const tokenHash = await hashToken(token)
 
     if (tokenType === 'mcp_api') {
-      // MCP API key validation - query authorization_tokens table
+      // MCP API key validation - check cache first
+      const cacheKey = `${CACHE_PREFIXES.API_KEY_VALIDATION}:${tokenHash}`
+      const cachedResult = await getCache<TokenAuthResult>(cacheKey)
+
+      if (cachedResult && cachedResult.valid) {
+        // Return cached result, but still update last_used_at asynchronously
+        const supabase = await createClient()
+        supabase
+          .from('authorization_tokens')
+          .update({ last_used_at: new Date().toISOString() })
+          .eq('token_hash', tokenHash)
+          .then(() => {}) // Ignore errors
+        return cachedResult
+      }
+
+      // Query authorization_tokens table
       const { data, error } = await supabase
         .from('authorization_tokens')
         .select('id, user_id, name, authorized_sources, privacy_level, is_active')
@@ -194,13 +210,18 @@ export async function validateToken(authHeader: string | null): Promise<TokenAut
         .eq('id', data.id)
         .then(() => {}) // Ignore errors
 
-      return {
+      const result: TokenAuthResult = {
         valid: true,
         userId: data.user_id,
         tokenType: 'mcp_api',
         authorizedSources: parseAuthorizedSources(data.authorized_sources),
         privacyLevel: data.privacy_level ?? 1,
       }
+
+      // Cache the validation result for 5 minutes
+      await setCache(cacheKey, result, DEFAULT_TTL.API_KEY_VALIDATION)
+
+      return result
     } else {
       // Authorization token validation
       const { data, error } = await supabase

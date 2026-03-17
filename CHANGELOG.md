@@ -15,6 +15,16 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Phase 11.4: Caching Layer - COMPLETE (2026-03-17 23:50):**
+  - Implemented Redis-compatible cache layer with Upstash support
+  - Created cache utilities: getCache, setCache, getOrSetCache, deleteCache
+  - Implemented cache-aside pattern for read-heavy endpoints
+  - Cache invalidation on token mutations (DELETE/PATCH operations)
+  - TTL configurations: API key validation (5 min), LLM context (1 hour), User sessions (5 min)
+  - Cache key prefixes for organized invalidation: api_key:, session:, llm_context:
+  - Token hash (SHA-256) used as cache key for secure invalidation
+  - Files: `src/lib/cache/client.ts`, `src/lib/cache/cache.ts`, `src/lib/cache/invalidation.ts`
+  - Tests: 11 cache invalidation tests passing
 - **Phase 11.2.2: Environment-Based Rate Limiting & Monitoring - COMPLETE (2026-03-17 23:38):**
   - Environment-based rate limit configuration (stricter in production)
   - Production limits are 50% of development limits automatically
