@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { dualAuthenticate } from '@/lib/auth/dual-auth'
 import { appendSessionContextSchema, uploadSessionContextSchema } from '@/lib/validations/vibe-session'
 
 /**
@@ -11,13 +12,13 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const authResult = await dualAuthenticate(request)
+    if (!authResult.success) {
+      return authResult.error
     }
+    const { userId } = authResult.data
 
+    const supabase = await createClient()
     const { id } = await params
 
     // Verify session ownership
@@ -25,7 +26,7 @@ export async function GET(
       .from('vibe_sessions')
       .select('id')
       .eq('id', id)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .single()
 
     if (sessionError || !session) {
@@ -57,13 +58,13 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const authResult = await dualAuthenticate(request)
+    if (!authResult.success) {
+      return authResult.error
     }
+    const { userId } = authResult.data
 
+    const supabase = await createClient()
     const { id } = await params
     const body = await request.json()
 
@@ -85,7 +86,7 @@ export async function POST(
       .from('vibe_sessions')
       .select('id, status')
       .eq('id', id)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .single()
 
     if (sessionError || !session) {
@@ -147,13 +148,13 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const authResult = await dualAuthenticate(request)
+    if (!authResult.success) {
+      return authResult.error
     }
+    const { userId } = authResult.data
 
+    const supabase = await createClient()
     const { id } = await params
     const body = await request.json()
 
@@ -175,7 +176,7 @@ export async function PUT(
       .from('vibe_sessions')
       .select('id, status')
       .eq('id', id)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .single()
 
     if (sessionError || !session) {
@@ -226,13 +227,13 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const authResult = await dualAuthenticate(request)
+    if (!authResult.success) {
+      return authResult.error
     }
+    const { userId } = authResult.data
 
+    const supabase = await createClient()
     const { id } = await params
 
     // Verify session ownership
@@ -240,7 +241,7 @@ export async function DELETE(
       .from('vibe_sessions')
       .select('id')
       .eq('id', id)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .single()
 
     if (sessionError || !session) {

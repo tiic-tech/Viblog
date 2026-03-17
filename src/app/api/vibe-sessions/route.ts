@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { createVibeSessionSchema, updateVibeSessionSchema, listVibeSessionsSchema } from '@/lib/validations/vibe-session'
+import { dualAuthenticate } from '@/lib/auth/dual-auth'
+import {
+  createVibeSessionSchema,
+  updateVibeSessionSchema,
+  listVibeSessionsSchema,
+} from '@/lib/validations/vibe-session'
 
 /**
  * GET /api/vibe-sessions
@@ -8,12 +13,13 @@ import { createVibeSessionSchema, updateVibeSessionSchema, listVibeSessionsSchem
  */
 export async function GET(request: Request) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const authResult = await dualAuthenticate(request)
+    if (!authResult.success) {
+      return authResult.error
     }
+    const { userId } = authResult.data
+
+    const supabase = await createClient()
 
     const { searchParams } = new URL(request.url)
     const params = {
@@ -35,8 +41,10 @@ export async function GET(request: Request) {
 
     let query = supabase
       .from('vibe_sessions')
-      .select('id, title, platform, model, status, start_time, end_time, created_at, updated_at, metadata')
-      .eq('user_id', user.id)
+      .select(
+        'id, title, platform, model, status, start_time, end_time, created_at, updated_at, metadata'
+      )
+      .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
 
@@ -57,7 +65,7 @@ export async function GET(request: Request) {
     let countQuery = supabase
       .from('vibe_sessions')
       .select('id', { count: 'exact', head: true })
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
 
     if (status) {
       countQuery = countQuery.eq('status', status)
@@ -88,12 +96,13 @@ export async function GET(request: Request) {
  */
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const authResult = await dualAuthenticate(request)
+    if (!authResult.success) {
+      return authResult.error
     }
+    const { userId } = authResult.data
+
+    const supabase = await createClient()
 
     const body = await request.json()
     const validated = createVibeSessionSchema.safeParse(body)
@@ -110,7 +119,7 @@ export async function POST(request: Request) {
     const { data: session, error } = await supabase
       .from('vibe_sessions')
       .insert({
-        user_id: user.id,
+        user_id: userId,
         title: title ?? null,
         platform: platform ?? null,
         model: model ?? null,
@@ -141,12 +150,13 @@ export async function POST(request: Request) {
  */
 export async function PATCH(request: Request) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const authResult = await dualAuthenticate(request)
+    if (!authResult.success) {
+      return authResult.error
     }
+    const { userId } = authResult.data
+
+    const supabase = await createClient()
 
     const body = await request.json()
     const validated = updateVibeSessionSchema.safeParse(body)
@@ -171,7 +181,7 @@ export async function PATCH(request: Request) {
       .from('vibe_sessions')
       .update(updateData)
       .eq('id', id)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
@@ -189,12 +199,13 @@ export async function PATCH(request: Request) {
  */
 export async function DELETE(request: Request) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const authResult = await dualAuthenticate(request)
+    if (!authResult.success) {
+      return authResult.error
     }
+    const { userId } = authResult.data
+
+    const supabase = await createClient()
 
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
@@ -204,17 +215,14 @@ export async function DELETE(request: Request) {
     }
 
     // First delete fragments (cascade should handle this, but being explicit)
-    await supabase
-      .from('session_fragments')
-      .delete()
-      .eq('session_id', id)
+    await supabase.from('session_fragments').delete().eq('session_id', id)
 
     // Then delete the session
     const { error } = await supabase
       .from('vibe_sessions')
       .delete()
       .eq('id', id)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { dualAuthenticate } from '@/lib/auth/dual-auth'
 import { generateArticleDraft, generateStructuredContext } from '@/lib/llm-service'
 import {
   GenerateArticleDraftInputSchema,
@@ -13,14 +14,13 @@ import {
  */
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient()
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const authResult = await dualAuthenticate(request)
+    if (!authResult.success) {
+      return authResult.error
     }
+    const { userId } = authResult.data
+
+    const supabase = await createClient()
 
     const body = await request.json()
     const validated = GenerateArticleDraftInputSchema.safeParse(body)
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
       .from('vibe_sessions')
       .select('id, status, raw_context, metadata')
       .eq('id', input.session_id)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .single()
 
     if (sessionError || !session) {

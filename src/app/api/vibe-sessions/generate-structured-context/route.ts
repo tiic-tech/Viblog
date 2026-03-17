@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { dualAuthenticate } from '@/lib/auth/dual-auth'
 import { generateStructuredContext } from '@/lib/llm-service'
 import {
   GenerateStructuredContextInputSchema,
@@ -12,12 +13,13 @@ import {
  */
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const authResult = await dualAuthenticate(request)
+    if (!authResult.success) {
+      return authResult.error
     }
+    const { userId } = authResult.data
+
+    const supabase = await createClient()
 
     const body = await request.json()
     const validated = GenerateStructuredContextInputSchema.safeParse(body)
@@ -36,7 +38,7 @@ export async function POST(request: Request) {
       .from('vibe_sessions')
       .select('id, status')
       .eq('id', input.session_id)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .single()
 
     if (sessionError || !session) {
@@ -55,10 +57,7 @@ export async function POST(request: Request) {
     }
 
     if (!fragments || fragments.length === 0) {
-      return NextResponse.json(
-        { error: 'No fragments found in session' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'No fragments found in session' }, { status: 400 })
     }
 
     // Build raw context string from fragments

@@ -65,9 +65,7 @@ async function hashToken(token: string): Promise<string> {
  * @param token - Token string
  * @returns Token type or null if unknown
  */
-function detectTokenType(
-  token: string
-): 'mcp_api' | 'authorization' | null {
+function detectTokenType(token: string): 'mcp_api' | 'authorization' | null {
   if (token.startsWith(MCP_API_KEY_PREFIX)) {
     return 'mcp_api'
   }
@@ -113,9 +111,7 @@ function parseAuthorizedSources(sources: unknown): AuthorizedSources {
  * @param authHeader - Authorization header value
  * @returns Token authentication result
  */
-export async function validateToken(
-  authHeader: string | null
-): Promise<TokenAuthResult> {
+export async function validateToken(authHeader: string | null): Promise<TokenAuthResult> {
   // Check if header exists
   if (!authHeader) {
     return {
@@ -160,28 +156,56 @@ export async function validateToken(
     const tokenHash = await hashToken(token)
 
     if (tokenType === 'mcp_api') {
-      // MCP API key validation
-      // For now, MCP API keys have platform-level access
-      // This would be extended to check against a dedicated mcp_api_keys table
+      // MCP API key validation - query authorization_tokens table
+      const { data, error } = await supabase
+        .from('authorization_tokens')
+        .select('id, user_id, name, authorized_sources, privacy_level, is_active')
+        .eq('token_hash', tokenHash)
+        .eq('token_type', 'mcp_api')
+        .single()
+
+      if (error || !data) {
+        return {
+          valid: false,
+          userId: null,
+          tokenType: null,
+          authorizedSources: null,
+          privacyLevel: null,
+          error: 'Invalid MCP API key',
+        }
+      }
+
+      // Check if token is active
+      if (data.is_active === false) {
+        return {
+          valid: false,
+          userId: null,
+          tokenType: null,
+          authorizedSources: null,
+          privacyLevel: null,
+          error: 'MCP API key has been deactivated',
+        }
+      }
+
+      // Update last_used_at asynchronously
+      supabase
+        .from('authorization_tokens')
+        .update({ last_used_at: new Date().toISOString() })
+        .eq('id', data.id)
+        .then(() => {}) // Ignore errors
+
       return {
         valid: true,
-        userId: null, // Platform-level, no specific user
+        userId: data.user_id,
         tokenType: 'mcp_api',
-        authorizedSources: {
-          user_insights: false, // MCP keys don't have user data access
-          external_links: false,
-          vibe_sessions: true, // Can create sessions
-          knowledge_graph: false,
-        },
-        privacyLevel: 1,
+        authorizedSources: parseAuthorizedSources(data.authorized_sources),
+        privacyLevel: data.privacy_level ?? 1,
       }
     } else {
       // Authorization token validation
       const { data, error } = await supabase
         .from('authorization_tokens')
-        .select(
-          'user_id, is_active, expires_at, authorized_sources, privacy_level'
-        )
+        .select('user_id, is_active, expires_at, authorized_sources, privacy_level')
         .eq('token_hash', tokenHash)
         .single()
 
@@ -238,8 +262,7 @@ export async function validateToken(
       }
     }
   } catch (err) {
-    const errorMessage =
-      err instanceof Error ? err.message : 'Unknown error occurred'
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
     return {
       valid: false,
       userId: null,
@@ -261,10 +284,7 @@ export async function validateToken(
  */
 export async function validateTokenAndGetUser(
   authHeader: string | null
-): Promise<
-  | { context: TokenContext }
-  | { error: string; statusCode: number }
-> {
+): Promise<{ context: TokenContext } | { error: string; statusCode: number }> {
   const result = await validateToken(authHeader)
 
   if (!result.valid) {
