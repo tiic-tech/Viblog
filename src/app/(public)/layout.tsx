@@ -1,8 +1,7 @@
-import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { PenTool } from 'lucide-react'
 import { Toaster } from 'sonner'
 import { Navigation } from '@/components/layout/Navigation'
+import { Footer } from '@/components/layout/Footer'
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -31,41 +30,8 @@ export default async function PublicLayout({ children }: { children: React.React
       {/* Toast Notifications */}
       <Toaster position="bottom-right" />
 
-      {/* Footer - Will be replaced in Step 11.3 */}
-      <footer className="bg-muted/30 border-t py-8">
-        <div className="container">
-          <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-            <div className="flex items-center gap-2 font-semibold">
-              <PenTool className="h-5 w-5 text-accent-primary" />
-              <span className="bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
-                Viblog
-              </span>
-            </div>
-
-            <nav
-              aria-label="Footer navigation"
-              className="flex items-center gap-6 text-sm text-muted-foreground"
-            >
-              <Link href="/" className="transition-colors hover:text-accent-primary">
-                Feed
-              </Link>
-              <Link href="/about" className="transition-colors hover:text-accent-primary">
-                About
-              </Link>
-              <Link href="/privacy" className="transition-colors hover:text-accent-primary">
-                Privacy
-              </Link>
-              <Link href="/terms" className="transition-colors hover:text-accent-primary">
-                Terms
-              </Link>
-            </nav>
-
-            <p className="text-sm text-muted-foreground">
-              &copy; {new Date().getFullYear()} Viblog. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
+      {/* Footer Component (Phase 11.3) */}
+      <Footer />
     </div>
   )
 }
