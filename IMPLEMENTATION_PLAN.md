@@ -12,7 +12,7 @@
 
 This document provides a step-by-step build sequence for Viblog post-MVP development. Each step has clear deliverables and dependencies.
 
-**Current Status:** Phase 10.4 IN PROGRESS - MCP Server Implementation
+**Current Status:** Phase 10.4 IN PROGRESS - MCP Server npm Package Implementation
 
 ---
 
@@ -22,21 +22,48 @@ This document provides a step-by-step build sequence for Viblog post-MVP develop
 
 **Problem:** Current workflow uses Playwright as indirect publishing mechanism - inefficient and fragile.
 
-**Solution:** Implement MCP Server that wraps existing REST APIs with MCP protocol layer.
+**Solution:** Implement MCP Server npm package with stdio transport that wraps existing REST APIs.
 
 **Timeline:** 5-8 days for full MCP integration.
 
-**Approach Selected:** Pivot to MCP Server (Recommended)
+**Approach Selected:** stdio-based npm Package (Recommended)
+
+**Architecture:**
+```
+Claude Code
+    │
+    │ stdio (JSON-RPC 2.0)
+    ▼
+viblog-mcp-server (npm package)
+    │
+    │ HTTP REST
+    ▼
+Viblog Backend APIs
+├── POST /api/vibe-sessions
+├── POST /api/vibe-sessions/[id]/fragments
+├── POST /api/vibe-sessions/generate-structured-context
+└── POST /api/vibe-sessions/generate-article-draft
+```
 
 **Progress:**
 - [x] Created `src/lib/mcp/types.ts` - MCP Protocol Types
 - [x] Created `src/lib/mcp/tools.ts` - 11 MCP Tools Definition
-- [ ] Create `src/app/api/mcp/route.ts` - Main MCP endpoint (NEXT STEP)
-- [ ] Implement tool handlers routing to existing REST APIs
-- [ ] Write Claude Code MCP Configuration Guide
-- [ ] Add integration tests for MCP endpoints
+- [x] Created `packages/viblog-mcp-server/` - npm package structure
+- [x] Created `packages/viblog-mcp-server/src/index.ts` - Entry point (stdio)
+- [x] Created `packages/viblog-mcp-server/src/server.ts` - MCP server setup
+- [x] Created `packages/viblog-mcp-server/src/tools/index.ts` - Tool definitions
+- [x] Created `packages/viblog-mcp-server/src/tools/handlers.ts` - Tool handlers
+- [x] Created `packages/viblog-mcp-server/src/api/client.ts` - REST client
+- [x] Created `packages/viblog-mcp-server/src/types.ts` - Shared types
+- [x] Created `packages/viblog-mcp-server/README.md` - Usage guide
+- [x] Build npm package successfully (TypeScript compilation passed)
+- [ ] Configure Claude Code with local package
+- [ ] Verify: create_vibe_session works
+- [ ] Verify: session exists in database
+- [ ] Verify: generate_article_draft works
+- [ ] Publish to npm registry
 
-**Breakpoint:** Ready to create `src/app/api/mcp/route.ts` - the main MCP endpoint handling JSON-RPC 2.0 requests.
+**Breakpoint:** MCP Server package built successfully. Ready for local testing with Claude Code.
 
 ---
 
@@ -974,7 +1001,49 @@ Rationale:
 
 ---
 
-### Phase 10.4: Human User Experience Features (Week 4-6)
+### Phase 10.4: MCP Server npm Package (Week 4-5)
+
+**Status:** IN PROGRESS (2026-03-17)
+
+**Decision:** stdio-based npm package (not HTTP endpoint)
+
+**Rationale:**
+- Simpler authentication (copy-paste API key from Web UI)
+- No OAuth complexity for MVP
+- Easier Claude Code integration
+- Can migrate to HTTP/SSE later for multi-platform support
+
+#### Step 10.4.0: Create MCP Server npm Package
+**Status:** COMPLETED
+
+**Deliverable:** Complete npm package structure with stdio transport
+
+**Files Created:**
+```
+packages/viblog-mcp-server/
+├── package.json              # Package config with @modelcontextprotocol/sdk
+├── tsconfig.json             # TypeScript config (ESM, NodeNext)
+├── README.md                 # Installation and usage guide
+└── src/
+    ├── index.ts              # Entry point (stdio server)
+    ├── server.ts             # MCP Server setup
+    ├── types.ts              # Shared types and config
+    ├── tools/
+    │   ├── index.ts          # 6 MVP tools definition
+    │   └── handlers.ts       # Tool execution logic
+    └── api/
+        └── client.ts         # REST API client
+```
+
+**MVP Tools (6 implemented):**
+1. `create_vibe_session` - Create recording session
+2. `append_session_context` - Add context incrementally
+3. `upload_session_context` - Batch upload
+4. `generate_structured_context` - AI processing
+5. `generate_article_draft` - Create draft from session
+6. `list_user_sessions` - List user's sessions
+
+---
 
 #### Step 10.4.1: Smart Markdown Editor
 **Status:** Pending
