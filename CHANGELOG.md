@@ -15,6 +15,17 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Phase 11.6.1: Database Schema & Provider Registry - COMPLETE (2026-03-18 10:30):**
+  - Created `llm_providers` table - Provider metadata with capabilities
+  - Created `llm_models` table - Model catalog with pricing and context windows
+  - Created `user_llm_configs` table - User configurations with encrypted API keys
+  - Created `llm_usage_logs` table - Usage tracking and cost attribution
+  - Row Level Security policies for all tables
+  - Performance indexes for common query patterns
+  - Auto-updating `updated_at` triggers
+  - Seed data: 9 providers (OpenAI, Anthropic, Google Gemini, DeepSeek, Moonshot, Qwen, Zhipu AI, MiniMax, OpenRouter)
+  - Seed data: 36 models across all providers
+  - Migrations applied via Supabase MCP
 - **Phase 11.6: LLM Platform Configuration - PLANNED (2026-03-18):**
   - Comprehensive plan for multi-provider LLM support integrated into IMPLEMENTATION_PLAN.md
   - 9 LLM Providers planned: OpenAI, Anthropic, Google Gemini, DeepSeek, Moonshot, OpenRouter, Qwen, Zhipu AI, MiniMax
