@@ -50,6 +50,15 @@ All notable changes to this project will be documented in this file.
   - [x] Implemented click navigation to annotation positions
   - Soul Impact: "I've been here. I've grown here. This is my intellectual home."
 
+- **TDD Checkpoint 10.4.3.5: Article Content Integration** COMPLETE
+  - [x] Created `src/components/public/__tests__/article-content-integration.test.tsx` with 10 passing tests
+  - [x] Added sidebar toggle button for AnnotationSidebar (fixed positioning)
+  - [x] Integrated CommentModal for annotation creation
+  - [x] Synced annotations with highlights on mount
+  - [x] Added annotation click navigation with scroll and highlight effect
+  - [x] Integrated useAnnotations hook into ArticleContent
+  - Soul Impact: Transform article reading into personal intellectual dialogue
+
 ### Added - Phase 11 Code Gallery UI/UX Plan (2026-03-17)
 
 - **Strategic Context:** Implements Phases 3-7 from VIBLOG_CODE_GALLERY_UI_DEV_PLAN.md

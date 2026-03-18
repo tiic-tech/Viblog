@@ -1106,10 +1106,10 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
 
 ---
 
-##### TDD Checkpoint 10.4.3.5: Article Content Integration
+##### TDD Checkpoint 10.4.3.5: Article Content Integration ✅ COMPLETE
 
 **RED Phase:**
-- [ ] Write test: `src/components/public/__tests__/article-content-integration.test.tsx`
+- [x] Write test: `src/components/public/__tests__/article-content-integration.test.tsx`
   - Test sidebar toggle button appears
   - Test clicking toggle shows/hides sidebar
   - Test handleComment opens modal instead of toast
@@ -1117,7 +1117,7 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
   - Test highlights sync with annotations
 
 **GREEN Phase:**
-- [ ] Modify `/src/components/public/article-content.tsx`
+- [x] Modify `/src/components/public/article-content.tsx`
   - Add sidebar toggle button
   - Replace `handleComment` toast with modal opening
   - Import and render `AnnotationSidebar`
@@ -1125,10 +1125,10 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
   - Sync highlights with annotations
 
 **REFACTOR Phase:**
-- [ ] Extract annotation state to context if needed
-- [ ] Optimize re-renders
+- [ ] Extract annotation state to context if needed (deferred)
+- [ ] Optimize re-renders (deferred)
 
-**Test Pass Criteria:** All 5+ test cases pass, integration works end-to-end
+**Test Pass Criteria:** All 10 test cases pass, integration works end-to-end
 
 ---
 
