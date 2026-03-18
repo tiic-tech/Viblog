@@ -24,6 +24,14 @@ All notable changes to this project will be documented in this file.
   - [x] Added JSDoc documentation for soul-centered annotation system
   - Soul Impact: Transform reading from passive consumption to active dialogue
 
+- **TDD Checkpoint 10.4.3.2: Annotation Hook** COMPLETE
+  - [x] Created `src/hooks/use-annotations.ts` with full annotation CRUD operations
+  - [x] Created `src/hooks/__tests__/use-annotations.test.ts` with 18 passing tests
+  - [x] Implemented localStorage persistence per article
+  - [x] Implemented addAnnotation with duplicate prevention
+  - [x] Implemented updateAnnotation, deleteAnnotation, addReply, clearAnnotations
+  - Soul Impact: Every annotation is a mark of intellectual presence
+
 ### Added - Phase 11 Code Gallery UI/UX Plan (2026-03-17)
 
 - **Strategic Context:** Implements Phases 3-7 from VIBLOG_CODE_GALLERY_UI_DEV_PLAN.md
