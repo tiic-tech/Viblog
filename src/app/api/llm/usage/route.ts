@@ -63,10 +63,7 @@ export async function GET(request: Request) {
 
     if (error) {
       console.error('Failed to fetch usage logs:', error)
-      return NextResponse.json(
-        { error: 'Failed to fetch usage logs' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Failed to fetch usage logs' }, { status: 500 })
     }
 
     // Calculate summary
@@ -92,10 +89,7 @@ export async function GET(request: Request) {
     })
   } catch (error) {
     console.error('Usage API error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -153,6 +147,7 @@ function calculateSummary(
     output_tokens: number
     estimated_cost_usd: number
     status: string
+    latency_ms: number
   }>
 ) {
   const totalRequests = logs.length
@@ -160,9 +155,8 @@ function calculateSummary(
   const totalInputTokens = logs.reduce((sum, l) => sum + (l.input_tokens || 0), 0)
   const totalOutputTokens = logs.reduce((sum, l) => sum + (l.output_tokens || 0), 0)
   const totalCostUsd = logs.reduce((sum, l) => sum + Number(l.estimated_cost_usd || 0), 0)
-  const avgLatencyMs = totalRequests > 0
-    ? logs.reduce((sum, l) => sum + (l.latency_ms || 0), 0) / totalRequests
-    : 0
+  const avgLatencyMs =
+    totalRequests > 0 ? logs.reduce((sum, l) => sum + (l.latency_ms || 0), 0) / totalRequests : 0
 
   return {
     totalRequests,
@@ -185,7 +179,7 @@ function calculateByProvider(
     input_tokens: number
     output_tokens: number
     estimated_cost_usd: number
-    llm_providers: { id: string; display_name: string }
+    llm_providers: Array<{ id: string; display_name: string }> | null
   }>
 ) {
   const providerMap = new Map<
@@ -202,7 +196,7 @@ function calculateByProvider(
 
   for (const log of logs) {
     const providerId = log.provider_id
-    const providerName = log.llm_providers?.display_name || providerId
+    const providerName = log.llm_providers?.[0]?.display_name || providerId
 
     const existing = providerMap.get(providerId) || {
       providerId,

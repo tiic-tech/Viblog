@@ -77,6 +77,7 @@ export class OpenAIAdapter extends BaseProviderAdapter {
     streaming: true,
     structured_output: true,
     vision: true,
+    audio: true,
   }
 
   /**
@@ -276,36 +277,45 @@ export class OpenAIAdapter extends BaseProviderAdapter {
   /**
    * Get available models
    */
-  async getModels(
-    context: Omit<ProviderAdapterContext, 'model'>
-  ): Promise<LLMModel[]> {
-    const url = this.buildUrl(context.baseUrl || 'https://api.openai.com/v1', '/models')
-    const response = await this.makeRequest<{ data: OpenAIModel[] }>(
-      url,
+  async getModels(_context: Omit<ProviderAdapterContext, 'model'>): Promise<LLMModel[]> {
+    return [
       {
-        method: 'GET',
-        headers: this.buildHeaders(context.apiKey),
-      },
-      { ...context, apiKey: context.apiKey, model: {} as LLMModel }
-    )
-
-    // Filter to known models (OpenAI has many, including fine-tuned)
-    const knownModels = ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-3.5-turbo', 'o1']
-
-    return response.data
-      .filter((m) => knownModels.some((km) => m.id.startsWith(km)))
-      .map((m) => ({
-        id: m.id,
+        id: 'gpt-5.4',
         providerId: this.providerId,
-        modelId: m.id,
-        displayName: m.id,
+        modelId: 'gpt-5.4',
+        displayName: 'GPT-5.4',
         capabilities: this.capabilities,
-        contextWindow: 128000,
-        maxOutputTokens: 4096,
-        inputPricePer1k: 0,
-        outputPricePer1k: 0,
-        supportedParams: ['temperature', 'max_tokens', 'top_p', 'frequency_penalty', 'presence_penalty'],
-      }))
+        contextWindow: 1048576,
+        maxOutputTokens: 131072,
+        inputPricePer1k: 0.0025,
+        outputPricePer1k: 0.015,
+        supportedParams: [
+          'temperature',
+          'max_tokens',
+          'top_p',
+          'frequency_penalty',
+          'presence_penalty',
+        ],
+      },
+      {
+        id: 'gpt-5-mini',
+        providerId: this.providerId,
+        modelId: 'gpt-5-mini',
+        displayName: 'GPT-5 Mini',
+        capabilities: this.capabilities,
+        contextWindow: 400000,
+        maxOutputTokens: 128000,
+        inputPricePer1k: 0.00025,
+        outputPricePer1k: 0.002,
+        supportedParams: [
+          'temperature',
+          'max_tokens',
+          'top_p',
+          'frequency_penalty',
+          'presence_penalty',
+        ],
+      },
+    ]
   }
 
   /**
@@ -313,7 +323,7 @@ export class OpenAIAdapter extends BaseProviderAdapter {
    */
   protected buildHeaders(apiKey: string): Record<string, string> {
     return {
-      'Authorization': `Bearer ${apiKey}`,
+      Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     }
   }

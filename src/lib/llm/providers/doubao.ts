@@ -75,6 +75,8 @@ export class DoubaoAdapter extends BaseProviderAdapter {
     streaming: true,
     structured_output: true,
     vision: true,
+    video: true,
+    reasoning: true,
   }
 
   /**
@@ -279,32 +281,54 @@ export class DoubaoAdapter extends BaseProviderAdapter {
    * Get available models
    * Note: Doubao uses endpoint IDs as model identifiers
    */
-  async getModels(
-    _context: Omit<ProviderAdapterContext, 'model'>
-  ): Promise<LLMModel[]> {
+  async getModels(_context: Omit<ProviderAdapterContext, 'model'>): Promise<LLMModel[]> {
     return [
       {
-        id: 'doubao-pro-32k',
+        id: 'seed-2.0-pro',
         providerId: this.providerId,
-        modelId: 'doubao-pro-32k',
-        displayName: 'Doubao Pro 32K',
-        capabilities: this.capabilities,
-        contextWindow: 32000,
-        maxOutputTokens: 4096,
-        inputPricePer1k: 0.0008,
+        modelId: 'seed-2.0-pro',
+        displayName: 'Seed 2.0 Pro',
+        capabilities: { ...this.capabilities, vision: true, video: true, reasoning: true },
+        contextWindow: 256000,
+        maxOutputTokens: 131072,
+        inputPricePer1k: 0.00047,
+        outputPricePer1k: 0.00237,
+        supportedParams: ['temperature', 'max_tokens', 'top_p'],
+      },
+      {
+        id: 'seed-2.0-lite',
+        providerId: this.providerId,
+        modelId: 'seed-2.0-lite',
+        displayName: 'Seed 2.0 Lite',
+        capabilities: { ...this.capabilities, vision: true, video: true },
+        contextWindow: 256000,
+        maxOutputTokens: 131072,
+        inputPricePer1k: 0.00025,
         outputPricePer1k: 0.002,
         supportedParams: ['temperature', 'max_tokens', 'top_p'],
       },
       {
-        id: 'doubao-pro-128k',
+        id: 'seed-2.0-mini',
         providerId: this.providerId,
-        modelId: 'doubao-pro-128k',
-        displayName: 'Doubao Pro 128K',
-        capabilities: this.capabilities,
+        modelId: 'seed-2.0-mini',
+        displayName: 'Seed 2.0 Mini',
+        capabilities: { ...this.capabilities, vision: true, video: true },
         contextWindow: 128000,
-        maxOutputTokens: 4096,
-        inputPricePer1k: 0.005,
-        outputPricePer1k: 0.009,
+        maxOutputTokens: 8192,
+        inputPricePer1k: 0.00015,
+        outputPricePer1k: 0.001,
+        supportedParams: ['temperature', 'max_tokens', 'top_p'],
+      },
+      {
+        id: 'seed-2.0-code',
+        providerId: this.providerId,
+        modelId: 'seed-2.0-code',
+        displayName: 'Seed 2.0 Code',
+        capabilities: this.capabilities,
+        contextWindow: 256000,
+        maxOutputTokens: 16384,
+        inputPricePer1k: 0.0005,
+        outputPricePer1k: 0.002,
         supportedParams: ['temperature', 'max_tokens', 'top_p'],
       },
       {
@@ -331,30 +355,6 @@ export class DoubaoAdapter extends BaseProviderAdapter {
         outputPricePer1k: 0.002,
         supportedParams: ['temperature', 'max_tokens', 'top_p'],
       },
-      {
-        id: 'doubao-1.5-pro-32k',
-        providerId: this.providerId,
-        modelId: 'doubao-1.5-pro-32k',
-        displayName: 'Doubao 1.5 Pro 32K',
-        capabilities: this.capabilities,
-        contextWindow: 32000,
-        maxOutputTokens: 8192,
-        inputPricePer1k: 0.0015,
-        outputPricePer1k: 0.006,
-        supportedParams: ['temperature', 'max_tokens', 'top_p'],
-      },
-      {
-        id: 'doubao-1.5-pro-256k',
-        providerId: this.providerId,
-        modelId: 'doubao-1.5-pro-256k',
-        displayName: 'Doubao 1.5 Pro 256K',
-        capabilities: this.capabilities,
-        contextWindow: 256000,
-        maxOutputTokens: 8192,
-        inputPricePer1k: 0.005,
-        outputPricePer1k: 0.009,
-        supportedParams: ['temperature', 'max_tokens', 'top_p'],
-      },
     ]
   }
 
@@ -363,7 +363,7 @@ export class DoubaoAdapter extends BaseProviderAdapter {
    */
   protected buildHeaders(apiKey: string): Record<string, string> {
     return {
-      'Authorization': `Bearer ${apiKey}`,
+      Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     }
   }

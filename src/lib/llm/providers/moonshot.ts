@@ -50,7 +50,8 @@ export class MoonshotAdapter extends BaseProviderAdapter {
   readonly capabilities: LLMProviderCapabilities = {
     streaming: true,
     structured_output: true,
-    vision: false,
+    vision: true,
+    reasoning: true,
   }
 
   /**
@@ -202,44 +203,66 @@ export class MoonshotAdapter extends BaseProviderAdapter {
   /**
    * Get available models
    */
-  async getModels(
-    _context: Omit<ProviderAdapterContext, 'model'>
-  ): Promise<LLMModel[]> {
+  async getModels(_context: Omit<ProviderAdapterContext, 'model'>): Promise<LLMModel[]> {
     return [
       {
-        id: 'moonshot-v1-8k',
+        id: 'kimi-k2.5',
         providerId: this.providerId,
-        modelId: 'moonshot-v1-8k',
-        displayName: 'Moonshot V1 8K',
-        capabilities: this.capabilities,
-        contextWindow: 8192,
-        maxOutputTokens: 4096,
-        inputPricePer1k: 0.0015,
-        outputPricePer1k: 0.0015,
+        modelId: 'kimi-k2.5',
+        displayName: 'Kimi K2.5',
+        capabilities: { ...this.capabilities, vision: true, video: true },
+        contextWindow: 256000,
+        maxOutputTokens: 32000,
+        inputPricePer1k: 0.004,
+        outputPricePer1k: 0.021,
+        supportedParams: ['temperature', 'max_tokens', 'top_p', 'thinking'],
+      },
+      {
+        id: 'kimi-k2-0905-preview',
+        providerId: this.providerId,
+        modelId: 'kimi-k2-0905-preview',
+        displayName: 'Kimi K2 0905 Preview',
+        capabilities: { ...this.capabilities, vision: false },
+        contextWindow: 256000,
+        maxOutputTokens: 8192,
+        inputPricePer1k: 0.002,
+        outputPricePer1k: 0.01,
         supportedParams: ['temperature', 'max_tokens', 'top_p'],
       },
       {
-        id: 'moonshot-v1-32k',
+        id: 'kimi-k2-turbo-preview',
         providerId: this.providerId,
-        modelId: 'moonshot-v1-32k',
-        displayName: 'Moonshot V1 32K',
-        capabilities: this.capabilities,
-        contextWindow: 32768,
-        maxOutputTokens: 4096,
+        modelId: 'kimi-k2-turbo-preview',
+        displayName: 'Kimi K2 Turbo Preview',
+        capabilities: { ...this.capabilities, vision: false },
+        contextWindow: 256000,
+        maxOutputTokens: 8192,
+        inputPricePer1k: 0.001,
+        outputPricePer1k: 0.005,
+        supportedParams: ['temperature', 'max_tokens', 'top_p'],
+      },
+      {
+        id: 'kimi-k2-thinking',
+        providerId: this.providerId,
+        modelId: 'kimi-k2-thinking',
+        displayName: 'Kimi K2 Thinking',
+        capabilities: { ...this.capabilities, vision: false, reasoning: true },
+        contextWindow: 256000,
+        maxOutputTokens: 16384,
         inputPricePer1k: 0.003,
-        outputPricePer1k: 0.003,
+        outputPricePer1k: 0.015,
         supportedParams: ['temperature', 'max_tokens', 'top_p'],
       },
       {
-        id: 'moonshot-v1-128k',
+        id: 'kimi-k2-thinking-turbo',
         providerId: this.providerId,
-        modelId: 'moonshot-v1-128k',
-        displayName: 'Moonshot V1 128K',
-        capabilities: this.capabilities,
-        contextWindow: 131072,
-        maxOutputTokens: 4096,
-        inputPricePer1k: 0.006,
-        outputPricePer1k: 0.006,
+        modelId: 'kimi-k2-thinking-turbo',
+        displayName: 'Kimi K2 Thinking Turbo',
+        capabilities: { ...this.capabilities, vision: false, reasoning: true },
+        contextWindow: 256000,
+        maxOutputTokens: 16384,
+        inputPricePer1k: 0.002,
+        outputPricePer1k: 0.01,
         supportedParams: ['temperature', 'max_tokens', 'top_p'],
       },
     ]
@@ -250,7 +273,7 @@ export class MoonshotAdapter extends BaseProviderAdapter {
    */
   protected buildHeaders(apiKey: string): Record<string, string> {
     return {
-      'Authorization': `Bearer ${apiKey}`,
+      Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     }
   }

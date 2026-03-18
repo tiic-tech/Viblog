@@ -60,7 +60,10 @@ export class QwenAdapter extends BaseProviderAdapter {
     options: ChatCompletionOptions,
     context: ProviderAdapterContext
   ): Promise<ChatResponse> {
-    const url = this.buildUrl(context.baseUrl || 'https://dashscope.aliyuncs.com/compatible-mode/v1', '/chat/completions')
+    const url = this.buildUrl(
+      context.baseUrl || 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+      '/chat/completions'
+    )
     const model = context.model
 
     const body = {
@@ -99,7 +102,10 @@ export class QwenAdapter extends BaseProviderAdapter {
     options: ChatCompletionOptions,
     context: ProviderAdapterContext
   ): AsyncIterable<StreamChunk> {
-    const url = this.buildUrl(context.baseUrl || 'https://dashscope.aliyuncs.com/compatible-mode/v1', '/chat/completions')
+    const url = this.buildUrl(
+      context.baseUrl || 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+      '/chat/completions'
+    )
     const model = context.model
 
     const body = {
@@ -172,7 +178,10 @@ export class QwenAdapter extends BaseProviderAdapter {
     options: StructuredOutputOptions<T>,
     context: ProviderAdapterContext
   ): Promise<T> {
-    const url = this.buildUrl(context.baseUrl || 'https://dashscope.aliyuncs.com/compatible-mode/v1', '/chat/completions')
+    const url = this.buildUrl(
+      context.baseUrl || 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+      '/chat/completions'
+    )
     const model = context.model
 
     const body = {
@@ -226,33 +235,79 @@ export class QwenAdapter extends BaseProviderAdapter {
   /**
    * Get available models
    */
-  async getModels(
-    _context: Omit<ProviderAdapterContext, 'model'>
-  ): Promise<LLMModel[]> {
+  async getModels(_context: Omit<ProviderAdapterContext, 'model'>): Promise<LLMModel[]> {
     return [
       {
-        id: 'qwen-max',
+        id: 'qwen3-max',
         providerId: this.providerId,
-        modelId: 'qwen-max',
-        displayName: 'Qwen Max',
-        capabilities: { ...this.capabilities, vision: false },
-        contextWindow: 32768,
-        maxOutputTokens: 8192,
-        inputPricePer1k: 0.0028,
-        outputPricePer1k: 0.0084,
+        modelId: 'qwen3-max',
+        displayName: 'Qwen3 Max',
+        capabilities: { ...this.capabilities, vision: false, reasoning: true },
+        contextWindow: 262144,
+        maxOutputTokens: 32768,
+        inputPricePer1k: 0.0012,
+        outputPricePer1k: 0.006,
         supportedParams: ['temperature', 'max_tokens', 'top_p'],
       },
       {
-        id: 'qwen-plus',
+        id: 'qwen3-235b-a22b-instruct-2507',
         providerId: this.providerId,
-        modelId: 'qwen-plus',
-        displayName: 'Qwen Plus',
+        modelId: 'qwen3-235b-a22b-instruct-2507',
+        displayName: 'Qwen3 235B A22B',
         capabilities: { ...this.capabilities, vision: false },
         contextWindow: 131072,
-        maxOutputTokens: 8192,
-        inputPricePer1k: 0.00056,
-        outputPricePer1k: 0.00224,
+        maxOutputTokens: 16384,
+        inputPricePer1k: 0.0004,
+        outputPricePer1k: 0.0008,
         supportedParams: ['temperature', 'max_tokens', 'top_p'],
+      },
+      {
+        id: 'qwen3.5-plus',
+        providerId: this.providerId,
+        modelId: 'qwen3.5-plus',
+        displayName: 'Qwen3.5 Plus',
+        capabilities: { ...this.capabilities, vision: true, video: true, audio: true },
+        contextWindow: 1048576,
+        maxOutputTokens: 8192,
+        inputPricePer1k: 0.0004,
+        outputPricePer1k: 0.0024,
+        supportedParams: ['temperature', 'max_tokens', 'top_p'],
+      },
+      {
+        id: 'qwen3.5-flash',
+        providerId: this.providerId,
+        modelId: 'qwen3.5-flash',
+        displayName: 'Qwen3.5 Flash',
+        capabilities: { ...this.capabilities, vision: true, video: true, audio: true },
+        contextWindow: 1048576,
+        maxOutputTokens: 8192,
+        inputPricePer1k: 0.0001,
+        outputPricePer1k: 0.0004,
+        supportedParams: ['temperature', 'max_tokens', 'top_p'],
+      },
+      {
+        id: 'qwen3-vl-plus',
+        providerId: this.providerId,
+        modelId: 'qwen3-vl-plus',
+        displayName: 'Qwen3 VL Plus',
+        capabilities: { ...this.capabilities, vision: true },
+        contextWindow: 131072,
+        maxOutputTokens: 8192,
+        inputPricePer1k: 0.00028,
+        outputPricePer1k: 0.00056,
+        supportedParams: ['temperature', 'max_tokens', 'top_p'],
+      },
+      {
+        id: 'qwen3-vl-235b-a22b-thinking',
+        providerId: this.providerId,
+        modelId: 'qwen3-vl-235b-a22b-thinking',
+        displayName: 'Qwen3 VL 235B A22B Thinking',
+        capabilities: { ...this.capabilities, vision: true, reasoning: true },
+        contextWindow: 262144,
+        maxOutputTokens: 32768,
+        inputPricePer1k: 0.00045,
+        outputPricePer1k: 0.00349,
+        supportedParams: ['temperature', 'max_tokens', 'top_p', 'enable_thinking'],
       },
     ]
   }
@@ -262,7 +317,7 @@ export class QwenAdapter extends BaseProviderAdapter {
    */
   protected buildHeaders(apiKey: string): Record<string, string> {
     return {
-      'Authorization': `Bearer ${apiKey}`,
+      Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     }
   }

@@ -28,10 +28,7 @@ export async function GET(request: Request) {
     const format = searchParams.get('format') || 'csv'
 
     if (!startDate || !endDate) {
-      return NextResponse.json(
-        { error: 'start_date and end_date are required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'start_date and end_date are required' }, { status: 400 })
     }
 
     // Validate dates
@@ -74,10 +71,7 @@ export async function GET(request: Request) {
 
     if (error) {
       console.error('Failed to fetch usage logs:', error)
-      return NextResponse.json(
-        { error: 'Failed to fetch usage logs' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Failed to fetch usage logs' }, { status: 500 })
     }
 
     // Return JSON if requested
@@ -105,10 +99,7 @@ export async function GET(request: Request) {
     })
   } catch (error) {
     console.error('Usage export API error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -128,7 +119,7 @@ function generateCsv(
     status: string
     error_message: string | null
     created_at: string
-    llm_providers: { display_name: string } | null
+    llm_providers: Array<{ display_name: string }> | null
   }>
 ): string {
   // CSV headers
@@ -155,7 +146,7 @@ function generateCsv(
     return [
       formatDate(date),
       formatTime(date),
-      escapeCsvField(log.llm_providers?.display_name || log.provider_id),
+      escapeCsvField(log.llm_providers?.[0]?.display_name || log.provider_id),
       escapeCsvField(log.model_id),
       escapeCsvField(log.request_type),
       log.input_tokens || 0,

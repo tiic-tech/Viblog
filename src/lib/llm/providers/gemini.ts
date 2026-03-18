@@ -75,9 +75,7 @@ export class GeminiAdapter extends BaseProviderAdapter {
     )
 
     const candidate = response.candidates[0]
-    const text = candidate.content.parts
-      .map((p) => p.text || '')
-      .join('')
+    const text = candidate.content.parts.map((p) => p.text || '').join('')
 
     return {
       content: text,
@@ -142,9 +140,7 @@ export class GeminiAdapter extends BaseProviderAdapter {
           try {
             const chunk: GeminiResponse = JSON.parse(jsonStr)
             const candidate = chunk.candidates[0]
-            const text = candidate?.content?.parts
-              ?.map((p) => p.text || '')
-              .join('') || ''
+            const text = candidate?.content?.parts?.map((p) => p.text || '').join('') || ''
 
             if (text) {
               yield {
@@ -194,9 +190,7 @@ export class GeminiAdapter extends BaseProviderAdapter {
       context
     )
 
-    const text = response.candidates[0].content.parts
-      .map((p) => p.text || '')
-      .join('')
+    const text = response.candidates[0].content.parts.map((p) => p.text || '').join('')
 
     try {
       return JSON.parse(text) as T
@@ -226,10 +220,20 @@ export class GeminiAdapter extends BaseProviderAdapter {
   /**
    * Get available models
    */
-  async getModels(
-    _context: Omit<ProviderAdapterContext, 'model'>
-  ): Promise<LLMModel[]> {
+  async getModels(_context: Omit<ProviderAdapterContext, 'model'>): Promise<LLMModel[]> {
     return [
+      {
+        id: 'gemini-2.5-pro-preview-06-05',
+        providerId: this.providerId,
+        modelId: 'gemini-2.5-pro-preview-06-05',
+        displayName: 'Gemini 2.5 Pro Preview',
+        capabilities: this.capabilities,
+        contextWindow: 1048576,
+        maxOutputTokens: 65536,
+        inputPricePer1k: 0.00125,
+        outputPricePer1k: 0.01,
+        supportedParams: ['temperature', 'max_tokens', 'top_p', 'top_k'],
+      },
       {
         id: 'gemini-2.0-flash',
         providerId: this.providerId,
@@ -267,7 +271,9 @@ export class GeminiAdapter extends BaseProviderAdapter {
   /**
    * Format messages for Gemini API
    */
-  private formatMessages(messages: ChatMessage[]): Array<{ role: string; parts: Array<{ text: string }> }> {
+  private formatMessages(
+    messages: ChatMessage[]
+  ): Array<{ role: string; parts: Array<{ text: string }> }> {
     return messages.map((m) => ({
       role: m.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: m.content }],

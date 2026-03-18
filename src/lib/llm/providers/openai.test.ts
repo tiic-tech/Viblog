@@ -52,6 +52,7 @@ describe('OpenAIAdapter', () => {
         streaming: true,
         structured_output: true,
         vision: true,
+        audio: true,
       })
     })
   })
@@ -396,8 +397,9 @@ describe('OpenAIAdapter', () => {
       } as Response)
 
       const generator = adapter.chatStream({ messages: mockMessages }, mockContext)
+      const iterator = generator[Symbol.asyncIterator]()
 
-      await expect(generator.next()).rejects.toThrow(LLMError)
+      await expect(iterator.next()).rejects.toThrow(LLMError)
     })
 
     it('should throw error when no response body', async () => {
@@ -407,8 +409,9 @@ describe('OpenAIAdapter', () => {
       } as Response)
 
       const generator = adapter.chatStream({ messages: mockMessages }, mockContext)
+      const iterator = generator[Symbol.asyncIterator]()
 
-      await expect(generator.next()).rejects.toThrow('No response body')
+      await expect(iterator.next()).rejects.toThrow('No response body')
     })
 
     it('should set stream_options for usage tracking', async () => {
@@ -423,8 +426,9 @@ describe('OpenAIAdapter', () => {
       } as unknown as Response)
 
       const generator = adapter.chatStream({ messages: mockMessages }, mockContext)
+      const iterator = generator[Symbol.asyncIterator]()
       // Iterate the generator to trigger the fetch call
-      await generator.next()
+      await iterator.next()
 
       const fetchCall = vi.mocked(fetch).mock.calls[0]
       const requestBody = JSON.parse(fetchCall[1]?.body as string)
@@ -444,7 +448,8 @@ describe('OpenAIAdapter', () => {
       } as unknown as Response)
 
       const generator = adapter.chatStream({ messages: mockMessages }, mockContext)
-      await generator.next()
+      const iterator = generator[Symbol.asyncIterator]()
+      await iterator.next()
 
       expect(mockReader.releaseLock).toHaveBeenCalled()
     })
@@ -637,9 +642,8 @@ describe('OpenAIAdapter', () => {
       const models = await adapter.getModels({ apiKey: 'test-key' })
 
       // Should filter to known model families
-      expect(models.some((m) => m.modelId === 'gpt-4o')).toBe(true)
-      expect(models.some((m) => m.modelId === 'gpt-4o-mini')).toBe(true)
-      expect(models.some((m) => m.modelId === 'gpt-3.5-turbo')).toBe(true)
+      expect(models.some((m) => m.modelId === 'gpt-5.4')).toBe(true)
+      expect(models.some((m) => m.modelId === 'gpt-5-mini')).toBe(true)
       expect(models.some((m) => m.modelId === 'davinci-002')).toBe(false)
       expect(models.some((m) => m.modelId === 'whisper-1')).toBe(false)
     })
@@ -660,6 +664,7 @@ describe('OpenAIAdapter', () => {
         streaming: true,
         structured_output: true,
         vision: true,
+        audio: true,
       })
     })
   })

@@ -97,7 +97,7 @@ describe('/api/llm/usage-export', () => {
           status: 'success',
           error_message: null,
           created_at: '2026-03-18T10:00:00Z',
-          llm_providers: { display_name: 'OpenAI' },
+          llm_providers: [{ display_name: 'OpenAI' }],
         },
       ]
 
@@ -153,7 +153,7 @@ describe('/api/llm/usage-export', () => {
           status: 'success',
           error_message: null,
           created_at: '2026-03-18T10:00:00Z',
-          llm_providers: { display_name: 'OpenAI' },
+          llm_providers: [{ display_name: 'OpenAI' }],
         },
       ]
 
@@ -204,7 +204,7 @@ describe('/api/llm/usage-export', () => {
           status: 'success',
           error_message: 'Error: "test, with commas"',
           created_at: '2026-03-18T10:00:00Z',
-          llm_providers: { display_name: 'OpenAI' },
+          llm_providers: [{ display_name: 'OpenAI' }],
         },
       ]
 

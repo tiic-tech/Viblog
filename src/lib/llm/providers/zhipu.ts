@@ -49,7 +49,8 @@ export class ZhipuAdapter extends BaseProviderAdapter {
   readonly capabilities: LLMProviderCapabilities = {
     streaming: true,
     structured_output: true,
-    vision: false,
+    vision: true,
+    reasoning: true,
   }
 
   /**
@@ -59,7 +60,10 @@ export class ZhipuAdapter extends BaseProviderAdapter {
     options: ChatCompletionOptions,
     context: ProviderAdapterContext
   ): Promise<ChatResponse> {
-    const url = this.buildUrl(context.baseUrl || 'https://open.bigmodel.cn/api/paas/v4', '/chat/completions')
+    const url = this.buildUrl(
+      context.baseUrl || 'https://open.bigmodel.cn/api/paas/v4',
+      '/chat/completions'
+    )
     const model = context.model
 
     const body = {
@@ -98,7 +102,10 @@ export class ZhipuAdapter extends BaseProviderAdapter {
     options: ChatCompletionOptions,
     context: ProviderAdapterContext
   ): AsyncIterable<StreamChunk> {
-    const url = this.buildUrl(context.baseUrl || 'https://open.bigmodel.cn/api/paas/v4', '/chat/completions')
+    const url = this.buildUrl(
+      context.baseUrl || 'https://open.bigmodel.cn/api/paas/v4',
+      '/chat/completions'
+    )
     const model = context.model
 
     const body = {
@@ -202,45 +209,79 @@ export class ZhipuAdapter extends BaseProviderAdapter {
   /**
    * Get available models
    */
-  async getModels(
-    _context: Omit<ProviderAdapterContext, 'model'>
-  ): Promise<LLMModel[]> {
+  async getModels(_context: Omit<ProviderAdapterContext, 'model'>): Promise<LLMModel[]> {
     return [
       {
-        id: 'glm-4-plus',
+        id: 'glm-5',
         providerId: this.providerId,
-        modelId: 'glm-4-plus',
-        displayName: 'GLM-4 Plus',
-        capabilities: this.capabilities,
-        contextWindow: 128000,
-        maxOutputTokens: 4096,
-        inputPricePer1k: 0.00625,
-        outputPricePer1k: 0.00625,
+        modelId: 'glm-5',
+        displayName: 'GLM-5',
+        capabilities: { ...this.capabilities, vision: true, reasoning: true },
+        contextWindow: 200000,
+        maxOutputTokens: 128000,
+        inputPricePer1k: 0.001,
+        outputPricePer1k: 0.0032,
+        supportedParams: ['temperature', 'max_tokens', 'top_p', 'tools'],
+      },
+      {
+        id: 'glm-5-code',
+        providerId: this.providerId,
+        modelId: 'glm-5-code',
+        displayName: 'GLM-5 Code',
+        capabilities: { ...this.capabilities, vision: false },
+        contextWindow: 200000,
+        maxOutputTokens: 128000,
+        inputPricePer1k: 0.0012,
+        outputPricePer1k: 0.005,
         supportedParams: ['temperature', 'max_tokens', 'top_p'],
       },
       {
-        id: 'glm-4-flash',
+        id: 'glm-4.6',
         providerId: this.providerId,
-        modelId: 'glm-4-flash',
-        displayName: 'GLM-4 Flash',
-        capabilities: this.capabilities,
-        contextWindow: 128000,
-        maxOutputTokens: 4096,
-        inputPricePer1k: 0.00001,
-        outputPricePer1k: 0.00001,
-        supportedParams: ['temperature', 'max_tokens', 'top_p'],
-      },
-      {
-        id: 'glm-4v-plus',
-        providerId: this.providerId,
-        modelId: 'glm-4v-plus',
-        displayName: 'GLM-4V Plus',
+        modelId: 'glm-4.6',
+        displayName: 'GLM-4.6',
         capabilities: { ...this.capabilities, vision: true },
-        contextWindow: 8192,
-        maxOutputTokens: 4096,
-        inputPricePer1k: 0.00625,
-        outputPricePer1k: 0.00625,
+        contextWindow: 128000,
+        maxOutputTokens: 16384,
+        inputPricePer1k: 0.002,
+        outputPricePer1k: 0.006,
+        supportedParams: ['temperature', 'max_tokens', 'top_p', 'tools'],
+      },
+      {
+        id: 'glm-4.6-flash',
+        providerId: this.providerId,
+        modelId: 'glm-4.6-flash',
+        displayName: 'GLM-4.6 Flash',
+        capabilities: { ...this.capabilities, vision: true },
+        contextWindow: 128000,
+        maxOutputTokens: 8192,
+        inputPricePer1k: 0.0001,
+        outputPricePer1k: 0.0003,
         supportedParams: ['temperature', 'max_tokens', 'top_p'],
+      },
+      {
+        id: 'glm-4.6-long',
+        providerId: this.providerId,
+        modelId: 'glm-4.6-long',
+        displayName: 'GLM-4.6 Long',
+        capabilities: { ...this.capabilities, vision: false },
+        contextWindow: 1048576,
+        maxOutputTokens: 16384,
+        inputPricePer1k: 0.001,
+        outputPricePer1k: 0.003,
+        supportedParams: ['temperature', 'max_tokens', 'top_p'],
+      },
+      {
+        id: 'glm-4.6v',
+        providerId: this.providerId,
+        modelId: 'glm-4.6v',
+        displayName: 'GLM-4.6V',
+        capabilities: { ...this.capabilities, vision: true },
+        contextWindow: 128000,
+        maxOutputTokens: 8192,
+        inputPricePer1k: 0.0003,
+        outputPricePer1k: 0.0009,
+        supportedParams: ['temperature', 'max_tokens', 'top_p', 'tools'],
       },
     ]
   }
@@ -250,7 +291,7 @@ export class ZhipuAdapter extends BaseProviderAdapter {
    */
   protected buildHeaders(apiKey: string): Record<string, string> {
     return {
-      'Authorization': `Bearer ${apiKey}`,
+      Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     }
   }

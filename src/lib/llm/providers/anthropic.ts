@@ -46,6 +46,7 @@ export class AnthropicAdapter extends BaseProviderAdapter {
     streaming: true,
     structured_output: true,
     vision: true,
+    reasoning: true, // Extended Thinking support
   }
 
   /**
@@ -231,9 +232,7 @@ export class AnthropicAdapter extends BaseProviderAdapter {
     )
 
     // Extract tool use content
-    const toolContent = response.content.find(
-      (c) => c.type === 'tool_use'
-    )
+    const toolContent = response.content.find((c) => c.type === 'tool_use')
 
     if (!toolContent || !('input' in toolContent)) {
       throw this.createError('No structured output in response', 'PROVIDER_ERROR')
@@ -269,32 +268,42 @@ export class AnthropicAdapter extends BaseProviderAdapter {
   /**
    * Get available models (static list)
    */
-  async getModels(
-    _context: Omit<ProviderAdapterContext, 'model'>
-  ): Promise<LLMModel[]> {
+  async getModels(_context: Omit<ProviderAdapterContext, 'model'>): Promise<LLMModel[]> {
     return [
       {
-        id: 'claude-sonnet-4-20250514',
+        id: 'claude-opus-4-6',
         providerId: this.providerId,
-        modelId: 'claude-sonnet-4-20250514',
-        displayName: 'Claude Sonnet 4',
+        modelId: 'claude-opus-4-6',
+        displayName: 'Claude Opus 4.6',
         capabilities: this.capabilities,
-        contextWindow: 200000,
-        maxOutputTokens: 16384,
+        contextWindow: 1048576,
+        maxOutputTokens: 131072,
+        inputPricePer1k: 0.005,
+        outputPricePer1k: 0.025,
+        supportedParams: ['temperature', 'max_tokens', 'top_p'],
+      },
+      {
+        id: 'claude-sonnet-4-6',
+        providerId: this.providerId,
+        modelId: 'claude-sonnet-4-6',
+        displayName: 'Claude Sonnet 4.6',
+        capabilities: this.capabilities,
+        contextWindow: 1048576,
+        maxOutputTokens: 65536,
         inputPricePer1k: 0.003,
         outputPricePer1k: 0.015,
         supportedParams: ['temperature', 'max_tokens', 'top_p'],
       },
       {
-        id: 'claude-3-5-sonnet-20241022',
+        id: 'claude-haiku-4-5-20251001',
         providerId: this.providerId,
-        modelId: 'claude-3-5-sonnet-20241022',
-        displayName: 'Claude 3.5 Sonnet',
+        modelId: 'claude-haiku-4-5-20251001',
+        displayName: 'Claude Haiku 4.5',
         capabilities: this.capabilities,
         contextWindow: 200000,
-        maxOutputTokens: 8192,
-        inputPricePer1k: 0.003,
-        outputPricePer1k: 0.015,
+        maxOutputTokens: 65536,
+        inputPricePer1k: 0.001,
+        outputPricePer1k: 0.005,
         supportedParams: ['temperature', 'max_tokens', 'top_p'],
       },
     ]
@@ -335,7 +344,8 @@ export class AnthropicAdapter extends BaseProviderAdapter {
 
     if (options.temperature !== undefined) merged.temperature = options.temperature
     if (options.topP !== undefined) merged.top_p = options.topP
-    if (options.stop !== undefined) merged.stop_sequences = Array.isArray(options.stop) ? options.stop : [options.stop]
+    if (options.stop !== undefined)
+      merged.stop_sequences = Array.isArray(options.stop) ? options.stop : [options.stop]
 
     return merged
   }

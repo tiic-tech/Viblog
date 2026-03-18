@@ -12,6 +12,9 @@ export interface LLMProviderCapabilities {
   streaming: boolean
   structured_output: boolean
   vision: boolean
+  video?: boolean
+  audio?: boolean
+  reasoning?: boolean
 }
 
 /**

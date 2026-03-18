@@ -44,7 +44,7 @@ describe('/api/llm/usage', () => {
           latency_ms: 500,
           status: 'success',
           created_at: '2026-03-18T10:00:00Z',
-          llm_providers: { id: 'openai', display_name: 'OpenAI' },
+          llm_providers: [{ id: 'openai', display_name: 'OpenAI' }],
         },
         {
           id: '2',
@@ -57,7 +57,7 @@ describe('/api/llm/usage', () => {
           latency_ms: 600,
           status: 'success',
           created_at: '2026-03-18T11:00:00Z',
-          llm_providers: { id: 'openai', display_name: 'OpenAI' },
+          llm_providers: [{ id: 'openai', display_name: 'OpenAI' }],
         },
       ]
 
@@ -176,7 +176,7 @@ describe('/api/llm/usage', () => {
           output_tokens: 50,
           estimated_cost_usd: 0.005,
           created_at: '2026-03-18T10:00:00Z',
-          llm_providers: { id: 'openai', display_name: 'OpenAI' },
+          llm_providers: [{ id: 'openai', display_name: 'OpenAI' }],
         },
         {
           id: '2',
@@ -186,7 +186,7 @@ describe('/api/llm/usage', () => {
           output_tokens: 100,
           estimated_cost_usd: 0.01,
           created_at: '2026-03-18T11:00:00Z',
-          llm_providers: { id: 'anthropic', display_name: 'Anthropic' },
+          llm_providers: [{ id: 'anthropic', display_name: 'Anthropic' }],
         },
       ]
 

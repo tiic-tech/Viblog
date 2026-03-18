@@ -42,7 +42,10 @@ export class MiniMaxAdapter extends BaseProviderAdapter {
   readonly capabilities: LLMProviderCapabilities = {
     streaming: true,
     structured_output: true,
-    vision: false,
+    vision: true,
+    video: true,
+    audio: true,
+    reasoning: true,
   }
 
   /**
@@ -52,7 +55,10 @@ export class MiniMaxAdapter extends BaseProviderAdapter {
     options: ChatCompletionOptions,
     context: ProviderAdapterContext
   ): Promise<ChatResponse> {
-    const url = this.buildUrl(context.baseUrl || 'https://api.minimax.chat/v1', '/text/chatcompletion_v2')
+    const url = this.buildUrl(
+      context.baseUrl || 'https://api.minimax.chat/v1',
+      '/text/chatcompletion_v2'
+    )
     const model = context.model
 
     const body = {
@@ -91,7 +97,10 @@ export class MiniMaxAdapter extends BaseProviderAdapter {
     options: ChatCompletionOptions,
     context: ProviderAdapterContext
   ): AsyncIterable<StreamChunk> {
-    const url = this.buildUrl(context.baseUrl || 'https://api.minimax.chat/v1', '/text/chatcompletion_v2')
+    const url = this.buildUrl(
+      context.baseUrl || 'https://api.minimax.chat/v1',
+      '/text/chatcompletion_v2'
+    )
     const model = context.model
 
     const body = {
@@ -188,16 +197,44 @@ export class MiniMaxAdapter extends BaseProviderAdapter {
   /**
    * Get available models
    */
-  async getModels(
-    _context: Omit<ProviderAdapterContext, 'model'>
-  ): Promise<LLMModel[]> {
+  async getModels(_context: Omit<ProviderAdapterContext, 'model'>): Promise<LLMModel[]> {
     return [
+      {
+        id: 'MiniMax-M2.5',
+        providerId: this.providerId,
+        modelId: 'MiniMax-M2.5',
+        displayName: 'MiniMax M2.5',
+        capabilities: {
+          ...this.capabilities,
+          vision: true,
+          video: true,
+          audio: true,
+          reasoning: true,
+        },
+        contextWindow: 1048576,
+        maxOutputTokens: 131072,
+        inputPricePer1k: 0.00025,
+        outputPricePer1k: 0.00095,
+        supportedParams: ['temperature', 'max_tokens', 'top_p'],
+      },
+      {
+        id: 'MiniMax-M2.5-Lightning',
+        providerId: this.providerId,
+        modelId: 'MiniMax-M2.5-Lightning',
+        displayName: 'MiniMax M2.5 Lightning',
+        capabilities: { ...this.capabilities, vision: true, video: true, audio: true },
+        contextWindow: 1048576,
+        maxOutputTokens: 131072,
+        inputPricePer1k: 0.0002,
+        outputPricePer1k: 0.0008,
+        supportedParams: ['temperature', 'max_tokens', 'top_p'],
+      },
       {
         id: 'abab6.5s-chat',
         providerId: this.providerId,
         modelId: 'abab6.5s-chat',
         displayName: 'ABAB 6.5s Chat',
-        capabilities: this.capabilities,
+        capabilities: { ...this.capabilities, vision: false },
         contextWindow: 245000,
         maxOutputTokens: 16384,
         inputPricePer1k: 0.001,
@@ -209,7 +246,7 @@ export class MiniMaxAdapter extends BaseProviderAdapter {
         providerId: this.providerId,
         modelId: 'abab5.5s-chat',
         displayName: 'ABAB 5.5s Chat',
-        capabilities: this.capabilities,
+        capabilities: { ...this.capabilities, vision: false },
         contextWindow: 8192,
         maxOutputTokens: 4096,
         inputPricePer1k: 0.0005,
@@ -224,7 +261,7 @@ export class MiniMaxAdapter extends BaseProviderAdapter {
    */
   protected buildHeaders(apiKey: string): Record<string, string> {
     return {
-      'Authorization': `Bearer ${apiKey}`,
+      Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     }
   }

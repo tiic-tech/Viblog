@@ -55,6 +55,7 @@ export class DeepSeekAdapter extends BaseProviderAdapter {
     streaming: true,
     structured_output: true,
     vision: false,
+    reasoning: true, // DeepSeek Reasoner (R1) support
   }
 
   /**
@@ -246,9 +247,7 @@ export class DeepSeekAdapter extends BaseProviderAdapter {
   /**
    * Get available models
    */
-  async getModels(
-    _context: Omit<ProviderAdapterContext, 'model'>
-  ): Promise<LLMModel[]> {
+  async getModels(_context: Omit<ProviderAdapterContext, 'model'>): Promise<LLMModel[]> {
     return [
       {
         id: 'deepseek-chat',
@@ -267,7 +266,7 @@ export class DeepSeekAdapter extends BaseProviderAdapter {
         providerId: this.providerId,
         modelId: 'deepseek-reasoner',
         displayName: 'DeepSeek Reasoner (R1)',
-        capabilities: this.capabilities,
+        capabilities: { ...this.capabilities, reasoning: true },
         contextWindow: 64000,
         maxOutputTokens: 8192,
         inputPricePer1k: 0.00055,
@@ -282,7 +281,7 @@ export class DeepSeekAdapter extends BaseProviderAdapter {
    */
   protected buildHeaders(apiKey: string): Record<string, string> {
     return {
-      'Authorization': `Bearer ${apiKey}`,
+      Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     }
   }
