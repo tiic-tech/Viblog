@@ -38,7 +38,8 @@ function getElementXPath(element: Node | null): string | null {
   if (!element) return null
 
   // For text nodes, get parent element
-  const targetElement = element.nodeType === Node.TEXT_NODE ? element.parentElement : element as Element
+  const targetElement =
+    element.nodeType === Node.TEXT_NODE ? element.parentElement : (element as Element)
 
   if (!targetElement || targetElement.nodeType !== Node.ELEMENT_NODE) return null
 
@@ -205,11 +206,21 @@ export function useTextSelection(
   }, [enabled, minLength, debounceMs, containerRef])
 
   // Track mouse down for isSelecting state
-  const handleMouseDown = useCallback(() => {
-    if (enabled) {
+  const handleMouseDown = useCallback(
+    (event: MouseEvent) => {
+      if (!enabled) return
+
+      // Check if click is inside the annotation tooltip - if so, don't set isSelecting
+      // This prevents the selection from being cleared when clicking tooltip buttons
+      const target = event.target as HTMLElement
+      if (target.closest('[data-annotation-tooltip]')) {
+        return
+      }
+
       setState((prev) => ({ ...prev, isSelecting: true }))
-    }
-  }, [enabled])
+    },
+    [enabled]
+  )
 
   const handleMouseUp = useCallback(() => {
     if (enabled) {

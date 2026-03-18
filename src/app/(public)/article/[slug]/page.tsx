@@ -209,6 +209,13 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   const { article, related: relatedArticles } = data
 
+  // Get current user for annotation functionality
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  const currentUserId = user?.id || 'anonymous'
+
   return (
     <article className="container py-8">
       {/* Scroll Progress Indicator */}
@@ -248,7 +255,11 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
       {/* Content */}
       <div className="my-8">
-        <ArticleContent content={article.content} />
+        <ArticleContent
+          content={article.content}
+          articleId={article.id}
+          currentUserId={currentUserId}
+        />
       </div>
 
       {/* Related Articles */}

@@ -6,8 +6,8 @@ import AnnotationTooltip from '@/components/ui/annotation-tooltip'
 import { AnnotationSidebar } from '@/components/annotations/annotation-sidebar'
 import { CommentModal } from '@/components/annotations/comment-modal'
 import type { TextSelection } from '@/hooks/use-text-selection'
-import { useHighlights, applyHighlightsToDOM } from '@/hooks/use-highlights'
 import { useAnnotations } from '@/hooks/use-annotations'
+import { applyHighlightsToDOM } from '@/hooks/use-highlights'
 import { toast } from '@/hooks/use-toast'
 import type { AnnotationColor, AnnotationVisibility } from '@/types/annotation'
 
@@ -39,13 +39,7 @@ function ArticleContent({
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false)
   const [pendingSelection, setPendingSelection] = useState<TextSelection | null>(null)
 
-  // Initialize highlights persistence
-  const { highlights, addHighlight, removeHighlight, isHighlighted } = useHighlights({
-    articleId,
-    maxHighlights: 50,
-  })
-
-  // Initialize annotations
+  // Initialize annotations (unified system for highlights and comments)
   const {
     annotations,
     addAnnotation,
@@ -58,21 +52,7 @@ function ArticleContent({
     userId: currentUserId,
   })
 
-  // Apply persisted highlights to DOM after content renders
-  useEffect(() => {
-    if (!contentRef.current || highlights.length === 0) return
-
-    // Small delay to ensure DOM is ready
-    const timer = setTimeout(() => {
-      if (contentRef.current) {
-        applyHighlightsToDOM(contentRef.current, highlights)
-      }
-    }, 100)
-
-    return () => clearTimeout(timer)
-  }, [highlights])
-
-  // Sync annotations with highlights
+  // Apply annotations to DOM (highlights + comments unified)
   useEffect(() => {
     if (!contentRef.current || annotations.length === 0) return
 
@@ -96,11 +76,12 @@ function ArticleContent({
     return () => clearTimeout(timer)
   }, [annotations])
 
-  // Handle highlight action - persist the highlight
+  // Handle highlight action - create annotation (unified system)
   const handleHighlight = useCallback(
     (selection: TextSelection) => {
-      // Check if already highlighted
-      if (isHighlighted(selection.text)) {
+      // Check if already annotated with this text
+      const existing = getAnnotationByText(selection.text)
+      if (existing) {
         toast({
           title: 'Already Highlighted',
           description: 'This text is already highlighted',
@@ -108,28 +89,25 @@ function ArticleContent({
         return
       }
 
-      // Create the highlight
-      const newHighlight = addHighlight({
+      // Create annotation (highlights are annotations with empty content)
+      addAnnotation({
+        articleId,
+        userId: currentUserId,
         text: selection.text,
         containerXPath: selection.containerXPath,
         startOffset: selection.startOffset,
         endOffset: selection.endOffset,
+        content: '', // Empty content for simple highlight
         color: 'default',
+        visibility: 'private',
       })
 
-      if (newHighlight) {
-        // Apply to DOM immediately
-        if (contentRef.current) {
-          applyHighlightsToDOM(contentRef.current, [...highlights, newHighlight])
-        }
-
-        toast({
-          title: 'Text Highlighted',
-          description: `"${selection.text.slice(0, 50)}${selection.text.length > 50 ? '...' : ''}"`,
-        })
-      }
+      toast({
+        title: 'Text Highlighted',
+        description: `"${selection.text.slice(0, 50)}${selection.text.length > 50 ? '...' : ''}"`,
+      })
     },
-    [addHighlight, isHighlighted, highlights]
+    [addAnnotation, getAnnotationByText, articleId, currentUserId]
   )
 
   // Handle comment action - open modal instead of toast

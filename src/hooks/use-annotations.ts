@@ -35,10 +35,7 @@ const generateId = (prefix: string): string => {
  *
  * Soul Mission: "I've been here. I've grown here. This is my intellectual home."
  */
-export function useAnnotations({
-  articleId,
-  userId,
-}: UseAnnotationsOptions): UseAnnotationsReturn {
+export function useAnnotations({ articleId, userId }: UseAnnotationsOptions): UseAnnotationsReturn {
   const storageKey = `${STORAGE_KEY_PREFIX}${articleId}`
 
   // Initialize state from localStorage
@@ -86,7 +83,7 @@ export function useAnnotations({
         )
 
         if (isDuplicate) {
-          return prev // Return unchanged state, will return null after
+          return prev
         }
 
         return [...prev, newAnnotation]
@@ -108,16 +105,11 @@ export function useAnnotations({
   /**
    * Update an existing annotation
    */
-  const updateAnnotation = useCallback(
-    (id: string, updates: Partial<Annotation>): void => {
-      setAnnotations((prev) =>
-        prev.map((annotation) =>
-          annotation.id === id ? { ...annotation, ...updates } : annotation
-        )
-      )
-    },
-    []
-  )
+  const updateAnnotation = useCallback((id: string, updates: Partial<Annotation>): void => {
+    setAnnotations((prev) =>
+      prev.map((annotation) => (annotation.id === id ? { ...annotation, ...updates } : annotation))
+    )
+  }, [])
 
   /**
    * Delete an annotation by ID

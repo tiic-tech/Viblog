@@ -124,6 +124,12 @@ export default function AnnotationTooltip({
     setPosition({ top, left })
   }, [selection])
 
+  // Handle mouse down on tooltip - prevent browser from clearing selection
+  const handleTooltipMouseDown = (e: React.MouseEvent) => {
+    // Prevent the browser's default behavior of clearing selection on click
+    e.preventDefault()
+  }
+
   // Handle action click
   const handleAction = (action: AnnotationAction) => {
     if (!selection) return
@@ -173,6 +179,8 @@ export default function AnnotationTooltip({
       {selection && (
         <motion.div
           ref={tooltipRef}
+          data-annotation-tooltip="true"
+          onMouseDown={handleTooltipMouseDown}
           initial={{ opacity: 0, y: placement === 'top' ? 8 : -8, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: placement === 'top' ? 4 : -4, scale: 0.95 }}
@@ -189,9 +197,9 @@ export default function AnnotationTooltip({
         >
           <div
             className={`
-              flex items-center gap-1 rounded-xl border border-border-subtle
-              bg-bg-elevated/95 backdrop-blur-lg px-2 py-1.5
-              shadow-lg shadow-black/5
+              bg-bg-elevated/95 flex items-center gap-1 rounded-xl border
+              border-border-subtle px-2 py-1.5 shadow-lg
+              shadow-black/5 backdrop-blur-lg
             `}
             role="toolbar"
             aria-label="Text annotation tools"
@@ -201,9 +209,9 @@ export default function AnnotationTooltip({
                 key={btn.action}
                 onClick={() => handleAction(btn.action)}
                 className={`
-                  flex items-center gap-1.5 rounded-lg px-2.5 py-1.5
-                  text-sm font-medium transition-all duration-150
-                  focus:outline-none focus:ring-2 focus:ring-accent-primary/30
+                  focus:ring-accent-primary/30 flex items-center gap-1.5 rounded-lg px-2.5
+                  py-1.5 text-sm font-medium transition-all
+                  duration-150 focus:outline-none focus:ring-2
                   ${btn.colorClass}
                 `}
                 title={`${btn.label} (${btn.action[0].toUpperCase()})`}
@@ -235,8 +243,8 @@ export default function AnnotationTooltip({
           >
             <div
               className={`
-                h-full w-full border-l border-r border-b border-border-subtle
-                bg-bg-elevated/95
+                bg-bg-elevated/95 h-full w-full border-b border-l border-r
+                border-border-subtle
               `}
               style={{
                 clipPath: 'polygon(0 0, 100% 0, 50% 100%)',
