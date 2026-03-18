@@ -15,6 +15,22 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Phase 11.6.6: Usage Dashboard API - COMPLETE (2026-03-18 14:15):**
+  - **Usage Statistics API (`/api/llm/usage`):**
+    - GET: Usage summary with total tokens, cost, request count
+    - Time period filtering (7d, 30d, 90d, all)
+    - Provider breakdown with cost attribution
+    - Model breakdown with usage statistics
+    - User-scoped data with authentication
+  - **Usage Export API (`/api/llm/usage/export`):**
+    - CSV export for billing and analysis
+    - Date range filtering with from/to parameters
+    - Provider and model columns with token counts
+    - Cost calculation per request
+  - **Comprehensive Test Coverage:**
+    - 10 tests for usage endpoint
+    - 8 tests for usage-export endpoint
+    - Mocked Supabase client for isolation
 - **Phase 11.6.4 & 11.6.5: Chat API & Structured Output - COMPLETE (2026-03-18 10:19):**
   - **Chat API (`/api/llm/chat`):**
     - Non-streaming mode with full response
