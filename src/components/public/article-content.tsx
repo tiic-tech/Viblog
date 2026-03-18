@@ -1,11 +1,15 @@
 'use client'
 
-import { memo, useRef, useCallback, useEffect } from 'react'
+import { memo, useRef, useCallback, useEffect, useState } from 'react'
 import CodeBlock from '@/components/ui/code-block'
 import AnnotationTooltip from '@/components/ui/annotation-tooltip'
+import { AnnotationSidebar } from '@/components/annotations/annotation-sidebar'
+import { CommentModal } from '@/components/annotations/comment-modal'
 import type { TextSelection } from '@/hooks/use-text-selection'
 import { useHighlights, applyHighlightsToDOM } from '@/hooks/use-highlights'
+import { useAnnotations } from '@/hooks/use-annotations'
 import { toast } from '@/hooks/use-toast'
+import type { AnnotationColor, AnnotationVisibility } from '@/types/annotation'
 
 // Import immersive prose styles for Phase 3 Article Detail Polish
 import '@/styles/prose-immersive.css'
@@ -13,16 +17,41 @@ import '@/styles/prose-immersive.css'
 interface ArticleContentProps {
   content: string | null
   articleId?: string
+  currentUserId?: string
 }
 
-// Parse and render Tiptap JSON content
-function ArticleContent({ content, articleId = 'default' }: ArticleContentProps) {
+/**
+ * Article Content - The Intellectual Gallery
+ *
+ * This component renders article content with annotation support.
+ * Every annotation is a mark of intellectual presence - transforming
+ * passive reading into active dialogue.
+ *
+ * Soul Mission: "I've been here. I've grown here. This is my intellectual home."
+ */
+function ArticleContent({ content, articleId = 'default', currentUserId = 'anonymous' }: ArticleContentProps) {
   const contentRef = useRef<HTMLDivElement>(null)
+  const [isSidebarVisible, setIsSidebarVisible] = useState(false)
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false)
+  const [pendingSelection, setPendingSelection] = useState<TextSelection | null>(null)
 
   // Initialize highlights persistence
   const { highlights, addHighlight, removeHighlight, isHighlighted } = useHighlights({
     articleId,
     maxHighlights: 50,
+  })
+
+  // Initialize annotations
+  const {
+    annotations,
+    addAnnotation,
+    updateAnnotation,
+    deleteAnnotation,
+    addReply,
+    getAnnotationByText,
+  } = useAnnotations({
+    articleId,
+    userId: currentUserId,
   })
 
   // Apply persisted highlights to DOM after content renders
@@ -38,6 +67,29 @@ function ArticleContent({ content, articleId = 'default' }: ArticleContentProps)
 
     return () => clearTimeout(timer)
   }, [highlights])
+
+  // Sync annotations with highlights
+  useEffect(() => {
+    if (!contentRef.current || annotations.length === 0) return
+
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(() => {
+      if (contentRef.current) {
+        // Create highlight data from annotations
+        const annotationHighlights = annotations.map((ann) => ({
+          id: ann.id,
+          text: ann.text,
+          containerXPath: ann.containerXPath,
+          startOffset: ann.startOffset,
+          endOffset: ann.endOffset,
+          color: ann.color,
+        }))
+        applyHighlightsToDOM(contentRef.current, annotationHighlights)
+      }
+    }, 100)
+
+    return () => clearTimeout(timer)
+  }, [annotations])
 
   // Handle highlight action - persist the highlight
   const handleHighlight = useCallback(
@@ -75,13 +127,10 @@ function ArticleContent({ content, articleId = 'default' }: ArticleContentProps)
     [addHighlight, isHighlighted, highlights]
   )
 
-  // Handle comment action
+  // Handle comment action - open modal instead of toast
   const handleComment = useCallback((selection: TextSelection) => {
-    // For now, show a toast - future implementation will open comment modal
-    toast({
-      title: 'Add Comment',
-      description: `Comment on: "${selection.text.slice(0, 30)}${selection.text.length > 30 ? '...' : ''}"`,
-    })
+    setPendingSelection(selection)
+    setIsCommentModalOpen(true)
   }, [])
 
   // Handle share action
@@ -106,6 +155,67 @@ function ArticleContent({ content, articleId = 'default' }: ArticleContentProps)
     )
   }, [])
 
+  // Handle saving annotation from modal
+  const handleSaveAnnotation = useCallback(
+    (data: { content: string; color: AnnotationColor; visibility: AnnotationVisibility }) => {
+      if (!pendingSelection) return
+
+      addAnnotation({
+        text: pendingSelection.text,
+        containerXPath: pendingSelection.containerXPath,
+        startOffset: pendingSelection.startOffset,
+        endOffset: pendingSelection.endOffset,
+        content: data.content,
+        color: data.color,
+        visibility: data.visibility,
+      })
+
+      toast({
+        title: 'Annotation Added',
+        description: 'Your thought has been saved',
+      })
+
+      setPendingSelection(null)
+    },
+    [addAnnotation, pendingSelection]
+  )
+
+  // Handle clicking annotation in sidebar
+  const handleAnnotationClick = useCallback((annotation: typeof annotations[0]) => {
+    // Find the text in the content and scroll to it
+    if (!contentRef.current) return
+
+    const textNodes: Text[] = []
+    const walker = document.createTreeWalker(contentRef.current, NodeFilter.SHOW_TEXT, null)
+
+    let node: Text | null
+    while ((node = walker.nextNode() as Text | null)) {
+      textNodes.push(node)
+    }
+
+    for (const textNode of textNodes) {
+      if (textNode.textContent?.includes(annotation.text)) {
+        const parentElement = textNode.parentElement
+        if (parentElement) {
+          parentElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          // Brief highlight effect
+          parentElement.style.transition = 'background-color 0.3s'
+          const originalBg = parentElement.style.backgroundColor
+          parentElement.style.backgroundColor = 'rgba(59, 130, 246, 0.3)'
+          setTimeout(() => {
+            parentElement.style.backgroundColor = originalBg
+          }, 1500)
+        }
+        break
+      }
+    }
+  }, [])
+
+  // Toggle sidebar visibility
+  const toggleSidebar = useCallback(() => {
+    setIsSidebarVisible((prev) => !prev)
+  }, [])
+
   if (!content) {
     return <div className="py-8 text-center text-muted-foreground">No content available.</div>
   }
@@ -117,35 +227,113 @@ function ArticleContent({ content, articleId = 'default' }: ArticleContentProps)
   } catch {
     // If not JSON, treat as HTML
     return (
-      <>
-        <div
-          ref={contentRef}
-          className="prose-immersive"
-          dangerouslySetInnerHTML={{ __html: content }}
-        />
+      <div data-testid="article-content-container" className="relative">
+        <button
+          type="button"
+          onClick={toggleSidebar}
+          aria-label="Toggle annotations"
+          className="fixed right-4 top-1/2 -translate-y-1/2 z-10 rounded-full bg-background border border-border p-2 shadow-md hover:bg-muted transition-colors"
+        >
+          <svg
+            className={`w-5 h-5 transition-transform ${isSidebarVisible ? 'rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <title>Toggle annotations sidebar</title>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d={isSidebarVisible ? 'M9 5l7 7-7 7' : 'M15 19l-7-7 7-7'}
+            />
+          </svg>
+        </button>
+
+        <div className={isSidebarVisible ? 'flex' : ''}>
+          <div
+            ref={contentRef}
+            className="prose-immersive flex-1"
+            dangerouslySetInnerHTML={{ __html: content }}
+          />
+          {isSidebarVisible && (
+            <AnnotationSidebar
+              annotations={annotations}
+              currentUserId={currentUserId}
+              onAnnotationClick={handleAnnotationClick}
+            />
+          )}
+        </div>
+
         <AnnotationTooltip
           containerRef={contentRef}
           onHighlight={handleHighlight}
           onComment={handleComment}
           onShare={handleShare}
         />
-      </>
+
+        <CommentModal
+          isOpen={isCommentModalOpen}
+          onClose={() => setIsCommentModalOpen(false)}
+          selectedText={pendingSelection?.text || ''}
+          onSave={handleSaveAnnotation}
+        />
+      </div>
     )
   }
 
   // Render JSON content recursively
   return (
-    <>
-      <div ref={contentRef} className="prose-immersive">
-        {renderNode(parsedContent)}
+    <div data-testid="article-content-container" className="relative">
+      <button
+        type="button"
+        onClick={toggleSidebar}
+        aria-label="Toggle annotations"
+        className="fixed right-4 top-1/2 -translate-y-1/2 z-10 rounded-full bg-background border border-border p-2 shadow-md hover:bg-muted transition-colors"
+      >
+        <svg
+          className={`w-5 h-5 transition-transform ${isSidebarVisible ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <title>Toggle annotations sidebar</title>
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d={isSidebarVisible ? 'M9 5l7 7-7 7' : 'M15 19l-7-7 7-7'}
+          />
+        </svg>
+      </button>
+
+      <div className={isSidebarVisible ? 'flex' : ''}>
+        <div ref={contentRef} className="prose-immersive flex-1">
+          {renderNode(parsedContent)}
+        </div>
+        {isSidebarVisible && (
+          <AnnotationSidebar
+            annotations={annotations}
+            currentUserId={currentUserId}
+            onAnnotationClick={handleAnnotationClick}
+          />
+        )}
       </div>
+
       <AnnotationTooltip
         containerRef={contentRef}
         onHighlight={handleHighlight}
         onComment={handleComment}
         onShare={handleShare}
       />
-    </>
+
+      <CommentModal
+        isOpen={isCommentModalOpen}
+        onClose={() => setIsCommentModalOpen(false)}
+        selectedText={pendingSelection?.text || ''}
+        onSave={handleSaveAnnotation}
+      />
+    </div>
   )
 }
 
