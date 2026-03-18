@@ -1601,6 +1601,105 @@ import { SplitPaneEditor } from '@/components/editor/split-pane-editor'
 
 ---
 
-**Document Version:** 7.4
+## Annotation System Bug Discovery (2026-03-18)
+
+### Bug: Highlights and Annotations Are Disconnected Systems
+
+**Discovery Method:** Playwright E2E testing
+
+**What I Found:**
+When testing the annotation features on a public article page:
+1. Selected text on the article
+2. Annotation tooltip appeared correctly with Highlight/Comment buttons
+3. Clicked "Highlight" button
+4. Sidebar showed "0 annotations" - highlight was NOT visible
+
+**Root Cause Analysis:**
+
+The annotation system has TWO completely separate state/storage systems that don't communicate:
+
+```
+HIGHLIGHTS SYSTEM                    ANNOTATIONS SYSTEM
+=================                    ==================
+useHighlights hook                   useAnnotations hook
+stores to: viblog_highlights_*       stores to: viblog_annotations_*
+
+Highlight button click:
+  article-content.tsx:handleHighlight()
+    -> calls addHighlight()
+    -> stores to highlights state
+    -> persists to viblog_highlights_* localStorage
+
+Sidebar display:
+  article-content.tsx:AnnotationSidebar
+    -> receives annotations prop
+    -> reads from annotations state
+    -> loaded from viblog_annotations_* localStorage
+```
+
+**The Bug:**
+- `handleHighlight()` (lines 100-133 in article-content.tsx) calls `addHighlight()`, NOT `addAnnotation()`
+- `AnnotationSidebar` receives `annotations` array, NOT `highlights` array
+- These are two separate localStorage keys and state arrays that never sync
+
+**Code Evidence:**
+
+```typescript
+// article-content.tsx - handleHighlight calls addHighlight
+const handleHighlight = () => {
+  const selectedText = textSelection.selectedText
+  if (!selectedText) return
+
+  addHighlight({  // <-- This goes to HIGHLIGHTS state
+    id: `highlight-${Date.now()}`,
+    text: selectedText,
+    color: 'default',
+    createdAt: new Date().toISOString(),
+  })
+}
+
+// But sidebar displays ANNOTATIONS, not highlights
+{isSidebarVisible && (
+  <AnnotationSidebar
+    annotations={annotations}  // <-- This is from useAnnotations, NOT useHighlights
+    currentUserId={currentUserId}
+    onAnnotationClick={handleAnnotationClick}
+  />
+)}
+```
+
+**Impact:**
+- Users click "Highlight" button but don't see their highlight in the sidebar
+- Highlights ARE stored (can see in localStorage) but sidebar can't display them
+- Creates confusing UX where actions appear to have no effect
+
+**Fix Options:**
+
+**Option 1 (Recommended):** Make highlight button create annotations
+- Change `handleHighlight()` to call `addAnnotation()` instead of `addHighlight()`
+- Annotations have more metadata (visibility, replies) than highlights
+- One unified system, simpler architecture
+
+**Option 2:** Merge highlights into sidebar display
+- Sidebar could show both highlights AND annotations
+- More complex, two data sources to reconcile
+- Highlights have no reply/visibility features
+
+**Option 3:** Sync highlights to annotations
+- When highlight is added, also create a corresponding annotation
+- Duplication of data, potential sync issues
+
+**Recommended Fix:** Option 1 - Unify to use annotations system only
+
+**Files to Modify:**
+1. `src/components/public/article-content.tsx` - Change handleHighlight to use addAnnotation
+2. `src/hooks/use-highlights.ts` - Potentially deprecate (no longer needed)
+3. Tests for article-content to verify highlights appear in sidebar
+
+**Priority:** HIGH - Affects core user experience for annotation feature
+
+---
+
+**Document Version:** 7.5
 **Last Updated:** 2026-03-18
 **Author:** Claude (with human collaborator)
