@@ -95,6 +95,67 @@
 
 ---
 
+### Spark 003: Multi-LLM Model Routing Layer
+**Date:** 2026-03-18
+**Source:** User Idea
+**Priority:** P1
+**Status:** Pending
+**Recorded From:** Backend Worktree
+
+**Description:**
+支持用户同时配置多个不同的LLM，提供模型路由层让用户自定义不同LLM执行不同任务。类似于Claude Code的Opus/Sonnet/Haiku策略。
+
+**Use Case:**
+- 用户可以快速切换不同LLM完成不同任务
+- 针对海外社交媒体：优先使用ChatGPT、Gemini
+- 针对国内社交媒体：配置DeepSeek、豆包、Qwen
+- 不同任务类型选择最适合的模型（写作、翻译、代码等）
+
+**Implementation Ideas:**
+1. **模型路由层架构**
+   ```
+   user_llm_route_rules 表:
+   - user_id: 用户ID
+   - task_type: 任务类型 (social_overseas, social_china, writing, translation, code)
+   - preferred_provider_id: 首选提供商
+   - fallback_provider_id: 备选提供商
+   - priority: 优先级
+   ```
+
+2. **任务类型定义**
+   - `social_overseas`: 海外社交媒体内容生成 (ChatGPT, Gemini)
+   - `social_china`: 国内社交媒体内容生成 (DeepSeek, 豆包, Qwen)
+   - `article_writing`: 文章写作 (高质量模型)
+   - `translation`: 翻译任务
+   - `code_generation`: 代码生成
+
+3. **API扩展**
+   ```
+   POST /api/llm/route
+   - task_type: 指定任务类型
+   - 自动选择用户配置的最佳模型
+   - 支持fallback机制
+
+   GET /api/llm/route/config
+   - 获取用户的路由配置
+
+   PUT /api/llm/route/config
+   - 更新路由规则
+   ```
+
+4. **智能路由逻辑**
+   - 根据任务类型匹配用户配置
+   - 优先使用首选模型
+   - 首选失败时自动fallback
+   - 支持负载均衡（多模型轮询）
+
+**Integration Point:**
+- Phase 12: 社交媒体分发模块
+- 可与现有的 user_llm_configs 表整合
+- 扩展 /api/llm/chat 端点支持 task_type 参数
+
+---
+
 ## Processed Sparks
 
 *(None yet - sparks will be moved here after integration into IMPLEMENTATION_PLAN.md)*
