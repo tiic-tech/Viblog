@@ -1203,6 +1203,80 @@ if (currentScrollY > lastScrollY) {
 
 ---
 
+### Phase 10.4.3: Annotation System (Completed 2026-03-18)
+
+**Soul Mission:** Transform reading from passive consumption to active dialogue. Every annotation is a mark of intellectual presence - "I've been here. I've grown here. This is my intellectual home."
+
+**What I Did:**
+
+#### TDD Checkpoint 10.4.3.1: Annotation Type Definition
+- Created `src/types/annotation.ts` with Annotation, DiscussionItem, AnnotationVisibility, AnnotationColor types
+- Created `src/types/__tests__/annotation.test.ts` with 12 passing tests
+- Added JSDoc documentation for soul-centered annotation system
+- Soul Impact: Foundation for transforming passive reading into active dialogue
+
+#### TDD Checkpoint 10.4.3.2: Annotation Hook
+- Created `src/hooks/use-annotations.ts` with full annotation CRUD operations
+- Created `src/hooks/__tests__/use-annotations.test.ts` with 18 passing tests
+- Implemented localStorage persistence per article
+- Implemented addAnnotation with duplicate prevention
+- Implemented updateAnnotation, deleteAnnotation, addReply, clearAnnotations
+- Soul impact: Every annotation is a mark of intellectual presence
+
+#### TDD Checkpoint 10.4.3.3: Comment Modal Component
+- Created `src/components/annotations/comment-modal.tsx` (~150 lines)
+- Created `src/components/annotations/__tests__/comment-modal.test.tsx` with 18 passing tests
+- Implemented selected text preview with italic styling
+- Implemented 5-color picker (default, yellow, green, blue, pink)
+- Implemented 3-option visibility selector (public, private, followers)
+- Added keyboard accessibility (Escape to close, focus management)
+- Soul impact: "I've been here. This is my thought. This matters."
+
+#### TDD Checkpoint 10.4.3.4: Annotation Sidebar Component
+- Created `src/components/annotations/annotation-sidebar.tsx` (~220 lines)
+- Created `src/components/annotations/__tests__/annotation-sidebar.test.tsx` with 16 passing tests
+- Implemented annotation list with color indicators
+- Implemented user filter and visibility filter
+- Implemented ownership indicator ("Yours" badge)
+- Implemented discussion count badges
+- Implemented click navigation to annotation positions
+- Soul impact: "I've been here. I've grown here. This is my intellectual home."
+
+#### TDD Checkpoint 10.4.3.5: Article Content Integration
+- Created `src/components/public/__tests__/article-content-integration.test.tsx` with 10 passing tests
+- Added sidebar toggle button for AnnotationSidebar (fixed positioning)
+- Integrated CommentModal for annotation creation
+- Synced annotations with highlights on mount
+- Added annotation click navigation with scroll and highlight effect
+- Integrated useAnnotations hook into ArticleContent
+- Soul impact: Transform article reading into personal intellectual dialogue
+
+**What Went Well:**
+- TDD workflow ensured solid test coverage from the start
+- Each checkpoint built on previous checkpoints seamlessly
+- Soul-centered documentation keeps focus on user experience
+- localStorage persistence provides immediate functionality without backend
+
+**Key Files Created:**
+- `src/types/annotation.ts` - Type definitions
+- `src/hooks/use-annotations.ts` - Annotation state management hook
+- `src/components/annotations/comment-modal.tsx` - Comment creation modal
+- `src/components/annotations/annotation-sidebar.tsx` - Annotation list sidebar
+
+**Total Tests Added:** 74 tests (12 + 18 + 18 + 16 + 10)
+
+**Commits:**
+- `feat: add annotation types with tests (TDD 10.4.3.1)`
+- `feat: implement useAnnotations hook with tests (TDD 10.4.3.2)`
+- `feat: create CommentModal component with tests (TDD 10.4.3.3)`
+- `feat: create AnnotationSidebar component with tests (TDD 10.4.3.4)`
+- `feat: integrate annotations with article content (TDD 10.4.3.5)`
+
+**Phase 10.4.3 Status:** COMPLETE (2026-03-18)
+**Next:** TDD Checkpoint 10.4.1.1 (Editor State Hook)
+
+---
+
 ### Phase 11 Summary
 
 **Overall Score: 92/100 (Grade A)**
@@ -1290,6 +1364,6 @@ if (currentScrollY > lastScrollY) {
 
 ---
 
-**Document Version:** 7.1
+**Document Version:** 7.2
 **Last Updated:** 2026-03-18
 **Author:** Claude (with human collaborator)
