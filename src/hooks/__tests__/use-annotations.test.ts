@@ -80,9 +80,10 @@ describe('useAnnotations', () => {
         returnedAnnotation = result.current.addAnnotation(mockAnnotation)
       })
 
-      expect(returnedAnnotation).toBeDefined()
-      expect(returnedAnnotation?.id).toMatch(/^ann_/)
-      expect(returnedAnnotation?.content).toBe('This is my comment')
+      expect(returnedAnnotation).not.toBeNull()
+      // Use result.current.annotations[0] which is guaranteed to exist after add
+      expect(result.current.annotations[0].id).toMatch(/^ann_/)
+      expect(result.current.annotations[0].content).toBe('This is my comment')
       expect(result.current.annotations).toHaveLength(1)
     })
 
@@ -102,16 +103,14 @@ describe('useAnnotations', () => {
     it('should generate unique ID and timestamp', () => {
       const { result } = renderHook(() => useAnnotations({ articleId, userId }))
 
-      let result1: Annotation | null = null
-      let result2: Annotation | null = null
       act(() => {
-        result1 = result.current.addAnnotation(mockAnnotation)
-        result2 = result.current.addAnnotation({ ...mockAnnotation, text: 'Another text' })
+        result.current.addAnnotation(mockAnnotation)
+        result.current.addAnnotation({ ...mockAnnotation, text: 'Another text' })
       })
 
-      expect(result1?.id).not.toBe(result2?.id)
-      expect(result1?.createdAt).toBeDefined()
-      expect(result2?.createdAt).toBeDefined()
+      expect(result.current.annotations[0].id).not.toBe(result.current.annotations[1].id)
+      expect(result.current.annotations[0].createdAt).toBeDefined()
+      expect(result.current.annotations[1].createdAt).toBeDefined()
     })
 
     it('should prevent duplicate annotations (same text and offsets)', () => {
@@ -135,14 +134,13 @@ describe('useAnnotations', () => {
     it('should update existing annotation', () => {
       const { result } = renderHook(() => useAnnotations({ articleId, userId }))
 
-      let added: Annotation | null = null
       act(() => {
-        added = result.current.addAnnotation(mockAnnotation)
+        result.current.addAnnotation(mockAnnotation)
       })
-      if (!added) throw new Error('Failed to add annotation')
 
+      const annotationId = result.current.annotations[0].id
       act(() => {
-        result.current.updateAnnotation(added.id, { content: 'Updated comment' })
+        result.current.updateAnnotation(annotationId, { content: 'Updated comment' })
       })
 
       expect(result.current.annotations[0].content).toBe('Updated comment')
@@ -151,14 +149,13 @@ describe('useAnnotations', () => {
     it('should update visibility', () => {
       const { result } = renderHook(() => useAnnotations({ articleId, userId }))
 
-      let added: Annotation | null = null
       act(() => {
-        added = result.current.addAnnotation(mockAnnotation)
+        result.current.addAnnotation(mockAnnotation)
       })
-      if (!added) throw new Error('Failed to add annotation')
 
+      const annotationId = result.current.annotations[0].id
       act(() => {
-        result.current.updateAnnotation(added.id, { visibility: 'private' })
+        result.current.updateAnnotation(annotationId, { visibility: 'private' })
       })
 
       expect(result.current.annotations[0].visibility).toBe('private')
@@ -167,14 +164,13 @@ describe('useAnnotations', () => {
     it('should update color', () => {
       const { result } = renderHook(() => useAnnotations({ articleId, userId }))
 
-      let added: Annotation | null = null
       act(() => {
-        added = result.current.addAnnotation(mockAnnotation)
+        result.current.addAnnotation(mockAnnotation)
       })
-      if (!added) throw new Error('Failed to add annotation')
 
+      const annotationId = result.current.annotations[0].id
       act(() => {
-        result.current.updateAnnotation(added.id, { color: 'blue' })
+        result.current.updateAnnotation(annotationId, { color: 'blue' })
       })
 
       expect(result.current.annotations[0].color).toBe('blue')
@@ -200,14 +196,13 @@ describe('useAnnotations', () => {
     it('should remove annotation by ID', () => {
       const { result } = renderHook(() => useAnnotations({ articleId, userId }))
 
-      let added: Annotation | null = null
       act(() => {
-        added = result.current.addAnnotation(mockAnnotation)
+        result.current.addAnnotation(mockAnnotation)
       })
-      if (!added) throw new Error('Failed to add annotation')
+      const addedId = result.current.annotations[0].id
 
       act(() => {
-        result.current.deleteAnnotation(added.id)
+        result.current.deleteAnnotation(addedId)
       })
 
       expect(result.current.annotations).toHaveLength(0)
@@ -216,20 +211,16 @@ describe('useAnnotations', () => {
     it('should update localStorage after deletion', () => {
       const { result } = renderHook(() => useAnnotations({ articleId, userId }))
 
-      let added: Annotation | null = null
       act(() => {
-        added = result.current.addAnnotation(mockAnnotation)
+        result.current.addAnnotation(mockAnnotation)
       })
-      if (!added) throw new Error('Failed to add annotation')
+      const addedId = result.current.annotations[0].id
 
       act(() => {
-        result.current.deleteAnnotation(added.id)
+        result.current.deleteAnnotation(addedId)
       })
 
-      expect(localStorageMock.setItem).toHaveBeenCalledWith(
-        `viblog_annotations_${articleId}`,
-        '[]'
-      )
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(`viblog_annotations_${articleId}`, '[]')
     })
   })
 

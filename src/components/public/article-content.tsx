@@ -29,7 +29,11 @@ interface ArticleContentProps {
  *
  * Soul Mission: "I've been here. I've grown here. This is my intellectual home."
  */
-function ArticleContent({ content, articleId = 'default', currentUserId = 'anonymous' }: ArticleContentProps) {
+function ArticleContent({
+  content,
+  articleId = 'default',
+  currentUserId = 'anonymous',
+}: ArticleContentProps) {
   const contentRef = useRef<HTMLDivElement>(null)
   const [isSidebarVisible, setIsSidebarVisible] = useState(false)
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false)
@@ -83,6 +87,7 @@ function ArticleContent({ content, articleId = 'default', currentUserId = 'anony
           startOffset: ann.startOffset,
           endOffset: ann.endOffset,
           color: ann.color,
+          createdAt: ann.createdAt,
         }))
         applyHighlightsToDOM(contentRef.current, annotationHighlights)
       }
@@ -161,6 +166,8 @@ function ArticleContent({ content, articleId = 'default', currentUserId = 'anony
       if (!pendingSelection) return
 
       addAnnotation({
+        articleId,
+        userId: currentUserId,
         text: pendingSelection.text,
         containerXPath: pendingSelection.containerXPath,
         startOffset: pendingSelection.startOffset,
@@ -181,7 +188,7 @@ function ArticleContent({ content, articleId = 'default', currentUserId = 'anony
   )
 
   // Handle clicking annotation in sidebar
-  const handleAnnotationClick = useCallback((annotation: typeof annotations[0]) => {
+  const handleAnnotationClick = useCallback((annotation: (typeof annotations)[0]) => {
     // Find the text in the content and scroll to it
     if (!contentRef.current) return
 
@@ -232,10 +239,10 @@ function ArticleContent({ content, articleId = 'default', currentUserId = 'anony
           type="button"
           onClick={toggleSidebar}
           aria-label="Toggle annotations"
-          className="fixed right-4 top-1/2 -translate-y-1/2 z-10 rounded-full bg-background border border-border p-2 shadow-md hover:bg-muted transition-colors"
+          className="fixed right-4 top-1/2 z-10 -translate-y-1/2 rounded-full border border-border bg-background p-2 shadow-md transition-colors hover:bg-muted"
         >
           <svg
-            className={`w-5 h-5 transition-transform ${isSidebarVisible ? 'rotate-180' : ''}`}
+            className={`h-5 w-5 transition-transform ${isSidebarVisible ? 'rotate-180' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -289,10 +296,10 @@ function ArticleContent({ content, articleId = 'default', currentUserId = 'anony
         type="button"
         onClick={toggleSidebar}
         aria-label="Toggle annotations"
-        className="fixed right-4 top-1/2 -translate-y-1/2 z-10 rounded-full bg-background border border-border p-2 shadow-md hover:bg-muted transition-colors"
+        className="fixed right-4 top-1/2 z-10 -translate-y-1/2 rounded-full border border-border bg-background p-2 shadow-md transition-colors hover:bg-muted"
       >
         <svg
-          className={`w-5 h-5 transition-transform ${isSidebarVisible ? 'rotate-180' : ''}`}
+          className={`h-5 w-5 transition-transform ${isSidebarVisible ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
