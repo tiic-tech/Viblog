@@ -15,6 +15,19 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Phase 11.6.3: Configuration API Endpoints - COMPLETE (2026-03-18 10:10):**
+  - Created REST API for LLM configuration management
+  - `GET /api/llm/providers` - List all available providers with capabilities and models
+  - `GET /api/llm/models` - List models for a provider (optional provider_id filter)
+  - `GET /api/llm/config` - List user's configurations with masked API keys
+  - `POST /api/llm/config` - Create or update user configuration with encrypted API key
+  - `DELETE /api/llm/config?id=xxx` - Remove user configuration
+  - `PATCH /api/llm/config` - Update specific config fields (model, params, prompts)
+  - `POST /api/llm/config/validate` - Validate API key and return available models
+  - `POST /api/llm/config/primary` - Set primary provider for user
+  - Auto-primary for first configuration
+  - API key encryption using AES-256-GCM
+  - All endpoints with authentication, error handling, and structured responses
 - **Phase 11.6.2: Provider Adapter Layer - COMPLETE (2026-03-18 09:51):**
   - Created `src/lib/llm/` library with Strategy Pattern for multi-provider support
   - Core types: `ILLMProviderAdapter`, `ChatMessage`, `ChatResponse`, `StreamChunk`, etc.
