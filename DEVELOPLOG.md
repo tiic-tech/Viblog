@@ -1364,6 +1364,135 @@ if (currentScrollY > lastScrollY) {
 
 ---
 
-**Document Version:** 7.2
+## Phase 10.4 Frontend Testing Session (2026-03-18)
+
+### Testing Overview
+
+**Worktree:** `/Users/archy/Projects/StartUp/Viblog/.claude/worktrees/frontend/`
+**Port:** 3003
+**Test Account:** `viblog.test.2026@gmail.com`
+
+**What I Tested:**
+1. Homepage - LOADS OK
+2. Login Page - WORKS OK
+3. Dashboard - LOADS OK
+4. Projects Page - LOADS OK
+5. Settings Page - LOADS OK
+6. Articles Page - LOADS OK
+7. New Article Page - **FAILS**
+8. Edit Article Page - **FAILS**
+9. Public Article Page - Shows "Article Not Found" (expected, test slug)
+
+### Errors Found
+
+#### Error 1: Tiptap SSR Hydration Error (CRITICAL)
+
+**Location:** `/dashboard/articles/new` and `/dashboard/articles/[id]/edit`
+
+**Error Message:**
+```
+Tiptap Error: SSR has been detected, please set `immediatelyRender` explicitly to `false` to avoid hydration mismatches.
+```
+
+**Impact:** Article editor pages completely fail to load. Shows error screen with "Failed to load articles" message.
+
+**Root Cause:** The Tiptap `useEditor` hook needs `immediatelyRender: false` option when used in Next.js with SSR.
+
+**Files Affected:**
+- `src/components/editor/split-pane-editor.tsx` (line 53-70)
+- `src/components/articles/article-editor.tsx` (line 26)
+
+**Fix Required:**
+```typescript
+const editor = useEditor({
+  extensions: [...],
+  content: content,
+  immediatelyRender: false, // ADD THIS LINE
+  onUpdate: ({ editor }) => {
+    onChange(editor.getHTML())
+  },
+  // ... rest of options
+})
+```
+
+---
+
+#### Error 2: React 19 element.ref Warning
+
+**Location:** Global (console)
+
+**Error Message:**
+```
+Accessing element.ref was removed in React 19. ref is now a regular prop. It will be removed from the JSX Element type in a future release.
+```
+
+**Impact:** Warning only, not blocking. But should be addressed for React 19 compatibility.
+
+**Root Cause:** Likely in a third-party component or internal code accessing `element.ref`.
+
+**Status:** Low priority, investigate later.
+
+---
+
+#### Error 3: Middleware Deprecation Warning
+
+**Location:** Server startup
+
+**Warning Message:**
+```
+The "middleware" file convention is deprecated. Please use "proxy" instead.
+```
+
+**Impact:** Warning only, not blocking functionality.
+
+**Root Cause:** Next.js 16 deprecates `middleware.ts` in favor of `proxy.ts`.
+
+**Files Affected:**
+- `src/middleware.ts` or `middleware.ts` in project root
+
+**Fix Required:** Rename and refactor to new proxy convention (low priority).
+
+---
+
+#### Error 4: Multiple Lockfiles Warning
+
+**Location:** Server startup
+
+**Warning Message:**
+```
+Warning: Next.js inferred your workspace root, but it may not be correct.
+We detected multiple lockfiles...
+Detected additional lockfiles:
+  * /Users/archy/Projects/StartUp/Viblog/.claude/worktrees/frontend/pnpm-lock.yaml
+```
+
+**Impact:** Warning only, not blocking functionality.
+
+**Root Cause:** Git worktree has its own `pnpm-lock.yaml` in addition to main repo's lockfile.
+
+**Fix Required:** Set `turbopack.root` in `next.config.js` or remove worktree lockfile.
+
+---
+
+### Error Fix Plan
+
+**Priority 1 (BLOCKING):**
+1. Fix Tiptap SSR hydration error by adding `immediatelyRender: false` to all `useEditor` calls
+
+**Priority 2 (WARNING):**
+2. Investigate React 19 element.ref warning source
+3. Update middleware to proxy (Next.js 16 migration)
+4. Configure turbopack.root to silence lockfile warning
+
+---
+
+**Testing Session Status:** COMPLETE
+**Blocking Issues:** 1 (Tiptap SSR)
+**Warning Issues:** 3
+**Next Action:** Fix Tiptap SSR error before continuing development
+
+---
+
+**Document Version:** 7.3
 **Last Updated:** 2026-03-18
 **Author:** Claude (with human collaborator)

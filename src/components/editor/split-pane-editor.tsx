@@ -58,6 +58,7 @@ export function SplitPaneEditor({
       }),
     ],
     content: content,
+    immediatelyRender: false,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML())
     },
