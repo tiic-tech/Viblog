@@ -15,6 +15,7 @@ import { QwenAdapter } from './providers/qwen'
 import { ZhipuAdapter } from './providers/zhipu'
 import { MiniMaxAdapter } from './providers/minimax'
 import { OpenRouterAdapter } from './providers/openrouter'
+import { DoubaoAdapter } from './providers/doubao'
 
 /**
  * Provider ID type
@@ -29,6 +30,7 @@ export type ProviderId =
   | 'zhipu'
   | 'minimax'
   | 'openrouter'
+  | 'doubao'
 
 /**
  * All available provider adapters
@@ -43,6 +45,7 @@ const adapters: Record<ProviderId, ILLMProviderAdapter> = {
   zhipu: new ZhipuAdapter(),
   minimax: new MiniMaxAdapter(),
   openrouter: new OpenRouterAdapter(),
+  doubao: new DoubaoAdapter(),
 }
 
 /**
@@ -95,4 +98,5 @@ export {
   ZhipuAdapter,
   MiniMaxAdapter,
   OpenRouterAdapter,
+  DoubaoAdapter,
 }
