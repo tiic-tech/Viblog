@@ -15,6 +15,26 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Phase 11.6.4 & 11.6.5: Chat API & Structured Output - COMPLETE (2026-03-18 10:19):**
+  - **Chat API (`/api/llm/chat`):**
+    - Non-streaming mode with full response
+    - Streaming mode with Server-Sent Events (SSE)
+    - Model selection from user config or override
+    - Custom parameters and prompts integration
+    - Usage logging with token counting and cost calculation
+    - Provider-specific error handling
+  - **Structured Output API (`/api/llm/structured`):**
+    - Named schemas: `article_generation`, `content_analysis`, `entity_extraction`, etc.
+    - Custom schema support with Zod validation
+    - Automatic retry on validation failure (max 3 attempts)
+    - Provider-aware: native structured output or prompt engineering fallback
+    - JSON extraction from various response formats
+  - **Schema Library (`src/lib/llm/schemas/`):**
+    - Article schemas: generation, outline, improvement
+    - Analysis schemas: content analysis, classification
+    - Entity schemas: general entities, code entities
+    - Vibe session schemas: context extraction, article draft
+    - Schema registry for easy reference by name
 - **Phase 11.6.3: Configuration API Endpoints - COMPLETE (2026-03-18 10:10):**
   - Created REST API for LLM configuration management
   - `GET /api/llm/providers` - List all available providers with capabilities and models

@@ -36,6 +36,65 @@
 
 ---
 
+### Spark 002: Smart Markdown Editor Backend Support
+**Date:** 2026-03-18
+**Source:** User Idea
+**Priority:** P1
+**Status:** Pending
+**Recorded From:** Backend Worktree
+
+**Description:**
+为前端 Smart Markdown Editor 提供后端支持，实现 LM 驱动的智能编辑功能。
+
+**Frontend Features (User Requested):**
+- Visual toolbar with formatting actions
+- LM-based intelligent table generation
+- LM-based flowchart/diagram generation
+- Voice input support
+
+**Backend Architecture Requirements:**
+
+1. **LLM Integration (Phase 11.6 Support)**
+   - Use `/api/llm/chat` streaming endpoint (Step 11.6.4)
+   - Provider-aware model selection
+   - Streaming response for real-time preview
+   - Context injection with editor state
+
+2. **Markdown Processing APIs**
+   ```
+   POST /api/markdown/transform
+   - Convert natural language to markdown table
+   - Generate mermaid diagrams from description
+   - Format code blocks with syntax detection
+
+   POST /api/markdown/enhance
+   - Grammar/style improvement
+   - Heading structure optimization
+   - Link/reference validation
+   ```
+
+3. **Voice Input Pipeline**
+   - Speech-to-text API integration (Whisper/Deepgram)
+   - Real-time streaming transcription
+   - Punctuation restoration
+   - Multi-language support (zh/en)
+
+4. **AST-based Operations**
+   - Parse markdown to abstract syntax tree
+   - Enable structural transformations
+   - Support partial updates without full re-render
+
+**Implementation Phases:**
+- Phase 12.x: Markdown transform APIs
+- Phase 13.x: Voice input integration
+- Phase 14.x: Advanced diagram generation
+
+**Dependencies:**
+- Phase 11.6 Chat API (in progress)
+- Provider adapters for OpenAI/Anthropic/Gemini
+
+---
+
 ## Processed Sparks
 
 *(None yet - sparks will be moved here after integration into IMPLEMENTATION_PLAN.md)*

@@ -2012,26 +2012,26 @@ src/app/api/llm/
 
 #### Step 11.6.4: Chat API & Streaming
 
-**Status:** Pending
+**Status:** COMPLETE (2026-03-18 10:19)
 
 **Deliverable:** Chat completion API with streaming support
 
 **Tasks:**
-- [ ] Create `/api/llm/chat` endpoint
-  - [ ] Non-streaming mode (returns full response)
-  - [ ] Streaming mode (Server-Sent Events)
-  - [ ] Model selection from user config
-  - [ ] Custom parameters from user config
-  - [ ] Custom prompts from user config
-- [ ] Implement SSE streaming
-  - [ ] Proper headers for SSE
-  - [ ] Chunk formatting per provider spec
-  - [ ] Error handling in stream
-  - [ ] Connection cleanup on client disconnect
-- [ ] Add usage logging
-  - [ ] Token counting
-  - [ ] Latency measurement
-  - [ ] Cost calculation
+- [x] Create `/api/llm/chat` endpoint
+  - [x] Non-streaming mode (returns full response)
+  - [x] Streaming mode (Server-Sent Events)
+  - [x] Model selection from user config
+  - [x] Custom parameters from user config
+  - [x] Custom prompts from user config
+- [x] Implement SSE streaming
+  - [x] Proper headers for SSE
+  - [x] Chunk formatting per provider spec
+  - [x] Error handling in stream
+  - [x] Connection cleanup on client disconnect
+- [x] Add usage logging
+  - [x] Token counting
+  - [x] Latency measurement
+  - [x] Cost calculation
 - [ ] Add error handling
   - [ ] Provider-specific error mapping
   - [ ] Retry logic with exponential backoff
@@ -2096,24 +2096,24 @@ src/app/api/llm/
 
 #### Step 11.6.5: Structured Output API
 
-**Status:** Pending
+**Status:** COMPLETE (2026-03-18 10:19)
 
 **Deliverable:** Type-safe structured output for AI responses
 
 **Tasks:**
-- [ ] Create `/api/llm/structured` endpoint
-  - [ ] Accept JSON schema for response format
-  - [ ] Validate response against schema
-  - [ ] Retry on schema validation failure (max 3 attempts)
-- [ ] Define common schemas
-  - [ ] Article generation schema
-  - [ ] Content analysis schema
-  - [ ] Entity extraction schema
-  - [ ] Sentiment analysis schema
-- [ ] Implement provider-specific structured output
-  - [ ] OpenAI: response_format with json_schema
-  - [ ] Anthropic: tool use with structured output
-  - [ ] Others: prompt engineering + JSON extraction
+- [x] Create `/api/llm/structured` endpoint
+  - [x] Accept JSON schema for response format
+  - [x] Validate response against schema
+  - [x] Retry on schema validation failure (max 3 attempts)
+- [x] Define common schemas
+  - [x] Article generation schema
+  - [x] Content analysis schema
+  - [x] Entity extraction schema
+  - [x] Sentiment analysis schema
+- [x] Implement provider-specific structured output
+  - [x] OpenAI: response_format with json_schema
+  - [x] Anthropic: tool use with structured output
+  - [x] Others: prompt engineering + JSON extraction
 
 **Structured Output Implementation:**
 ```typescript
