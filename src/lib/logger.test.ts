@@ -126,8 +126,7 @@ describe('Logger', () => {
 
   describe('debug', () => {
     it('should log debug in development environment', () => {
-      const originalEnv = process.env.NODE_ENV
-      process.env.NODE_ENV = 'development'
+      vi.stubEnv('NODE_ENV', 'development')
 
       testLogger.debug('Debug message')
 
@@ -138,7 +137,7 @@ describe('Logger', () => {
       expect(parsed.level).toBe('debug')
       expect(parsed.message).toBe('Debug message')
 
-      process.env.NODE_ENV = originalEnv
+      vi.unstubAllEnvs()
     })
   })
 
@@ -228,8 +227,7 @@ describe('Logger', () => {
 
   describe('dbOperation', () => {
     it('should log database operation', () => {
-      const originalEnv = process.env.NODE_ENV
-      process.env.NODE_ENV = 'development'
+      vi.stubEnv('NODE_ENV', 'development')
 
       testLogger.dbOperation('SELECT', 'users')
 
@@ -241,14 +239,13 @@ describe('Logger', () => {
       expect(parsed.context.table).toBe('users')
       expect(parsed.context.type).toBe('database')
 
-      process.env.NODE_ENV = originalEnv
+      vi.unstubAllEnvs()
     })
   })
 
   describe('cacheOperation', () => {
     it('should log cache hit', () => {
-      const originalEnv = process.env.NODE_ENV
-      process.env.NODE_ENV = 'development'
+      vi.stubEnv('NODE_ENV', 'development')
 
       testLogger.cacheOperation('hit', 'api_key:abc123')
 
@@ -259,7 +256,7 @@ describe('Logger', () => {
       expect(parsed.context.key).toBe('api_key:abc123')
       expect(parsed.context.type).toBe('cache')
 
-      process.env.NODE_ENV = originalEnv
+      vi.unstubAllEnvs()
     })
   })
 

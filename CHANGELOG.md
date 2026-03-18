@@ -15,6 +15,27 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Phase 11.6.2: Provider Adapter Layer - COMPLETE (2026-03-18 09:51):**
+  - Created `src/lib/llm/` library with Strategy Pattern for multi-provider support
+  - Core types: `ILLMProviderAdapter`, `ChatMessage`, `ChatResponse`, `StreamChunk`, etc.
+  - Abstract base class `BaseProviderAdapter` with common utilities:
+    - Cost estimation based on token pricing
+    - HTTP request helpers with error handling
+    - Token counting heuristics
+    - Options merging with model defaults
+  - Provider factory with `getProviderAdapter()`, `getAllProviders()`, `isProviderSupported()`
+  - 9 Provider Adapters implemented:
+    - OpenAI - Reference implementation with streaming, structured output, vision
+    - Anthropic - Claude models with messages API
+    - Gemini - Google's Gemini with OpenAI-compatible endpoint
+    - DeepSeek - Chinese provider with competitive pricing
+    - Moonshot - Kimi models with long context
+    - Qwen - Alibaba's Qwen series
+    - Zhipu AI - GLM models from Tsinghua University
+    - MiniMax - abab models with voice capabilities
+    - OpenRouter - Gateway to 100+ models from various providers
+  - Fixed logger.test.ts to use `vi.stubEnv()` for environment variable mocking
+  - TypeScript compilation clean with no errors
 - **Phase 11.6.1: Database Schema & Provider Registry - COMPLETE (2026-03-18 10:30):**
   - Created `llm_providers` table - Provider metadata with capabilities
   - Created `llm_models` table - Model catalog with pricing and context windows

@@ -1802,31 +1802,31 @@ Migrations applied via Supabase MCP:
 
 #### Step 11.6.2: Provider Adapter Layer
 
-**Status:** Pending
+**Status:** COMPLETE (2026-03-18)
 
 **Deliverable:** TypeScript interfaces and provider adapters
 
 **Tasks:**
-- [ ] Define core interfaces
-  - [ ] `LLMProviderCapabilities` interface
-  - [ ] `ILLMProviderAdapter` interface (Strategy pattern)
-  - [ ] `ChatCompletionOptions`, `StreamChunk`, `StructuredOutputOptions`
-- [ ] Implement encryption utilities
-  - [ ] AES-256-GCM encryption for API keys
-  - [ ] Key derivation from SUPABASE_SERVICE_KEY
-  - [ ] Secure key storage and retrieval
-- [ ] Create provider adapter base class
-- [ ] Implement 9 provider adapters
-  - [ ] OpenAI adapter (reference implementation)
-  - [ ] Anthropic adapter
-  - [ ] Gemini adapter
-  - [ ] DeepSeek adapter
-  - [ ] Moonshot adapter
-  - [ ] Qwen adapter
-  - [ ] Zhipu adapter
-  - [ ] MiniMax adapter
-  - [ ] OpenRouter adapter
-- [ ] Create provider factory
+- [x] Define core interfaces
+  - [x] `LLMProviderCapabilities` interface
+  - [x] `ILLMProviderAdapter` interface (Strategy pattern)
+  - [x] `ChatCompletionOptions`, `StreamChunk`, `StructuredOutputOptions`
+- [x] Implement encryption utilities
+  - [x] AES-256-GCM encryption for API keys (reused from `src/lib/encryption.ts`)
+  - [x] Key derivation from SUPABASE_SERVICE_KEY
+  - [x] Secure key storage and retrieval
+- [x] Create provider adapter base class
+- [x] Implement 9 provider adapters
+  - [x] OpenAI adapter (reference implementation)
+  - [x] Anthropic adapter
+  - [x] Gemini adapter
+  - [x] DeepSeek adapter
+  - [x] Moonshot adapter
+  - [x] Qwen adapter
+  - [x] Zhipu adapter
+  - [x] MiniMax adapter
+  - [x] OpenRouter adapter
+- [x] Create provider factory
 
 **TypeScript Interfaces:**
 ```typescript
