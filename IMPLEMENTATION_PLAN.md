@@ -1264,6 +1264,357 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
 
 ---
 
+##### TDD Checkpoint 10.4.1.6: Editor Type Definitions (Spark 002)
+
+**Soul Mission:** Make writing feel like thinking out loud - with AI-powered assistance that understands intent.
+
+**RED Phase:**
+- [ ] Write test: `src/types/__tests__/editor.test.ts`
+  - Test `SmartInsertType` type correctness ('table' | 'flowchart' | 'mindmap' | 'swimlane')
+  - Test `VoiceRecording` interface structure (id, blob, transcription, timestamp, duration)
+  - Test `SmartInsertState` interface structure
+  - Test type guards for each type
+
+**GREEN Phase:**
+- [ ] Create `src/types/editor.ts` (~50 lines)
+  - Define `SmartInsertType` union type
+  - Define `VoiceRecording` interface
+  - Define `SmartInsertState` interface
+  - Define `GenerateStructureRequest/Response` interfaces
+  - Define `TranscriptionResponse` interface
+
+**REFACTOR Phase:**
+- [ ] Ensure types are DRY and well-documented
+- [ ] Add JSDoc comments for complex types
+
+**Test Pass Criteria:** TypeScript compilation succeeds, type tests pass
+
+---
+
+##### TDD Checkpoint 10.4.1.7: LLM Service Mock
+
+**RED Phase:**
+- [ ] Write test: `src/services/editor/__tests__/llm-service.test.ts`
+  - Test `generateStructure` returns success response
+  - Test response contains markdown for each type (table, flowchart, mindmap, swimlane)
+  - Test response contains preview text
+  - Test error handling simulation
+
+**GREEN Phase:**
+- [ ] Create `src/services/editor/llm-service.ts` (~80 lines)
+  - Implement `ILLMService` interface
+  - Implement `MockLLMService` class with mock responses
+  - Implement `getLLMService` factory function
+
+**REFACTOR Phase:**
+- [ ] Extract mock response generation to separate function
+- [ ] Add configurable delay for realistic testing
+
+**Test Pass Criteria:** All 4+ test cases pass, mock returns valid responses
+
+**Note:** Mock service will be replaced by real API in Phase 11.6 (Platform LLM Config)
+
+---
+
+##### TDD Checkpoint 10.4.1.8: Voice Service Mock
+
+**RED Phase:**
+- [ ] Write test: `src/services/editor/__tests__/voice-service.test.ts`
+  - Test `startRecording` initializes recording state
+  - Test `stopRecording` returns blob
+  - Test `transcribe` returns transcription
+  - Test `saveRecording` stores recording
+  - Test `getRecordings` returns all recordings
+
+**GREEN Phase:**
+- [ ] Create `src/services/editor/voice-service.ts` (~100 lines)
+  - Implement `IVoiceService` interface
+  - Implement `MockVoiceService` class
+  - Implement `getVoiceService` factory
+
+**REFACTOR Phase:**
+- [ ] Add proper MediaRecorder mock for browser testing
+- [ ] Add cleanup for recordings in tests
+
+**Test Pass Criteria:** All 5+ test cases pass, recording lifecycle works
+
+**Note:** Mock service will be replaced by real API in Phase 11.6 (Platform LLM Config)
+
+---
+
+##### TDD Checkpoint 10.4.1.9: Editor Sidebar Toolbar
+
+**RED Phase:**
+- [ ] Write test: `src/components/editor/__tests__/sidebar-toolbar.test.tsx`
+  - Test renders vertical toolbar
+  - Test renders all expected icons (bullet list, table, flowchart, mind map, hyperlink, image, code block)
+  - Test click on bullet list inserts bullet list
+  - Test click on hyperlink opens EnhancedLinkDialog
+  - Test click on table opens SmartInsertDialog with type='table'
+  - Test click on flowchart opens SmartInsertDialog with type='flowchart'
+  - Test toolbar is positioned correctly (fixed right side)
+
+**GREEN Phase:**
+- [ ] Create `src/components/editor/sidebar-toolbar.tsx` (~120 lines)
+  - Import TipTap editor instance via props
+  - Render vertical button list using existing Button component
+  - Use lucide-react icons: List, Table, GitBranch, Network, Link, Image, Code
+  - Handle click events for each tool type
+  - Position with `fixed right-0 top-1/2 -translate-y-1/2`
+
+**REFACTOR Phase:**
+- [ ] Extract tool configuration to constant array
+- [ ] Add keyboard shortcuts for common tools
+- [ ] Add tooltip for each tool using Tooltip component
+
+**Test Pass Criteria:** All 7+ test cases pass, toolbar renders correctly
+
+---
+
+##### TDD Checkpoint 10.4.1.10: Enhanced Link Dialog
+
+**RED Phase:**
+- [ ] Write test: `src/components/editor/__tests__/enhanced-link-dialog.test.tsx`
+  - Test dialog opens when `isOpen` is true
+  - Test dialog closes on cancel button click
+  - Test renders three tabs: My Articles, Bookmarks, External URL
+  - Test search input for My Articles
+  - Test search input for Bookmarks
+  - Test URL input for External URL
+  - Test selecting article inserts link into editor
+  - Test pasting URL inserts link into editor
+
+**GREEN Phase:**
+- [ ] Create `src/components/editor/enhanced-link-dialog.tsx` (~200 lines)
+  - Use Radix Dialog or custom modal pattern
+  - Implement tab-based navigation (My Articles, Bookmarks, External URL)
+  - Implement autocomplete dropdown for article search
+  - Handle URL validation for external links
+  - Integrate with TipTap link extension
+
+- [ ] Create `src/services/editor/article-search.ts` (~60 lines)
+  - Implement `IArticleSearchService` interface
+  - Implement `MockArticleSearchService` class
+  - Return mock article list with id, title, slug
+
+**REFACTOR Phase:**
+- [ ] Extract tab content to separate sub-components
+- [ ] Add debounced search for articles
+- [ ] Add recent links history
+
+**Test Pass Criteria:** All 8+ test cases pass, all three link types work
+
+---
+
+##### TDD Checkpoint 10.4.1.11: Smart Insert Dialog
+
+**RED Phase:**
+- [ ] Write test: `src/components/editor/__tests__/smart-insert-dialog.test.tsx`
+  - Test dialog opens with correct type (table/flowchart/mindmap/swimlane)
+  - Test renders input textarea for content description
+  - Test renders voice input button
+  - Test renders "Generate" button
+  - Test clicking Generate calls LLM service
+  - Test shows loading state during generation
+  - Test renders preview area with generated content
+  - Test "Insert" button inserts content into editor
+  - Test "Cancel" button closes dialog
+
+**GREEN Phase:**
+- [ ] Create `src/components/editor/smart-insert-dialog.tsx` (~250 lines)
+  - Use Radix Dialog or custom modal
+  - Implement state machine: input -> generating -> preview -> inserted
+  - Integrate with LLM service (mock)
+  - Integrate with VoiceInputButton
+  - Render Mermaid preview for diagrams
+
+- [ ] Create `src/components/editor/mermaid-preview.tsx` (~80 lines)
+  - Use mermaid library for rendering
+  - Handle async rendering
+  - Display error message for invalid syntax
+
+**REFACTOR Phase:**
+- [ ] Extract state logic to custom hook
+- [ ] Add retry mechanism for failed generations
+- [ ] Add content editing before insert
+
+**Test Pass Criteria:** All 9+ test cases pass, generation flow works
+
+**Dependencies:** `pnpm add mermaid @tiptap/extension-table`
+
+---
+
+##### TDD Checkpoint 10.4.1.12: Voice Input Button
+
+**RED Phase:**
+- [ ] Write test: `src/components/editor/__tests__/voice-input-button.test.tsx`
+  - Test renders microphone button
+  - Test clicking starts recording (visual feedback: pulsing red dot)
+  - Test clicking again stops recording
+  - Test shows real-time transcription in tooltip
+  - Test calls `onTranscriptionComplete` with transcribed text
+  - Test handles microphone permission denied
+  - Test shows error state when recording fails
+
+**GREEN Phase:**
+- [ ] Create `src/components/editor/voice-input-button.tsx` (~100 lines)
+  - Use Button component with microphone icon
+  - Implement recording state: idle, recording, processing
+  - Integrate with Voice service (mock)
+  - Show pulsing animation during recording
+  - Display transcription in tooltip or inline
+
+- [ ] Create `src/hooks/use-voice-recording.ts` (~80 lines)
+  - Manage recording state
+  - Handle MediaRecorder lifecycle
+  - Integrate with voice service
+  - Return: { isRecording, transcription, error, startRecording, stopRecording }
+
+**REFACTOR Phase:**
+- [ ] Add recording duration display
+- [ ] Add cancel recording option
+- [ ] Add audio level visualization
+
+**Test Pass Criteria:** All 7+ test cases pass, recording flow works
+
+---
+
+##### TDD Checkpoint 10.4.1.13: Voice Recording List
+
+**RED Phase:**
+- [ ] Write test: `src/components/editor/__tests__/voice-recording-list.test.tsx`
+  - Test renders list of recordings
+  - Test each recording shows playback button
+  - Test each recording shows transcription preview
+  - Test each recording shows timestamp
+  - Test clicking transcription inserts text
+  - Test delete recording removes from list
+
+**GREEN Phase:**
+- [ ] Create `src/components/editor/voice-recording-list.tsx` (~120 lines)
+  - Fetch recordings from voice service
+  - Render list with playback controls
+  - Display truncated transcription preview
+  - Handle delete action
+  - Handle reuse action (insert transcription)
+
+**REFACTOR Phase:**
+- [ ] Add sorting options
+- [ ] Add search/filter
+- [ ] Add bulk actions
+
+**Test Pass Criteria:** All 6+ test cases pass, list management works
+
+---
+
+##### TDD Checkpoint 10.4.1.14: Smart Syntax Handler
+
+**RED Phase:**
+- [ ] Write test: `src/hooks/__tests__/use-smart-syntax.test.ts`
+  - Test detects `@table` trigger
+  - Test detects `@flowchart` trigger
+  - Test detects `@mindmap` trigger
+  - Test shows inline prompt on trigger
+  - Test calls LLM service with content
+  - Test inserts result at cursor position
+  - Test removes trigger text after insertion
+
+**GREEN Phase:**
+- [ ] Create `src/hooks/use-smart-syntax.ts` (~150 lines)
+  - Watch editor content for trigger patterns
+  - Show inline prompt (floating input)
+  - Call LLM service on submit
+  - Insert generated content
+  - Clean up trigger text
+
+- [ ] Create `src/components/editor/inline-prompt.tsx` (~80 lines)
+  - Position relative to cursor
+  - Render input with voice button
+  - Handle generate action
+  - Handle cancel/close
+
+**REFACTOR Phase:**
+- [ ] Add debounce for trigger detection
+- [ ] Add autocomplete for trigger types
+- [ ] Add custom triggers configuration
+
+**Test Pass Criteria:** All 7+ test cases pass, @triggers work correctly
+
+---
+
+##### TDD Checkpoint 10.4.1.15: Editor Integration
+
+**RED Phase:**
+- [ ] Write test: `src/components/articles/__tests__/article-editor-spark002.test.tsx`
+  - Test EditorSidebarToolbar appears
+  - Test SmartInsertDialog integration
+  - Test EnhancedLinkDialog integration
+  - Test VoiceInputButton integration
+  - Test @trigger detection works in editor
+
+**GREEN Phase:**
+- [ ] Update: `src/components/articles/article-editor.tsx`
+  - Add EditorSidebarToolbar beside EditorContent
+  - Pass editor instance to toolbar
+  - Add useSmartSyntax hook
+  - Configure new TipTap extensions (table, mermaid)
+
+- [ ] Create `src/lib/tiptap-extensions.ts` (~60 lines)
+  - Configure table extension
+  - Configure mermaid extension
+  - Export extensions array for editor
+
+**REFACTOR Phase:**
+- [ ] Extract editor configuration to separate file
+- [ ] Add feature flags for new features
+
+**Test Pass Criteria:** All 5+ test cases pass, all features integrated
+
+---
+
+#### Spark 002 Summary: Smart Markdown Editor Extension
+
+**Added TDD Checkpoints:** 10 (10.4.1.6 - 10.4.1.15)
+**Estimated Tests:** 60+
+**Estimated Lines of Code:** ~1,200 (implementation) + ~600 (tests)
+
+**New Components:**
+| Component | File | Lines |
+|-----------|------|-------|
+| EditorSidebarToolbar | `sidebar-toolbar.tsx` | 120 |
+| EnhancedLinkDialog | `enhanced-link-dialog.tsx` | 200 |
+| SmartInsertDialog | `smart-insert-dialog.tsx` | 250 |
+| MermaidPreview | `mermaid-preview.tsx` | 80 |
+| VoiceInputButton | `voice-input-button.tsx` | 100 |
+| VoiceRecordingList | `voice-recording-list.tsx` | 120 |
+| InlinePrompt | `inline-prompt.tsx` | 80 |
+
+**New Hooks:**
+| Hook | File | Lines |
+|------|------|-------|
+| useVoiceRecording | `use-voice-recording.ts` | 80 |
+| useSmartSyntax | `use-smart-syntax.ts` | 150 |
+
+**New Services (Mock):**
+| Service | File | Lines |
+|---------|------|-------|
+| LLM Service | `llm-service.ts` | 80 |
+| Voice Service | `voice-service.ts` | 100 |
+| Article Search | `article-search.ts` | 60 |
+
+**Dependencies to Add:**
+```bash
+pnpm add @tiptap/extension-table mermaid
+pnpm add -D @types/mermaid
+```
+
+**Phase 11.6 Integration Points:**
+- `MockLLMService` -> `POST /api/llm/generate-structure`
+- `MockVoiceService` -> `POST /api/voice/transcribe`
+- `MockArticleSearchService` -> `GET /api/articles/search`
+
+---
+
 #### Step 10.4.4: Credits System (Priority 3)
 
 **Soul Mission:** Make contribution visible and valued. Every action has meaning. Credits say: "You belong here. Your presence matters."
@@ -1755,11 +2106,12 @@ src/
 | Step | TDD Checkpoints | Test Files | Estimated Tests |
 |------|-----------------|------------|-----------------|
 | 10.4.3 Annotation | 5 | 5 | 28+ |
-| 10.4.1 Editor | 5 | 5 | 23+ |
+| 10.4.1 Editor (Core) | 5 | 5 | 23+ |
+| 10.4.1 Editor (Spark 002) | 10 | 15 | 60+ |
 | 10.4.4 Credits | 6 | 6 | 28+ |
 | 10.4.5 Authorization | 4 | 4 | 19+ |
 | 10.4.2 Citation | 4 | 4 | 20+ |
-| **Total** | **24** | **24** | **118+** |
+| **Total** | **34** | **39** | **178+** |
 
 ---
 
@@ -1768,10 +2120,11 @@ src/
 | Week | Focus | Belonging Goal |
 |------|-------|----------------|
 | Week 1 | Annotation System (10.4.3) | Reader feels part of dialogue |
-| Week 1-2 | Smart Editor (10.4.1) | Writer feels flow, not friction |
-| Week 2 | Credits System (10.4.4) | User feels valued and recognized |
-| Week 2-3 | Authorization UI (10.4.5) | User feels in control and trusted |
-| Week 3 | Citation System (10.4.2) | Writer feels their research is honored |
+| Week 1-2 | Smart Editor Core (10.4.1.1-5) | Writer feels flow, not friction |
+| Week 2-3 | Smart Editor Spark 002 (10.4.1.6-15) | Writer feels AI-powered, efficient |
+| Week 3 | Credits System (10.4.4) | User feels valued and recognized |
+| Week 3-4 | Authorization UI (10.4.5) | User feels in control and trusted |
+| Week 4 | Citation System (10.4.2) | Writer feels their research is honored |
 
 ---
 
