@@ -68,6 +68,18 @@ All notable changes to this project will be documented in this file.
   - [x] Fixed feed-skeleton.test.tsx selectors for shimmer variant
   - Soul Impact: Make writing feel like thinking out loud - fluid, supported, inspiring
 
+- **TDD Checkpoint 10.4.1.2: Split Pane Editor Component** COMPLETE
+  - [x] Created `src/components/editor/split-pane-editor.tsx` with dual-pane layout
+  - [x] Created `src/components/editor/__tests__/split-pane-editor.test.tsx` with 12 passing tests
+  - [x] Created `src/hooks/use-split-pane.ts` custom hook for resizable divider logic
+  - [x] Created `src/hooks/__tests__/use-split-pane.test.ts` with 13 passing tests
+  - [x] Implemented resizable divider with drag functionality
+  - [x] Implemented keyboard navigation (ArrowLeft/ArrowRight)
+  - [x] Implemented scroll synchronization between editor and preview panes
+  - [x] Implemented ARIA attributes for accessibility (role="separator", aria-valuenow/min/max)
+  - [x] Integrated useEditorState and useSplitPane hooks
+  - Soul Impact: Make writing feel like thinking out loud - where every keystroke becomes visible art
+
 ### Added - Phase 11 Code Gallery UI/UX Plan (2026-03-17)
 
 - **Strategic Context:** Implements Phases 3-7 from VIBLOG_CODE_GALLERY_UI_DEV_PLAN.md

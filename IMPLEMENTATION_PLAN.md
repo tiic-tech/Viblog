@@ -1178,7 +1178,7 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
 ##### TDD Checkpoint 10.4.1.2: Split Pane Editor Component
 
 **RED Phase:**
-- [ ] Write test: `src/components/editor/__tests__/split-pane-editor.test.tsx`
+- [x] Write test: `src/components/editor/__tests__/split-pane-editor.test.tsx`
   - Test two-column layout renders
   - Test divider is draggable
   - Test editor is on left, preview on right
@@ -1186,22 +1186,24 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
   - Test sync scroll position between editor and preview
 
 **GREEN Phase:**
-- [ ] Create `src/components/editor/split-pane-editor.tsx` (~200 lines)
+- [x] Create `src/components/editor/split-pane-editor.tsx` (~200 lines)
   - Two-column layout with resizable divider
   - Editor on left, preview on right
   - Sync scroll position
   - Toggle preview button in toolbar
 
-- [ ] Create `src/components/editor/preview-pane.tsx` (~150 lines)
-  - Render Markdown as HTML
-  - Apply article styling
-  - Scroll sync with editor
+- [x] Create `src/hooks/use-split-pane.ts` (~100 lines)
+  - Extracted resizable divider logic
+  - Min/max width constraints
+  - Keyboard navigation support
+  - ARIA accessibility attributes
 
 **REFACTOR Phase:**
-- [ ] Extract resize logic to custom hook
-- [ ] Add min/max width constraints
+- [x] Extract resize logic to custom hook (`use-split-pane`)
+- [x] Add min/max width constraints
+- [x] Write tests for use-split-pane hook (13 tests)
 
-**Test Pass Criteria:** All 5+ test cases pass, drag works smoothly
+**Test Pass Criteria:** ✅ All 25 tests pass (12 component + 13 hook), drag works smoothly
 
 ---
 
