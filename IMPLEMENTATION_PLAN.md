@@ -118,6 +118,95 @@ git worktree remove .claude/worktrees/frontend
 
 ---
 
+## 1.3 Testing Requirements (CRITICAL)
+
+### Three-Tier Testing Model
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│   TIER 1: CRITICAL PATH E2E (MANDATORY)                        │
+│   - Text selection/annotation                                   │
+│   - Rich text editor (Tiptap)                                   │
+│   - Drag/resize interactions                                    │
+│   - SSR-dependent components                                    │
+├─────────────────────────────────────────────────────────────────┤
+│   TIER 2: INTEGRATION TESTS (PER FEATURE)                      │
+│   - Component wiring verification                               │
+│   - Feature flag enabled features                               │
+├─────────────────────────────────────────────────────────────────┤
+│   TIER 3: UNIT TESTS (CONTINUED)                               │
+│   - Pure logic functions                                        │
+│   - Component rendering                                         │
+│   - Edge cases and error handling                               │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Checkpoint Completion Criteria
+
+**CURRENT CRITERIA:**
+```
+COMPLETE when: Unit tests pass + 80% coverage
+```
+
+**REQUIRED CRITERIA:**
+```
+COMPLETE when:
+- Unit tests pass (RED -> GREEN -> REFACTOR)
+- Coverage meets 80% threshold
+- IF browser-interactive feature: E2E verification pass
+- IF integration component: Integration test pass
+```
+
+### E2E Verification Triggers (MANDATORY)
+
+| Feature Category | Why E2E Required | E2E Test File |
+|------------------|------------------|---------------|
+| Text Selection/Annotation | Browser clears selection on mousedown (race condition) | `e2e/annotations.spec.ts` |
+| Rich Text Editor (Tiptap) | SSR hydration, real DOM manipulation | `e2e/editor.spec.ts` |
+| Drag/Resize Interactions | Real mouse events, layout calculations | Feature-specific E2E |
+| SSR-Dependent Components | Hydration mismatch detection | Feature-specific E2E |
+
+### Why jsdom Cannot Catch These Bugs
+
+| Bug Type | jsdom Limitation |
+|----------|-----------------|
+| SSR Hydration Mismatch | jsdom has no SSR hydration |
+| Browser Event Timing | `fireEvent` doesn't trigger browser default actions |
+| Selection Race Condition | Browser clears selection on mousedown; jsdom doesn't |
+| Real CSS Layout | jsdom simulates but doesn't calculate real layouts |
+| Drag/Resize Physics | Real mouse events differ from simulated ones |
+
+### Checkpoint Workflow
+
+```
+Implement Feature
+       │
+       ▼
+Write Unit Tests ──── FAIL ──► Fix Implementation
+       │
+       PASS
+       │
+       ▼
+Browser-Interactive? ── NO ──► Mark COMPLETE
+       │
+       YES
+       │
+       ▼
+Write E2E Test ────── FAIL ──► Fix Browser Behavior
+       │
+       PASS
+       │
+       ▼
+Integration Test? ──── FAIL ──► Wire Component
+       │
+       PASS
+       │
+       ▼
+Mark COMPLETE
+```
+
+---
+
 ## 2. Development Phases
 
 ```
