@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArticleEditor } from './article-editor'
+import { SplitPaneEditor } from '@/components/editor/split-pane-editor'
 import { Save, Loader2 } from 'lucide-react'
 
 const articleSchema = z.object({
@@ -219,7 +219,7 @@ export function ArticleForm({ article }: ArticleFormProps) {
 
           <div className="space-y-2">
             <Label>Content</Label>
-            <ArticleEditor content={content} onChange={setContent} />
+            <SplitPaneEditor content={content} onChange={setContent} />
           </div>
 
           <div className="space-y-2">
@@ -314,7 +314,7 @@ export function ArticleForm({ article }: ArticleFormProps) {
       </Card>
 
       {error && (
-        <div className="border-destructive/50 bg-destructive/10 rounded-lg border p-3">
+        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3">
           <p className="text-sm text-destructive">{error}</p>
         </div>
       )}

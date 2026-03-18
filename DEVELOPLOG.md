@@ -1493,6 +1493,114 @@ Detected additional lockfiles:
 
 ---
 
-**Document Version:** 7.3
+## Phase 10.4 Feature Integration Issue (2026-03-18)
+
+### Issue Discovery via Playwright Testing
+
+**What I Discovered:**
+After fixing the Tiptap SSR error, I continued testing with Playwright and found a **CRITICAL integration issue**:
+
+#### Issue 1: SplitPaneEditor NOT Integrated (CRITICAL)
+
+**Description:** The `SplitPaneEditor` component was implemented with all its features:
+- Split view with live preview
+- Resizable divider with drag and keyboard support
+- Scroll synchronization
+- Preview toggle button
+
+**But it's NOT being used in the application.**
+
+**Root Cause:**
+- `ArticleForm` (line 222) imports and uses `ArticleEditor`, not `SplitPaneEditor`
+- `ArticleEditor` is a simple Tiptap editor without split pane preview
+
+**Files Affected:**
+- `src/components/articles/article-form.tsx` (line 13, 222)
+- `src/components/articles/article-editor.tsx` (currently used)
+- `src/components/editor/split-pane-editor.tsx` (NOT used)
+
+**Evidence:**
+```typescript
+// article-form.tsx line 13
+import { ArticleEditor } from './article-editor'
+
+// article-form.tsx line 222
+<ArticleEditor content={content} onChange={setContent} />
+```
+
+**Fix Required:**
+Replace ArticleEditor with SplitPaneEditor in ArticleForm.
+
+**Impact:**
+- All split pane editor features (live preview, resizable panes) are hidden from users
+- Implemented but not integrated = wasted development effort
+
+---
+
+#### Issue 2: Annotation Features ARE Integrated (VERIFIED)
+
+**Description:** Verified that annotation features are properly integrated:
+
+**Files Verified:**
+- `src/app/(public)/article/[slug]/page.tsx` (line 251) - Uses `ArticleContent`
+- `src/components/public/article-content.tsx` - Has full annotation integration:
+  - AnnotationSidebar
+  - CommentModal
+  - AnnotationTooltip
+  - useAnnotations hook
+
+**Status:** Annotation features are working on public article pages.
+
+---
+
+### Fix Plan
+
+1. **Fix SplitPaneEditor Integration (REQUIRED):**
+   - Update `ArticleForm` to import and use `SplitPaneEditor` instead of `ArticleEditor`
+   - Verify with Playwright testing
+   - Update CHANGELOG.md
+
+2. **Test Annotation Features:**
+   - Navigate to a public article
+   - Select text and verify annotation tooltip appears
+   - Test highlight, comment, and sidebar functionality
+
+---
+
+**Issue Discovery Status:** COMPLETE
+**Critical Issues Found:** 1 (SplitPaneEditor not integrated)
+**Features Verified Working:** 1 (Annotation system)
+**Next Action:** Fix SplitPaneEditor integration in ArticleForm
+
+---
+
+### Fix Completed (2026-03-18)
+
+**What I Fixed:**
+Changed `ArticleForm` to use `SplitPaneEditor` instead of `ArticleEditor`.
+
+**Changes Made:**
+```typescript
+// article-form.tsx - BEFORE
+import { ArticleEditor } from './article-editor'
+<ArticleEditor content={content} onChange={setContent} />
+
+// article-form.tsx - AFTER
+import { SplitPaneEditor } from '@/components/editor/split-pane-editor'
+<SplitPaneEditor content={content} onChange={setContent} />
+```
+
+**Verification:**
+- Playwright snapshot shows the editor now has:
+  - Toolbar with formatting buttons (Bold, Italic, Heading1, Heading2, etc.)
+  - "Toggle preview" button (unique to SplitPaneEditor)
+  - Separator (resizable divider)
+  - Preview pane
+
+**Status:** FIXED - SplitPaneEditor is now integrated and working.
+
+---
+
+**Document Version:** 7.4
 **Last Updated:** 2026-03-18
 **Author:** Claude (with human collaborator)
