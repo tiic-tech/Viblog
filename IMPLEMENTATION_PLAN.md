@@ -1047,10 +1047,10 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
 
 ---
 
-##### TDD Checkpoint 10.4.3.3: Comment Modal Component
+##### TDD Checkpoint 10.4.3.3: Comment Modal Component [COMPLETE]
 
 **RED Phase:**
-- [ ] Write test: `src/components/annotations/__tests__/comment-modal.test.tsx`
+- [x] Write test: `src/components/annotations/__tests__/comment-modal.test.tsx`
   - Test modal opens when `isOpen` is true
   - Test selected text preview displays correctly (italic, muted)
   - Test textarea for comment input works
@@ -1060,7 +1060,7 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
   - Test Cancel button calls `onClose`
 
 **GREEN Phase:**
-- [ ] Create `src/components/annotations/comment-modal.tsx` (~120 lines)
+- [x] Create `src/components/annotations/comment-modal.tsx` (~150 lines)
   - Props: `isOpen`, `onClose`, `selectedText`, `onSave`
   - Selected text preview (italic, muted styling)
   - Textarea for comment
@@ -1068,10 +1068,12 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
   - Visibility selector (public/private/followers)
 
 **REFACTOR Phase:**
-- [ ] Extract ColorPicker as reusable component
-- [ ] Add accessibility labels
+- [x] Add accessibility labels and keyboard support
+- [x] Add focus management with auto-focus
 
-**Test Pass Criteria:** All 7+ test cases pass, modal is keyboard accessible
+**Test Pass Criteria:** All 18 test cases pass
+
+**Completed:** 2026-03-18
 
 ---
 

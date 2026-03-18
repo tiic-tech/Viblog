@@ -32,6 +32,14 @@ All notable changes to this project will be documented in this file.
   - [x] Implemented updateAnnotation, deleteAnnotation, addReply, clearAnnotations
   - Soul Impact: Every annotation is a mark of intellectual presence
 
+- **TDD Checkpoint 10.4.3.3: Comment Modal Component** COMPLETE
+  - [x] Created `src/components/annotations/comment-modal.tsx` (~150 lines)
+  - [x] Created `src/components/annotations/__tests__/comment-modal.test.tsx` with 18 passing tests
+  - [x] Implemented selected text preview with italic styling
+  - [x] Implemented 5-color picker and 3-option visibility selector
+  - [x] Added keyboard accessibility (Escape to close, focus management)
+  - Soul Impact: "I've been here. This is my thought. This matters."
+
 ### Added - Phase 11 Code Gallery UI/UX Plan (2026-03-17)
 
 - **Strategic Context:** Implements Phases 3-7 from VIBLOG_CODE_GALLERY_UI_DEV_PLAN.md
