@@ -14,6 +14,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added - Phase 10.4 Human User Experience Features (2026-03-18)
+
+- **Soul Mission:** When I'm NOT a vibe coder today - when I just want to write my thoughts, feelings, things I saw - do I still feel at home in Viblog? The answer must be YES.
+
+- **TDD Checkpoint 10.4.3.1: Annotation Type Definition** COMPLETE
+  - [x] Created `src/types/annotation.ts` with Annotation, DiscussionItem, AnnotationVisibility, AnnotationColor types
+  - [x] Created `src/types/__tests__/annotation.test.ts` with 12 passing tests
+  - [x] Added JSDoc documentation for soul-centered annotation system
+  - Soul Impact: Transform reading from passive consumption to active dialogue
+
 ### Added - Phase 11 Code Gallery UI/UX Plan (2026-03-17)
 
 - **Strategic Context:** Implements Phases 3-7 from VIBLOG_CODE_GALLERY_UI_DEV_PLAN.md
