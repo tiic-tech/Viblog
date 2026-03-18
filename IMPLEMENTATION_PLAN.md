@@ -1144,10 +1144,12 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
 
 ---
 
-##### TDD Checkpoint 10.4.1.1: Editor State Hook
+##### TDD Checkpoint 10.4.1.1: Editor State Hook ✅ COMPLETE
+
+**Commit:** `a7908d8` - feat: implement TDD Checkpoint 10.4.1.1 Editor State Hook
 
 **RED Phase:**
-- [ ] Write test: `src/hooks/__tests__/use-editor-state.test.ts`
+- [x] Write test: `src/hooks/__tests__/use-editor-state.test.ts`
   - Test `useEditorState()` returns editor instance
   - Test `togglePreview()` flips preview state
   - Test `toggleToc()` flips TOC state
@@ -1155,17 +1157,21 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
   - Test `setContent()` updates editor content
 
 **GREEN Phase:**
-- [ ] Create `src/hooks/use-editor-state.ts` (~80 lines)
+- [x] Create `src/hooks/use-editor-state.ts` (~80 lines)
   - Manage preview visible state
   - Manage TOC visible state
   - Expose editor instance
   - Content getter/setter
 
 **REFACTOR Phase:**
-- [ ] Add debounced content save
-- [ ] Add content change callback
+- [x] Add debounced content save
+- [x] Add content change callback
 
-**Test Pass Criteria:** All 5+ test cases pass, state management works
+**Test Pass Criteria:** ✅ All 13 test cases pass, state management works
+
+**Additional Fixes Applied:**
+- Fixed TypeScript errors in `use-annotations.test.ts` (type narrowing issues)
+- Fixed test selectors in `feed-skeleton.test.tsx` (shimmer variant matching)
 
 ---
 

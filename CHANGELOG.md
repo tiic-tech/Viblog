@@ -59,6 +59,15 @@ All notable changes to this project will be documented in this file.
   - [x] Integrated useAnnotations hook into ArticleContent
   - Soul Impact: Transform article reading into personal intellectual dialogue
 
+- **TDD Checkpoint 10.4.1.1: Editor State Hook** COMPLETE
+  - [x] Created `src/hooks/use-editor-state.ts` with preview/TOC state management
+  - [x] Created `src/hooks/__tests__/use-editor-state.test.ts` with 13 passing tests
+  - [x] Implemented isPreviewVisible, isTocVisible state with toggles
+  - [x] Implemented getContent (HTML/JSON) and setContent methods
+  - [x] TypeScript fixes for annotation integration (article-content.tsx, use-annotations.test.ts)
+  - [x] Fixed feed-skeleton.test.tsx selectors for shimmer variant
+  - Soul Impact: Make writing feel like thinking out loud - fluid, supported, inspiring
+
 ### Added - Phase 11 Code Gallery UI/UX Plan (2026-03-17)
 
 - **Strategic Context:** Implements Phases 3-7 from VIBLOG_CODE_GALLERY_UI_DEV_PLAN.md
