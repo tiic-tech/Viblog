@@ -40,6 +40,16 @@ All notable changes to this project will be documented in this file.
   - [x] Added keyboard accessibility (Escape to close, focus management)
   - Soul Impact: "I've been here. This is my thought. This matters."
 
+- **TDD Checkpoint 10.4.3.4: Annotation Sidebar Component** COMPLETE
+  - [x] Created `src/components/annotations/annotation-sidebar.tsx` (~220 lines)
+  - [x] Created `src/components/annotations/__tests__/annotation-sidebar.test.tsx` with 16 passing tests
+  - [x] Implemented annotation list with color indicators
+  - [x] Implemented user filter and visibility filter
+  - [x] Implemented ownership indicator ("Yours" badge)
+  - [x] Implemented discussion count badges
+  - [x] Implemented click navigation to annotation positions
+  - Soul Impact: "I've been here. I've grown here. This is my intellectual home."
+
 ### Added - Phase 11 Code Gallery UI/UX Plan (2026-03-17)
 
 - **Strategic Context:** Implements Phases 3-7 from VIBLOG_CODE_GALLERY_UI_DEV_PLAN.md
