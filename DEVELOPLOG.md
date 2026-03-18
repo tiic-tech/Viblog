@@ -1700,6 +1700,111 @@ const handleHighlight = () => {
 
 ---
 
-**Document Version:** 7.5
+## Annotation Tooltip Race Condition Fix (2026-03-18)
+
+### Bug: Clicking Tooltip Cleared Text Selection
+
+**Discovery Method:** E2E testing revealed highlights weren't persisting
+
+**What I Found:**
+After fixing the highlights/annotations disconnect (changing `handleHighlight` to use `addAnnotation`), the highlight feature STILL didn't work. The root cause was a subtle browser event race condition.
+
+**Root Cause Analysis:**
+
+The browser's default behavior on `mousedown` is to clear any active text selection. This created a race condition:
+
+```
+Timeline:
+1. User selects text (selection exists)
+2. User clicks "Highlight" button on tooltip
+3. mousedown fires on tooltip
+4. Browser default: CLEAR the text selection
+5. selectionchange event fires
+6. Debounced handler in useTextSelection sets selection: null
+7. onClick fires on "Highlight" button
+8. handleHighlight() called with selection === null
+9. Nothing happens - highlight not saved
+```
+
+**The Fix (Two-Part):**
+
+**Part 1: Prevent Default in Tooltip**
+```typescript
+// annotation-tooltip.tsx
+const handleTooltipMouseDown = (e: React.MouseEvent) => {
+  e.preventDefault()  // Prevent browser from clearing selection
+}
+
+<motion.div
+  data-annotation-tooltip="true"
+  onMouseDown={handleTooltipMouseDown}
+  // ...
+>
+```
+
+**Part 2: Skip isSelecting When Clicking Tooltip**
+```typescript
+// use-text-selection.ts
+const handleMouseDown = useCallback(
+  (event: MouseEvent) => {
+    if (!enabled) return
+
+    const target = event.target as HTMLElement
+    if (target.closest('[data-annotation-tooltip]')) {
+      return  // Don't set isSelecting when clicking tooltip
+    }
+
+    setState((prev) => ({ ...prev, isSelecting: true }))
+  },
+  [enabled]
+)
+```
+
+**Why Both Parts Are Needed:**
+
+1. `e.preventDefault()` - Stops browser from clearing the selection
+2. `data-annotation-tooltip` check - Prevents `isSelecting: true` from being set, which would cause the tooltip to re-render/disappear during the click
+
+**Key Lesson - Browser Event Timing:**
+
+This is a classic browser race condition that's easy to miss. The sequence is:
+1. `mousedown` (default action: clear selection)
+2. `selectionchange` (fires after selection is cleared)
+3. `click`/`onClick` (fires last)
+
+When you need to preserve text selection across a click, you MUST use `preventDefault()` on `mousedown`, not `click`.
+
+**Pattern to Remember:**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│   PRESERVING TEXT SELECTION ACROSS CLICKS                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   Problem: Browser clears selection on mousedown                │
+│   Solution: e.preventDefault() on mousedown handler             │
+│                                                                 │
+│   1. Add data-* attribute to tooltip container                  │
+│   2. Use onMouseDown with preventDefault()                      │
+│   3. Check for tooltip clicks in selection hooks                │
+│                                                                 │
+│   WRONG:                                                         │
+│   onClick={(e) => e.preventDefault()}  // Too late!             │
+│                                                                 │
+│   CORRECT:                                                       │
+│   onMouseDown={(e) => e.preventDefault()}  // Prevents clear    │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Files Modified:**
+- `src/components/ui/annotation-tooltip.tsx` - Added `handleTooltipMouseDown` with `preventDefault()`
+- `src/hooks/use-text-selection.ts` - Added tooltip click detection in `handleMouseDown`
+
+**Verification:** Playwright E2E test confirmed highlights now persist after clicking tooltip buttons
+
+---
+
+**Document Version:** 7.6
 **Last Updated:** 2026-03-18
 **Author:** Claude (with human collaborator)

@@ -28,6 +28,15 @@ All notable changes to this project will be documented in this file.
   - Impact: Split pane editor features (live preview, resizable panes) now available to users
   - Issue: Component was implemented but not integrated into the application
 
+- **Annotation Tooltip Race Condition** - HIGH PRIORITY
+  - [x] Added `e.preventDefault()` in `annotation-tooltip.tsx` onMouseDown handler
+  - [x] Added `data-annotation-tooltip="true"` attribute to identify tooltip elements
+  - [x] Added tooltip click detection in `use-text-selection.ts` handleMouseDown
+  - [x] Unified annotation system: `handleHighlight` now uses `addAnnotation` with empty content
+  - Impact: Highlight/Comment/Share buttons on annotation tooltip now work correctly
+  - Issue: Browser clears text selection on mousedown before onClick fires, causing race condition
+  - Root Cause: mousedown event -> browser clears selection -> selectionchange fires -> selection becomes null -> onClick fires with null selection
+
 ### Added - Phase 10.4 Human User Experience Features (2026-03-18)
 
 - **Soul Mission:** When I'm NOT a vibe coder today - when I just want to write my thoughts, feelings, things I saw - do I still feel at home in Viblog? The answer must be YES.
