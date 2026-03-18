@@ -14,6 +14,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed - Phase 10.4 (2026-03-18)
+
+- **Tiptap SSR Hydration Error** - CRITICAL
+  - [x] Added `immediatelyRender: false` to `article-editor.tsx` useEditor config
+  - [x] Added `immediatelyRender: false` to `split-pane-editor.tsx` useEditor config
+  - Impact: Article editor pages now load correctly without SSR hydration errors
+  - Issue: Tiptap requires explicit SSR handling in Next.js App Router
+
 ### Added - Phase 10.4 Human User Experience Features (2026-03-18)
 
 - **Soul Mission:** When I'm NOT a vibe coder today - when I just want to write my thoughts, feelings, things I saw - do I still feel at home in Viblog? The answer must be YES.
