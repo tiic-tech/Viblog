@@ -50,6 +50,8 @@
 | `DUAL_READING_STRUCTURE.md` | Article reading UX | Planned |
 | `IMMERSIVE_EXPERIENCE_DESIGN.md` | Immersive reading mode | Planned |
 | `MCP_SERVICE_DESIGN.md` | MCP service architecture | Active |
+| `VIBLOG_PUBLISH_GUIDANCE.md` | Publishing workflow guide | Active |
+| `article-draft-viblog-ecosystem-positioning.md` | Example article draft | Reference |
 
 ---
 
