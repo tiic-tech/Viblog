@@ -9,10 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import {
-  validateTokenAndGetUser,
-  requireSourceAuthorization,
-} from '@/lib/auth/token-auth'
+import { validateTokenAndGetUser, requireSourceAuthorization } from '@/lib/auth/token-auth'
 import {
   GraphQueryInputSchema,
   GraphNameSchema,
@@ -66,21 +63,12 @@ export async function POST(
     const authResult = await validateTokenAndGetUser(authHeader)
 
     if ('error' in authResult) {
-      return NextResponse.json(
-        { error: authResult.error },
-        { status: authResult.statusCode }
-      )
+      return NextResponse.json({ error: authResult.error }, { status: authResult.statusCode })
     }
 
-    const authError = requireSourceAuthorization(
-      authResult.context,
-      'knowledge_graph'
-    )
+    const authError = requireSourceAuthorization(authResult.context, 'knowledge_graph')
     if (authError) {
-      return NextResponse.json(
-        { error: authError.error },
-        { status: authError.statusCode }
-      )
+      return NextResponse.json({ error: authError.error }, { status: authError.statusCode })
     }
 
     const userId = authResult.context.userId
@@ -109,10 +97,7 @@ export async function POST(
           .single()
 
         if (startError || !startNode) {
-          return NextResponse.json(
-            { error: 'Start node not found' },
-            { status: 404 }
-          )
+          return NextResponse.json({ error: 'Start node not found' }, { status: 404 })
         }
 
         nodes.push({
@@ -136,10 +121,7 @@ export async function POST(
 
         if (edgesError) {
           console.error('Edges query error:', edgesError)
-          return NextResponse.json(
-            { error: 'Failed to query edges' },
-            { status: 500 }
-          )
+          return NextResponse.json({ error: 'Failed to query edges' }, { status: 500 })
         }
 
         // Collect unique neighbor node IDs
@@ -205,9 +187,7 @@ export async function POST(
 
         // BFS traversal
         const visited = new Set<string>([input.start_node])
-        const queue: { nodeId: string; depth: number }[] = [
-          { nodeId: input.start_node, depth: 0 },
-        ]
+        const queue: { nodeId: string; depth: number }[] = [{ nodeId: input.start_node, depth: 0 }]
 
         // Get start node
         const { data: startNode } = await supabase
@@ -298,13 +278,10 @@ export async function POST(
 
         if (nodesError) {
           console.error('Subgraph nodes error:', nodesError)
-          return NextResponse.json(
-            { error: 'Failed to query nodes' },
-            { status: 500 }
-          )
+          return NextResponse.json({ error: 'Failed to query nodes' }, { status: 500 })
         }
 
-        const nodeIds = (nodesData || []).map((n) => n.id)
+        const nodeIds = (nodesData || []).map((n: Record<string, unknown>) => n.id)
 
         for (const node of nodesData || []) {
           nodes.push({
@@ -416,7 +393,7 @@ export async function POST(
             .in('id', pathNodes)
 
           for (const nodeId of pathNodes) {
-            const nodeData = nodesData?.find((n) => n.id === nodeId)
+            const nodeData = nodesData?.find((n: Record<string, unknown>) => n.id === nodeId)
             if (nodeData) {
               nodes.push({
                 id: nodeData.id,
@@ -448,9 +425,6 @@ export async function POST(
     return NextResponse.json(response)
   } catch (error) {
     console.error('Graph query error:', error)
-    return NextResponse.json(
-      { error: 'Graph query failed' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Graph query failed' }, { status: 500 })
   }
 }

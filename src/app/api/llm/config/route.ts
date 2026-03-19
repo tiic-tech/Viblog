@@ -51,7 +51,7 @@ export async function GET() {
     // Transform response - mask API keys
     // Note: Supabase returns joined data as arrays for foreign key relationships
     const response = {
-      configs: (configs || []).map((config) => {
+      configs: (configs || []).map((config: Record<string, unknown>) => {
         // Handle provider data (may be array or object depending on relationship)
         const provider = Array.isArray(config.llm_providers)
           ? config.llm_providers[0]
@@ -66,7 +66,7 @@ export async function GET() {
           providerName: provider?.name,
           providerCapabilities: provider?.capabilities,
           hasApiKey: !!config.api_key_encrypted,
-          apiKeyMasked: maskApiKey(config.api_key_encrypted),
+          apiKeyMasked: maskApiKey(config.api_key_encrypted as string | null | undefined),
           defaultModelId: config.default_model_id,
           defaultModel: model
             ? {

@@ -10,6 +10,14 @@ import {
 import { getCache, setCache, DEFAULT_TTL, CACHE_PREFIXES } from '@/lib/cache'
 import { invalidateLLMContext } from '@/lib/cache/invalidation'
 
+// Type for session fragment data
+type FragmentData = {
+  fragment_type: string
+  content: string
+  sequence_number: number
+  metadata?: Record<string, unknown>
+}
+
 /**
  * Get the appropriate Supabase client based on authentication method.
  */
@@ -74,7 +82,7 @@ export async function POST(request: Request) {
     }
 
     // Build raw context string from fragments
-    const rawContext = fragments
+    const rawContext = (fragments as FragmentData[])
       .map((f) => {
         const header = `[${f.fragment_type.toUpperCase()} #${f.sequence_number}]`
         return `${header}\n${f.content}`
@@ -83,8 +91,9 @@ export async function POST(request: Request) {
 
     // Create a simple hash of fragment content for cache key
     // This ensures cache is invalidated when fragments change
-    const contentHash = fragments.reduce(
-      (acc, f) => `${acc}:${f.fragment_type}:${f.sequence_number}:${f.content.length}`,
+    const contentHash = (fragments as FragmentData[]).reduce(
+      (acc: string, f: FragmentData) =>
+        `${acc}:${f.fragment_type}:${f.sequence_number}:${f.content.length}`,
       ''
     )
 

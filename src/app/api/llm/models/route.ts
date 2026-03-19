@@ -9,7 +9,9 @@ import { createClient } from '@/lib/supabase/server'
 export async function GET(request: Request) {
   try {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -21,7 +23,8 @@ export async function GET(request: Request) {
     // Build query
     let query = supabase
       .from('llm_models')
-      .select(`
+      .select(
+        `
         id,
         provider_id,
         model_id,
@@ -33,7 +36,8 @@ export async function GET(request: Request) {
         output_price_per_1k,
         supported_params,
         is_active
-      `)
+      `
+      )
       .eq('is_active', true)
       .order('display_name')
 
@@ -50,7 +54,7 @@ export async function GET(request: Request) {
 
     // Transform to API response format
     const response = {
-      models: (models || []).map((model) => ({
+      models: (models || []).map((model: Record<string, unknown>) => ({
         id: model.id,
         providerId: model.provider_id,
         modelId: model.model_id,

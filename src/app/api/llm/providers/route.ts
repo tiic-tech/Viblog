@@ -9,7 +9,9 @@ import { getAllProviders } from '@/lib/llm'
 export async function GET() {
   try {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
     // Public endpoint - no auth required, but check if user is logged in
     // to include their configuration status
@@ -36,18 +38,30 @@ export async function GET() {
     }
 
     // Group models by provider
-    const modelsByProvider = (models || []).reduce((acc, model) => {
-      if (!acc[model.provider_id]) {
-        acc[model.provider_id] = []
-      }
-      acc[model.provider_id].push({
-        id: model.id,
-        modelId: model.model_id,
-        displayName: model.display_name,
-        capabilities: model.capabilities,
-      })
-      return acc
-    }, {} as Record<string, Array<{ id: string; modelId: string; displayName: string; capabilities: unknown }>>)
+    const modelsByProvider = (models || []).reduce(
+      (
+        acc: Record<
+          string,
+          Array<{ id: string; modelId: string; displayName: string; capabilities: unknown }>
+        >,
+        model: Record<string, unknown>
+      ) => {
+        if (!acc[model.provider_id as string]) {
+          acc[model.provider_id as string] = []
+        }
+        acc[model.provider_id as string].push({
+          id: model.id as string,
+          modelId: model.model_id as string,
+          displayName: model.display_name as string,
+          capabilities: model.capabilities,
+        })
+        return acc
+      },
+      {} as Record<
+        string,
+        Array<{ id: string; modelId: string; displayName: string; capabilities: unknown }>
+      >
+    )
 
     // If user is logged in, check their configured providers
     let userConfigs: Array<{ provider_id: string; is_primary: boolean }> = []
@@ -62,13 +76,13 @@ export async function GET() {
 
     // Build response
     const response = {
-      providers: (providers || []).map((provider) => {
+      providers: (providers || []).map((provider: Record<string, unknown>) => {
         const userConfig = userConfigs.find((c) => c.provider_id === provider.id)
         return {
           id: provider.id,
           name: provider.name,
           capabilities: provider.capabilities,
-          models: modelsByProvider[provider.id] || [],
+          models: modelsByProvider[provider.id as string] || [],
           isConfigured: !!userConfig,
           isPrimary: userConfig?.is_primary || false,
         }
