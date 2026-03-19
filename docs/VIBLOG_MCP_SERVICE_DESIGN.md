@@ -549,7 +549,6 @@ if (search_scope.community_articles && !user.hasSubscription) {
   });
 }
 ```
-```
 
 **Returns:**
 ```typescript
@@ -815,7 +814,6 @@ if (include_community_benchmark && !user.hasSubscription) {
     }>;
   };
 }
-```
 ```
 
 ---

@@ -360,9 +360,9 @@ Phase 0 (Foundation)
 
 ## References
 
-- ADR-001: Database Multi-Tenant Isolation Redesign
-- ADR-002: Viblog Business Model and Data Access Architecture
-- ADR-003: MCP Layer 5 Commercial Architecture
+- ADR-001: Database Multi-Tenant Isolation Redesign (`docs/dev-logs/ADR-001-Database-Multi-Tenant-Isolation.md`)
+- ADR-002: Business Model and Data Access Architecture (`docs/dev-logs/ADR-002-Business-Model-Data-Access.md`)
+- ADR-003: MCP Layer 5 Commercial Architecture (`docs/dev-logs/ADR-003-MCP-Commercial-Architecture.md`)
 - Database Redesign Plan: `docs/dev-logs/database-redesign-plan-CAO-2026-03-19.md`
 - PRD Version 2.0: `PRD.md`
 - MCP Service Design: `docs/VIBLOG_MCP_SERVICE_DESIGN.md`

@@ -1556,99 +1556,27 @@ async function checkLayerAccess(
 
 ---
 
-## Architecture Decision Record
+## Architecture Decision Records
+
+This document relates to the following ADRs. Full content is maintained in independent files for consistency.
 
 ### ADR-001: Database Multi-Tenant Isolation Redesign
 
 **Status:** Proposed
 
-**Context:**
-The current database architecture lacks proper multi-tenant isolation. Critical issues include:
-1. `article_paragraphs` table has no `user_id`, allowing cross-user vector search results
-2. RLS policies documented but not implemented in migrations
-3. Single encryption key for all data
-4. No Access Proxy Layer for BYODB security
+**File:** `docs/dev-logs/ADR-001-Database-Multi-Tenant-Isolation.md`
 
-**Decision:**
-Implement comprehensive multi-tenant isolation through:
-1. Add `user_id` to all tables lacking it (with automatic population triggers)
-2. Create RLS migration files for all tables
-3. Add data classification columns (L1/L2/L3)
-4. Implement key hierarchy for encryption (Phase 2)
-
-**Consequences:**
-
-*Positive:*
-- Proper data isolation between users
-- Foundation for BYODB implementation
-- Compliance-ready security posture
-- Reduced risk of data exposure
-
-*Negative:*
-- Requires migration of existing data
-- Potential performance impact from RLS checks
-- Increased complexity in queries
-- Service role must be carefully managed
-
-**Alternatives Considered:**
-1. **Minimal fix only** - Rejected due to ongoing security risk
-2. **Hybrid approach** - Rejected due to higher total cost
-3. **Application-level filtering** - Rejected as insufficient for security
-
-**Implementation Notes:**
-- Migrations must be run in order
-- Backfill must complete before NOT NULL constraint
-- Triggers ensure future data consistency
-- Rollback script available for emergencies
+**Summary:** Implement comprehensive multi-tenant isolation through user_id columns, RLS policies, and data classification.
 
 ---
 
-### ADR-002: Viblog Business Model and Data Access Architecture
+### ADR-002: Business Model and Data Access Architecture
 
 **Status:** Approved
 
-**Context:**
-Viblog needs a clear business model and data access architecture that:
-1. Ensures user data sovereignty
-2. Provides clear value proposition for subscription
-3. Enables sustainable commercial operation
-4. Maintains user trust
+**File:** `docs/dev-logs/ADR-002-Business-Model-Data-Access.md`
 
-**Decision:**
-1. **Data Layer Architecture:**
-   - L0: Public Articles (user-published content)
-   - L1: Private Articles (unpublished drafts)
-   - L2: Development Data (sessions, insights)
-   - L3: Identity Data (account, API keys)
-
-2. **Commercial Model:**
-   - Trial Period (0-6 months): All features unlocked
-   - Official Period (6+ months): $9.9/month subscription
-   - Early Bird: First 1000 subscribers get $4.9/month permanent
-
-3. **LLM Access Control:**
-   - Trial users: LLM can access L0, L1 (owner), L2 (owner)
-   - Free official users: LLM blocked from L0, can access L1/L2 (owner only)
-   - Subscribers: Full LLM access to L0, plus L1/L2 (owner)
-   - Platform LLM: Can access L0, requires auth for L1, blocked from L2/L3
-
-**Consequences:**
-
-*Positive:*
-- Clear value proposition for subscription
-- User data sovereignty maintained
-- Sustainable business model
-- User trust through transparency
-
-*Negative:*
-- Complexity in permission management
-- Need for Access Proxy Layer
-- Trial-to-paid conversion risk
-
-**Related Documents:**
-- PRD v2.0: `PRD.md`
-- IMPLEMENTATION_PLAN v3.0: `IMPLEMENTATION_PLAN.md`
-- ADR-003: MCP Layer 5 Commercial Architecture (`docs/dev-logs/ADR-003-MCP-Commercial-Architecture.md`)
+**Summary:** Define Data Layer Architecture (L0-L3), Commercial Model (Trial → Subscription), and LLM Access Control matrix.
 
 ---
 
