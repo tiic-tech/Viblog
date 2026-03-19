@@ -15,6 +15,182 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Phase 11.6.6: Usage Dashboard API - COMPLETE (2026-03-18 14:15):**
+  - **Usage Statistics API (`/api/llm/usage`):**
+    - GET: Usage summary with total tokens, cost, request count
+    - Time period filtering (7d, 30d, 90d, all)
+    - Provider breakdown with cost attribution
+    - Model breakdown with usage statistics
+    - User-scoped data with authentication
+  - **Usage Export API (`/api/llm/usage/export`):**
+    - CSV export for billing and analysis
+    - Date range filtering with from/to parameters
+    - Provider and model columns with token counts
+    - Cost calculation per request
+  - **Comprehensive Test Coverage:**
+    - 10 tests for usage endpoint
+    - 8 tests for usage-export endpoint
+    - Mocked Supabase client for isolation
+- **Phase 11.6.4 & 11.6.5: Chat API & Structured Output - COMPLETE (2026-03-18 10:19):**
+  - **Chat API (`/api/llm/chat`):**
+    - Non-streaming mode with full response
+    - Streaming mode with Server-Sent Events (SSE)
+    - Model selection from user config or override
+    - Custom parameters and prompts integration
+    - Usage logging with token counting and cost calculation
+    - Provider-specific error handling
+  - **Structured Output API (`/api/llm/structured`):**
+    - Named schemas: `article_generation`, `content_analysis`, `entity_extraction`, etc.
+    - Custom schema support with Zod validation
+    - Automatic retry on validation failure (max 3 attempts)
+    - Provider-aware: native structured output or prompt engineering fallback
+    - JSON extraction from various response formats
+  - **Schema Library (`src/lib/llm/schemas/`):**
+    - Article schemas: generation, outline, improvement
+    - Analysis schemas: content analysis, classification
+    - Entity schemas: general entities, code entities
+    - Vibe session schemas: context extraction, article draft
+    - Schema registry for easy reference by name
+- **Phase 11.6.3: Configuration API Endpoints - COMPLETE (2026-03-18 10:10):**
+  - Created REST API for LLM configuration management
+  - `GET /api/llm/providers` - List all available providers with capabilities and models
+  - `GET /api/llm/models` - List models for a provider (optional provider_id filter)
+  - `GET /api/llm/config` - List user's configurations with masked API keys
+  - `POST /api/llm/config` - Create or update user configuration with encrypted API key
+  - `DELETE /api/llm/config?id=xxx` - Remove user configuration
+  - `PATCH /api/llm/config` - Update specific config fields (model, params, prompts)
+  - `POST /api/llm/config/validate` - Validate API key and return available models
+  - `POST /api/llm/config/primary` - Set primary provider for user
+  - Auto-primary for first configuration
+  - API key encryption using AES-256-GCM
+  - All endpoints with authentication, error handling, and structured responses
+- **Phase 11.6.2: Provider Adapter Layer - COMPLETE (2026-03-18 09:51):**
+  - Created `src/lib/llm/` library with Strategy Pattern for multi-provider support
+  - Core types: `ILLMProviderAdapter`, `ChatMessage`, `ChatResponse`, `StreamChunk`, etc.
+  - Abstract base class `BaseProviderAdapter` with common utilities:
+    - Cost estimation based on token pricing
+    - HTTP request helpers with error handling
+    - Token counting heuristics
+    - Options merging with model defaults
+  - Provider factory with `getProviderAdapter()`, `getAllProviders()`, `isProviderSupported()`
+  - 9 Provider Adapters implemented:
+    - OpenAI - Reference implementation with streaming, structured output, vision
+    - Anthropic - Claude models with messages API
+    - Gemini - Google's Gemini with OpenAI-compatible endpoint
+    - DeepSeek - Chinese provider with competitive pricing
+    - Moonshot - Kimi models with long context
+    - Qwen - Alibaba's Qwen series
+    - Zhipu AI - GLM models from Tsinghua University
+    - MiniMax - abab models with voice capabilities
+    - OpenRouter - Gateway to 100+ models from various providers
+  - Fixed logger.test.ts to use `vi.stubEnv()` for environment variable mocking
+  - TypeScript compilation clean with no errors
+- **Phase 11.6.1: Database Schema & Provider Registry - COMPLETE (2026-03-18 10:30):**
+  - Created `llm_providers` table - Provider metadata with capabilities
+  - Created `llm_models` table - Model catalog with pricing and context windows
+  - Created `user_llm_configs` table - User configurations with encrypted API keys
+  - Created `llm_usage_logs` table - Usage tracking and cost attribution
+  - Row Level Security policies for all tables
+  - Performance indexes for common query patterns
+  - Auto-updating `updated_at` triggers
+  - Seed data: 9 providers (OpenAI, Anthropic, Google Gemini, DeepSeek, Moonshot, Qwen, Zhipu AI, MiniMax, OpenRouter)
+  - Seed data: 36 models across all providers
+  - Migrations applied via Supabase MCP
+- **Phase 11.6: LLM Platform Configuration - PLANNED (2026-03-18):**
+  - Comprehensive plan for multi-provider LLM support integrated into IMPLEMENTATION_PLAN.md
+  - 9 LLM Providers planned: OpenAI, Anthropic, Google Gemini, DeepSeek, Moonshot, OpenRouter, Qwen, Zhipu AI, MiniMax
+  - LLM Provider Adapter Pattern using Strategy design pattern for extensibility
+  - Database schema designed: llm_providers, llm_models, user_llm_configs, llm_usage_logs
+  - AES-256-GCM encryption for secure API key storage
+  - SSE (Server-Sent Events) for streaming chat responses
+  - JSON Schema structured output for type-safe AI responses
+  - Usage tracking and cost attribution per user/provider
+  - 7 implementation steps (Phase 11.6.1-11.6.7)
+  - Estimated 8-day implementation timeline
+  - This is a P0 requirement for Human Experience enhancement
+- **Phase 11.5.2: Health Check Endpoints - COMPLETE (2026-03-18 00:30):**
+  - Created `/api/health` - Comprehensive health check with component status
+  - Created `/api/health/ready` - Kubernetes readiness probe endpoint
+  - Created `/api/health/live` - Kubernetes liveness probe endpoint
+  - Features:
+    - Database connectivity check with latency measurement
+    - Cache health with Redis/memory mode detection
+    - Overall status aggregation (healthy/degraded/unhealthy)
+    - Request ID tracking for distributed tracing
+    - Uptime tracking for liveness probe
+  - 12 comprehensive tests covering all endpoints
+  - Structured logging integration for health events
+- **Phase 11.5.1: Structured Logging - COMPLETE (2026-03-18 00:24):**
+  - Created structured JSON logging utility with request ID tracking
+  - Implemented performance timing with `logger.time()` and `startTimer()`
+  - Added specialized logging methods: `apiRequest()`, `dbOperation()`, `cacheOperation()`, `authEvent()`
+  - Integrated structured logging into key modules:
+    - `token-auth.ts`: Auth event logging, cache hit/miss tracking
+    - `cache.ts`: Structured error logging for Redis operations
+    - `rate-limit.ts`: Rate limit violation logging
+  - Request ID context management: `setRequestId()`, `getRequestId()`, `clearRequestId()`
+  - Helper functions: `withLogging()`, `withLoggingAsync()` for scoped logging
+  - File: `src/lib/logger.ts` with 22 passing tests
+- **Phase 11.4: Caching Layer - COMPLETE (2026-03-17 23:50):**
+  - Implemented Redis-compatible cache layer with Upstash support
+  - Created cache utilities: getCache, setCache, getOrSetCache, deleteCache
+  - Implemented cache-aside pattern for read-heavy endpoints
+  - Cache invalidation on token mutations (DELETE/PATCH operations)
+  - TTL configurations: API key validation (5 min), LLM context (1 hour), User sessions (5 min)
+  - Cache key prefixes for organized invalidation: api_key:, session:, llm_context:
+  - Token hash (SHA-256) used as cache key for secure invalidation
+  - Files: `src/lib/cache/client.ts`, `src/lib/cache/cache.ts`, `src/lib/cache/invalidation.ts`
+  - Tests: 11 cache invalidation tests passing
+- **Phase 11.2.2: Environment-Based Rate Limiting & Monitoring - COMPLETE (2026-03-17 23:38):**
+  - Environment-based rate limit configuration (stricter in production)
+  - Production limits are 50% of development limits automatically
+  - Rate limit violation monitoring and statistics tracking
+  - Statistics API: `getRateLimitStats()` for monitoring
+  - Structured JSON logging for production rate limit violations
+  - New exports: `isProduction()`, `getRateLimitStats()`, `clearStats()`
+  - 9 new tests for environment config and statistics (58 total tests)
+  - Updated `.env.local.example` with rate limiting documentation
+  - All API routes automatically protected via middleware integration
+- **Phase 11.2.1: Rate Limiting Middleware - COMPLETE (2026-03-17 23:31):**
+  - Implemented sliding window rate limiting algorithm
+  - Created in-memory rate limit store with automatic cleanup
+  - Per-IP and per-user identification from request headers
+  - Configurable rate limits per endpoint pattern:
+    - Auth: 10 req/min (strict security)
+    - LLM/generate: 20 req/min (cost control)
+    - AI: 50 req/min
+    - Vibe sessions: 100 req/min
+    - Fragments: 500 req/min (high for MCP use)
+    - Default: 60 req/min
+  - Rate limit response headers (X-RateLimit-Limit, -Remaining, -Reset, Retry-After)
+  - Integration with Next.js middleware for API routes
+  - Comprehensive test suite: 49 tests passing
+  - Commit ec01da7: 5 files changed, 1001 insertions
+  - Files: `src/lib/rate-limit.ts`, `src/lib/middleware/rate-limit.ts`
+- **Phase 11.1: Test Coverage Expansion - COMPLETE (2026-03-17 21:34):**
+  - Added Vitest testing framework with v8 coverage
+  - Created 68 comprehensive tests across 5 test files
+  - Achieved 99.03% overall coverage (target: 90%+)
+  - 100% function coverage, 98.38% branch coverage
+  - Test files:
+    - `src/api/client.test.ts` - 23 tests for ViblogApiClient
+    - `src/tools/handlers.test.ts` - 22 tests for ToolHandler
+    - `src/tools/index.test.ts` - 17 tests for tool definitions
+    - `src/types.test.ts` - 4 tests for getServerConfig
+    - `src/server.test.ts` - 2 tests for server creation
+  - Phase 11.1 P0 BLOCKER resolved
+- **Phase 11.3: Error Handling Improvements - COMPLETE (2026-03-17 22:48):**
+  - Created custom error class hierarchy for MCP Server:
+    - `McpServerError` (base class with toJSON, toUserMessage)
+    - `ConfigurationError`, `ValidationError`, `ApiError`
+    - `RateLimitError`, `NetworkError`, `UnknownError`
+  - Implemented Zod validation schemas for all 6 MCP tools:
+    - `create_vibe_session`, `append_session_context`, `upload_session_context`
+    - `generate_structured_context`, `generate_article_draft`, `list_user_sessions`
+  - Added helper functions: `toMcpError()` (error conversion), `isMcpError()` (type guard)
+  - 198 tests passing across 8 test files (99%+ coverage)
+  - Commit 8843891: 19 files changed
+  - Files: `src/errors.ts`, `src/validation.ts`, `src/errors.test.ts`, `src/validation.test.ts`
 - **MILESTONE: End-to-End MCP Verification Complete (2026-03-17 20:55):**
   - All 6 MCP tools verified working in Claude Code session
   - Verified tools: list_user_sessions, create_vibe_session, append_session_context

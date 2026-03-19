@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { generateMcpApiKey, maskToken } from '@/lib/token-generator'
+import { invalidateApiKeyValidation } from '@/lib/cache/invalidation'
 
 /**
  * GET /api/user/mcp-keys
@@ -9,7 +10,9 @@ import { generateMcpApiKey, maskToken } from '@/lib/token-generator'
 export async function GET() {
   try {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -17,7 +20,9 @@ export async function GET() {
 
     const { data: tokens, error } = await supabase
       .from('authorization_tokens')
-      .select('id, name, description, token_prefix, token_type, is_active, last_used_at, created_at, expires_at')
+      .select(
+        'id, name, description, token_prefix, token_type, is_active, last_used_at, created_at, expires_at'
+      )
       .eq('user_id', user.id)
       .eq('token_type', 'mcp_api')
       .order('created_at', { ascending: false })
@@ -39,7 +44,9 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -68,17 +75,15 @@ export async function POST(request: Request) {
     }
 
     // Store token hash
-    const { error } = await supabase
-      .from('authorization_tokens')
-      .insert({
-        user_id: user.id,
-        token_hash: tokenHash,
-        token_prefix: tokenPrefix,
-        token_type: 'mcp_api',
-        name: name.trim(),
-        description: description?.trim() || null,
-        is_active: true,
-      })
+    const { error } = await supabase.from('authorization_tokens').insert({
+      user_id: user.id,
+      token_hash: tokenHash,
+      token_prefix: tokenPrefix,
+      token_type: 'mcp_api',
+      name: name.trim(),
+      description: description?.trim() || null,
+      is_active: true,
+    })
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
@@ -107,7 +112,9 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -120,7 +127,16 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Token ID is required' }, { status: 400 })
     }
 
-    // Verify ownership before deletion
+    // Get token hash before deletion for cache invalidation
+    const { data: tokenData } = await supabase
+      .from('authorization_tokens')
+      .select('token_hash')
+      .eq('id', tokenId)
+      .eq('user_id', user.id)
+      .eq('token_type', 'mcp_api')
+      .single()
+
+    // Delete the token
     const { error } = await supabase
       .from('authorization_tokens')
       .delete()
@@ -130,6 +146,11 @@ export async function DELETE(request: Request) {
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    // Invalidate cache if we had the token hash
+    if (tokenData?.token_hash) {
+      await invalidateApiKeyValidation(tokenData.token_hash)
     }
 
     return NextResponse.json({ success: true })
@@ -145,7 +166,9 @@ export async function DELETE(request: Request) {
 export async function PATCH(request: Request) {
   try {
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -157,6 +180,15 @@ export async function PATCH(request: Request) {
     if (!id) {
       return NextResponse.json({ error: 'Token ID is required' }, { status: 400 })
     }
+
+    // Get token hash before update for cache invalidation
+    const { data: tokenData } = await supabase
+      .from('authorization_tokens')
+      .select('token_hash')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .eq('token_type', 'mcp_api')
+      .single()
 
     const updateData: Record<string, unknown> = {}
     if (name !== undefined) updateData.name = name.trim()
@@ -172,6 +204,11 @@ export async function PATCH(request: Request) {
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    // Invalidate cache if token was found and updated
+    if (tokenData?.token_hash) {
+      await invalidateApiKeyValidation(tokenData.token_hash)
     }
 
     return NextResponse.json({ success: true })

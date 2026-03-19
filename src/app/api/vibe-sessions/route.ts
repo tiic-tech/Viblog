@@ -7,6 +7,14 @@ import {
   updateVibeSessionSchema,
   listVibeSessionsSchema,
 } from '@/lib/validations/vibe-session'
+import {
+  getOrSetCache,
+  setCache,
+  deleteCachePattern,
+  DEFAULT_TTL,
+  CACHE_PREFIXES,
+} from '@/lib/cache'
+import { invalidateUserSessions, invalidateSession } from '@/lib/cache/invalidation'
 
 /**
  * Get the appropriate Supabase client based on authentication method.
@@ -23,6 +31,7 @@ function getSupabaseClient(authMethod: 'session' | 'mcp_api') {
 /**
  * GET /api/vibe-sessions
  * List all vibe sessions for the current user
+ * Cached for 5 minutes per user with filter params
  */
 export async function GET(request: Request) {
   try {
@@ -52,52 +61,61 @@ export async function GET(request: Request) {
 
     const { status, platform, limit, offset } = validated.data
 
-    let query = supabase
-      .from('vibe_sessions')
-      .select(
-        'id, title, platform, model, status, start_time, end_time, created_at, updated_at, metadata'
-      )
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1)
+    // Build cache key from user ID and filter params
+    const filterKey = `${status ?? 'all'}:${platform ?? 'all'}:${limit}:${offset}`
+    const cacheKey = `${CACHE_PREFIXES.USER_SESSIONS}:${userId}:${filterKey}`
 
-    if (status) {
-      query = query.eq('status', status)
-    }
-    if (platform) {
-      query = query.eq('platform', platform)
-    }
+    // Try to get from cache, otherwise fetch from database
+    const result = await getOrSetCache(cacheKey, DEFAULT_TTL.USER_SESSIONS, async () => {
+      let query = supabase
+        .from('vibe_sessions')
+        .select(
+          'id, title, platform, model, status, start_time, end_time, created_at, updated_at, metadata'
+        )
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1)
 
-    const { data: sessions, error } = await query
+      if (status) {
+        query = query.eq('status', status)
+      }
+      if (platform) {
+        query = query.eq('platform', platform)
+      }
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
-    }
+      const { data: sessions, error } = await query
 
-    // Get total count for pagination
-    let countQuery = supabase
-      .from('vibe_sessions')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', userId)
+      if (error) {
+        throw new Error(error.message)
+      }
 
-    if (status) {
-      countQuery = countQuery.eq('status', status)
-    }
-    if (platform) {
-      countQuery = countQuery.eq('platform', platform)
-    }
+      // Get total count for pagination
+      let countQuery = supabase
+        .from('vibe_sessions')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
 
-    const { count } = await countQuery
+      if (status) {
+        countQuery = countQuery.eq('status', status)
+      }
+      if (platform) {
+        countQuery = countQuery.eq('platform', platform)
+      }
 
-    return NextResponse.json({
-      sessions,
-      pagination: {
-        total: count ?? 0,
-        limit,
-        offset,
-        has_more: (count ?? 0) > offset + limit,
-      },
+      const { count } = await countQuery
+
+      return {
+        sessions,
+        pagination: {
+          total: count ?? 0,
+          limit,
+          offset,
+          has_more: (count ?? 0) > offset + limit,
+        },
+      }
     })
+
+    return NextResponse.json(result)
   } catch {
     return NextResponse.json({ error: 'Failed to fetch vibe sessions' }, { status: 500 })
   }
@@ -146,6 +164,9 @@ export async function POST(request: Request) {
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
+
+    // Invalidate user sessions cache after creating new session
+    await invalidateUserSessions(userId)
 
     return NextResponse.json({
       success: true,
@@ -200,6 +221,10 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    // Invalidate both the specific session and the user's session list
+    await invalidateSession(userId, id)
+    await invalidateUserSessions(userId)
+
     return NextResponse.json({ success: true })
   } catch {
     return NextResponse.json({ error: 'Failed to update vibe session' }, { status: 500 })
@@ -240,6 +265,10 @@ export async function DELETE(request: Request) {
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
+
+    // Invalidate both the specific session and the user's session list
+    await invalidateSession(userId, id)
+    await invalidateUserSessions(userId)
 
     return NextResponse.json({ success: true })
   } catch {

@@ -8,6 +8,8 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
+import { getCache, setCache, DEFAULT_TTL, CACHE_PREFIXES } from '@/lib/cache'
+import { logger } from '@/lib/logger'
 
 // Token prefixes
 export const MCP_API_KEY_PREFIX = 'vb_'
@@ -114,6 +116,7 @@ function parseAuthorizedSources(sources: unknown): AuthorizedSources {
 export async function validateToken(authHeader: string | null): Promise<TokenAuthResult> {
   // Check if header exists
   if (!authHeader) {
+    logger.authEvent('token_validation', false, { reason: 'missing_header' })
     return {
       valid: false,
       userId: null,
@@ -127,6 +130,7 @@ export async function validateToken(authHeader: string | null): Promise<TokenAut
   // Extract token from "Bearer <token>" format
   const parts = authHeader.split(' ')
   if (parts.length !== 2 || parts[0].toLowerCase() !== 'bearer') {
+    logger.authEvent('token_validation', false, { reason: 'invalid_format' })
     return {
       valid: false,
       userId: null,
@@ -141,6 +145,7 @@ export async function validateToken(authHeader: string | null): Promise<TokenAut
   const tokenType = detectTokenType(token)
 
   if (!tokenType) {
+    logger.authEvent('token_validation', false, { reason: 'unknown_token_type' })
     return {
       valid: false,
       userId: null,
@@ -156,7 +161,30 @@ export async function validateToken(authHeader: string | null): Promise<TokenAut
     const tokenHash = await hashToken(token)
 
     if (tokenType === 'mcp_api') {
-      // MCP API key validation - query authorization_tokens table
+      // MCP API key validation - check cache first
+      const cacheKey = `${CACHE_PREFIXES.API_KEY_VALIDATION}:${tokenHash}`
+      const cachedResult = await getCache<TokenAuthResult>(cacheKey)
+
+      if (cachedResult && cachedResult.valid) {
+        logger.cacheOperation('hit', cacheKey)
+        logger.authEvent('mcp_key_validation', true, {
+          tokenType: 'mcp_api',
+          cached: true,
+          userId: cachedResult.userId || undefined,
+        })
+        // Return cached result, but still update last_used_at asynchronously
+        const supabase = await createClient()
+        supabase
+          .from('authorization_tokens')
+          .update({ last_used_at: new Date().toISOString() })
+          .eq('token_hash', tokenHash)
+          .then(() => {}) // Ignore errors
+        return cachedResult
+      }
+
+      logger.cacheOperation('miss', cacheKey)
+
+      // Query authorization_tokens table
       const { data, error } = await supabase
         .from('authorization_tokens')
         .select('id, user_id, name, authorized_sources, privacy_level, is_active')
@@ -165,6 +193,10 @@ export async function validateToken(authHeader: string | null): Promise<TokenAut
         .single()
 
       if (error || !data) {
+        logger.authEvent('mcp_key_validation', false, {
+          tokenType: 'mcp_api',
+          reason: 'invalid_key',
+        })
         return {
           valid: false,
           userId: null,
@@ -177,6 +209,11 @@ export async function validateToken(authHeader: string | null): Promise<TokenAut
 
       // Check if token is active
       if (data.is_active === false) {
+        logger.authEvent('mcp_key_validation', false, {
+          tokenType: 'mcp_api',
+          reason: 'deactivated',
+          keyName: data.name,
+        })
         return {
           valid: false,
           userId: null,
@@ -194,13 +231,25 @@ export async function validateToken(authHeader: string | null): Promise<TokenAut
         .eq('id', data.id)
         .then(() => {}) // Ignore errors
 
-      return {
+      const result: TokenAuthResult = {
         valid: true,
         userId: data.user_id,
         tokenType: 'mcp_api',
         authorizedSources: parseAuthorizedSources(data.authorized_sources),
         privacyLevel: data.privacy_level ?? 1,
       }
+
+      // Cache the validation result for 5 minutes
+      await setCache(cacheKey, result, DEFAULT_TTL.API_KEY_VALIDATION)
+      logger.cacheOperation('set', cacheKey)
+      logger.authEvent('mcp_key_validation', true, {
+        tokenType: 'mcp_api',
+        cached: false,
+        userId: data.user_id,
+        keyName: data.name,
+      })
+
+      return result
     } else {
       // Authorization token validation
       const { data, error } = await supabase
@@ -210,6 +259,10 @@ export async function validateToken(authHeader: string | null): Promise<TokenAut
         .single()
 
       if (error || !data) {
+        logger.authEvent('authorization_token_validation', false, {
+          tokenType: 'authorization',
+          reason: 'invalid_token',
+        })
         return {
           valid: false,
           userId: null,
@@ -222,6 +275,10 @@ export async function validateToken(authHeader: string | null): Promise<TokenAut
 
       // Check if token is active
       if (data.is_active === false) {
+        logger.authEvent('authorization_token_validation', false, {
+          tokenType: 'authorization',
+          reason: 'deactivated',
+        })
         return {
           valid: false,
           userId: null,
@@ -236,6 +293,10 @@ export async function validateToken(authHeader: string | null): Promise<TokenAut
       if (data.expires_at) {
         const expiresAt = new Date(data.expires_at)
         if (expiresAt < new Date()) {
+          logger.authEvent('authorization_token_validation', false, {
+            tokenType: 'authorization',
+            reason: 'expired',
+          })
           return {
             valid: false,
             userId: null,
@@ -253,6 +314,11 @@ export async function validateToken(authHeader: string | null): Promise<TokenAut
         .update({ last_used_at: new Date().toISOString() })
         .eq('token_hash', tokenHash)
 
+      logger.authEvent('authorization_token_validation', true, {
+        tokenType: 'authorization',
+        userId: data.user_id,
+      })
+
       return {
         valid: true,
         userId: data.user_id,
@@ -263,6 +329,7 @@ export async function validateToken(authHeader: string | null): Promise<TokenAut
     }
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
+    logger.error('Token validation failed', err, { errorMessage })
     return {
       valid: false,
       userId: null,
