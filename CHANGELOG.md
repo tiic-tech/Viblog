@@ -85,6 +85,17 @@ Full CHANGELOG content archived to: `mcp_service_phase_docs/CHANGELOG.md`
 - 3 new subscription-only tools: evaluate_article_value, discover_content_opportunities, track_similar_developers
 - Value proposition: "知道自己有什么" (Free) vs "知道差距，知道往哪走" (Subscriber)
 
+#### docs: ADR-004 - Agent Team Architecture Redesign
+
+**Status:** Proposed
+
+**Key Decisions:**
+- Simplify from 4-level to 3-level hierarchy
+- CAO has sole "Challenge Before Implement" authority
+- Each agent definition limited to 100 lines max
+- Removed mandatory multi-step sequences from reviewers
+- Clear responsibility boundaries: CAO (strategy), CTO (quality), CUIO (design)
+
 #### docs: VIBLOG_MCP_SERVICE_DESIGN v5.0
 
 **Changes:**

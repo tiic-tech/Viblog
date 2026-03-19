@@ -259,6 +259,7 @@
 - ADR-001: Database Multi-Tenant Isolation Redesign (`docs/dev-logs/ADR-001-Database-Multi-Tenant-Isolation.md`)
 - ADR-002: Business Model and Data Access Architecture (`docs/dev-logs/ADR-002-Business-Model-Data-Access.md`)
 - ADR-003: MCP Layer 5 Commercial Architecture (`docs/dev-logs/ADR-003-MCP-Commercial-Architecture.md`)
+- ADR-004: Agent Team Architecture Redesign (`docs/dev-logs/ADR-004-Agent-Team-Architecture-Redesign.md`)
 - Database Redesign Plan: `docs/dev-logs/database-redesign-plan-CAO-2026-03-19.md`
 - MCP Service Design: `docs/VIBLOG_MCP_SERVICE_DESIGN.md`
 
