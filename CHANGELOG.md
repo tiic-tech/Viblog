@@ -1,35 +1,43 @@
 # CHANGELOG
 
-> **Archive:** `mcp_service_phase_docs/CHANGELOG.md`
-> **Archived:** 2026-03-19
-> **Phase:** Phase 11 Complete, Phase 12 Pending
-
----
-
-## Document Navigation
-
-| Document | Purpose | Status |
-|----------|---------|--------|
-| `PRD.md` | Product Requirements | ✅ Updated 2026-03-19 |
-| `TECH_STACK.md` | Technology Choices | 📋 Needs Update |
-| `IMPLEMENTATION_PLAN.md` | Development Tasks | ✅ Updated 2026-03-19 |
-| `CHANGELOG.md` | Change History | ✅ Active |
-| `DEVELOPLOG.md` | Development Log | ✅ Updated 2026-03-19 |
-| `APP_FLOW.md` | User Flows | 📋 Needs Update |
-| `BACKEND_STRUCTURE.md` | Backend Architecture | 📋 Needs Update |
-| `FRONTEND_GUIDELINES.md` | UI/UX Guidelines | 📋 Needs Update |
-| `PRODUCT_COMP_ANALYSIS.md` | Competitive Analysis | 📋 Needs Update |
-| `CLAUDE.md` | Project Instructions | ✅ Active |
-
----
-
-## Previous Archive
-
-Full CHANGELOG content archived to: `mcp_service_phase_docs/CHANGELOG.md`
+> **Version:** 4.0
+> **Updated:** 2026-03-19
+> **Phase:** Phase 12 - Planning
 
 ---
 
 ## Phase 12 Changelog
+
+### 2026-03-19: Document System Restructuring
+
+#### docs: Document Architecture Redesign
+
+**Authority:** CAO Architecture Decision
+
+**Changes:**
+- Created DOC_CATALOG.md as central navigation hub
+- Created IMPLEMENTING_STATUS.md as task state machine
+- Split IMPLEMENTATION_PLAN.md into:
+  - plans/BACKEND_IMPLEMENTATION_PLAN.md
+  - plans/FRONTEND_IMPLEMENTATION_PLAN.md
+- Reorganized docs/ structure:
+  - docs/architecture/ - ADR-001 through ADR-004 + template
+  - docs/specifications/ - Feature specs
+  - docs/reviews/ - Technical and design reviews
+  - docs/ISSUE_LOG.md - Issue tracking
+- Consolidated archives to docs/archive/:
+  - mvp-phase-1-9/
+  - mcp-phase-10-11/
+- Deleted redundant placeholder files:
+  - TECH_STACK.md, BACKEND_STRUCTURE.md, FRONTEND_GUIDELINES.md
+  - PRODUCT_COMP_ANALYSIS.md, APP_FLOW.md, DEVELOPLOG.md
+- Updated CLAUDE.md to reference new navigation system
+
+**Rationale:**
+- Enable parallel worktree development
+- Provide task state tracking
+- Reduce context overhead (~500 lines for session start)
+- Preserve knowledge in organized structure
 
 ### 2026-03-19: Architecture Redesign
 

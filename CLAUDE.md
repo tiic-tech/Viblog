@@ -148,13 +148,13 @@ PR Ready
 
 | Order | Document | Purpose |
 |-------|----------|---------|
-| 1 | DEVELOPLOG.md | Project history |
-| 2 | CHANGELOG.md | Latest changes |
-| 3 | IMPLEMENTATION_PLAN.md | Current tasks |
+| 1 | DOC_CATALOG.md | Navigation hub |
+| 2 | IMPLEMENTING_STATUS.md | Task state machine |
+| 3 | CHANGELOG.md | Latest changes |
 
 ### Architecture Decisions (ADRs)
 
-Location: `docs/dev-logs/ADR-XXX.md`
+Location: `docs/architecture/ADR-XXX.md`
 
 | ADR | Topic |
 |-----|-------|
@@ -162,6 +162,13 @@ Location: `docs/dev-logs/ADR-XXX.md`
 | ADR-002 | Business Model & Data Access |
 | ADR-003 | MCP Layer 5 Commercial Architecture |
 | ADR-004 | Agent Team Architecture Redesign |
+
+### Implementation Plans
+
+| Plan | Focus |
+|------|-------|
+| plans/BACKEND_IMPLEMENTATION_PLAN.md | Backend tasks |
+| plans/FRONTEND_IMPLEMENTATION_PLAN.md | Frontend tasks |
 
 ---
 

@@ -3,6 +3,7 @@
 > **Version:** 2.0
 > **Updated:** 2026-03-19
 > **Authority:** CAO Architecture Decision ADR-002
+> **Navigation:** See `DOC_CATALOG.md` for document index
 
 ---
 
@@ -256,12 +257,12 @@
 
 ## References
 
-- ADR-001: Database Multi-Tenant Isolation Redesign (`docs/dev-logs/ADR-001-Database-Multi-Tenant-Isolation.md`)
-- ADR-002: Business Model and Data Access Architecture (`docs/dev-logs/ADR-002-Business-Model-Data-Access.md`)
-- ADR-003: MCP Layer 5 Commercial Architecture (`docs/dev-logs/ADR-003-MCP-Commercial-Architecture.md`)
-- ADR-004: Agent Team Architecture Redesign (`docs/dev-logs/ADR-004-Agent-Team-Architecture-Redesign.md`)
+- ADR-001: Database Multi-Tenant Isolation Redesign (`docs/architecture/ADR-001-Database-Multi-Tenant-Isolation.md`)
+- ADR-002: Business Model and Data Access Architecture (`docs/architecture/ADR-002-Business-Model-Data-Access.md`)
+- ADR-003: MCP Layer 5 Commercial Architecture (`docs/architecture/ADR-003-MCP-Commercial-Architecture.md`)
+- ADR-004: Agent Team Architecture Redesign (`docs/architecture/ADR-004-Agent-Team-Architecture-Redesign.md`)
 - Database Redesign Plan: `docs/dev-logs/database-redesign-plan-CAO-2026-03-19.md`
-- MCP Service Design: `docs/VIBLOG_MCP_SERVICE_DESIGN.md`
+- MCP Service Design: `docs/specifications/MCP_SERVICE_DESIGN.md`
 
 ---
 
