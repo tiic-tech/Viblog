@@ -1,13 +1,15 @@
 # Viblog MCP Service - Design Document
 
 ## Document Information
-- **Version:** 4.0
+- **Version:** 5.0
 - **Created:** 2026-03-15
-- **Updated:** 2026-03-16
+- **Updated:** 2026-03-19
 - **Status:** Draft for Review
+- **Authority:** ADR-003 MCP Commercial Architecture
 - **Author:** Viblog Team
 
 **Version History:**
+- v5.0: Commercial architecture - Layer 5 free/subscription tiers, new tools
 - v4.0: Added Layer 6/7/8 MCP tools, AIDataSchema v2.0, Credits System
 - v3.0: Added AI-Data-Native Architecture (Section 10)
 - v2.0: Added Draft Bucket tools and knowledge graph integration
@@ -83,11 +85,18 @@ Viblog AI-Native：
 │  └── list_user_sessions                                          │
 │                                                                   │
 │  Layer 5: 智能学习与成长 (Intelligent Learning & Growth)         │
-│  ├── learn_from_articles                                         │
-│  ├── analyze_project_health                                      │
-│  ├── create_project_assistant                                    │
-│  ├── get_growth_metrics                                          │
-│  └── check_content_freshness                                     │
+│  ├── learn_from_articles ─────────────── [FREE: user_articles]   │
+│  │   └── community_articles ──────────── [SUBSCRIPTION]          │
+│  ├── analyze_project_health ──────────── [FREE: self only]       │
+│  │   └── compare_with_community ───────── [SUBSCRIPTION]         │
+│  ├── create_project_assistant ────────── [FREE: user_articles]   │
+│  │   └── include_community_articles ───── [SUBSCRIPTION]         │
+│  ├── get_growth_metrics ──────────────── [FREE: self only]       │
+│  │   └── community_benchmark ──────────── [SUBSCRIPTION]         │
+│  ├── check_content_freshness ─────────── [FREE]                  │
+│  ├── evaluate_article_value ──────────── [SUBSCRIPTION]          │
+│  ├── discover_content_opportunities ──── [SUBSCRIPTION]          │
+│  └── track_similar_developers ────────── [SUBSCRIPTION]          │
 │                                                                   │
 └───────────────────────────────┬─────────────────────────────────┘
                                 │
@@ -481,18 +490,33 @@ Viblog AI-Native：
 
 ### 3.5 Layer 5: Intelligent Learning & Growth
 
+> **Commercial Architecture:** See ADR-003 for full permission model.
+>
+> **Legend:**
+> - `[FREE]` - Available to all users (including free official users)
+> - `[SUBSCRIPTION]` - Requires active subscription
+
+---
+
 #### 3.5.1 learn_from_articles
 
 **Purpose:** 从文章中学习，提取可复用模式
 
 **Core Capabilities:** 搜索、读取、分析、提取、结构化输出
 
+**Commercial Model:**
+
+| Parameter | Free User | Subscriber |
+|-----------|-----------|------------|
+| `user_articles` | ✅ | ✅ |
+| `community_articles` | ❌ | ✅ |
+
 **Parameters:**
 ```typescript
 {
   search_scope: {
-    user_articles?: boolean;
-    community_articles?: boolean;
+    user_articles?: boolean;        // [FREE] 用户自己的文章
+    community_articles?: boolean;   // [SUBSCRIPTION] 社区公共文章
     specific_tags?: string[];
     date_range?: { from: string; to: string };
   };
@@ -511,6 +535,20 @@ Viblog AI-Native：
 
   output_format?: "structured" | "actionable" | "config_files";
 }
+```
+
+**Permission Check:**
+```typescript
+// If community_articles is true, check subscription
+if (search_scope.community_articles && !user.hasSubscription) {
+  throw new PermissionError({
+    code: "SUBSCRIPTION_REQUIRED",
+    message: "community_articles requires subscription",
+    fallback: "Use user_articles only",
+    upgrade_url: "/pricing"
+  });
+}
+```
 ```
 
 **Returns:**
@@ -551,6 +589,13 @@ Viblog AI-Native：
 
 **Purpose:** 分析项目的 vibe coding 历史，诊断健康度
 
+**Commercial Model:**
+
+| Feature | Free User | Subscriber |
+|---------|-----------|------------|
+| Self analysis only | ✅ | ✅ |
+| Compare with community | ❌ | ✅ |
+
 **Parameters:**
 ```typescript
 {
@@ -564,7 +609,22 @@ Viblog AI-Native：
     | "learning_velocity"
   >;
 
+  // [SUBSCRIPTION] 与社区对比
+  compare_with_community?: boolean;
+
   time_range?: { from: string; to: string };
+}
+```
+
+**Permission Check:**
+```typescript
+if (compare_with_community && !user.hasSubscription) {
+  throw new PermissionError({
+    code: "SUBSCRIPTION_REQUIRED",
+    message: "Community comparison requires subscription",
+    fallback: "Self-only analysis available",
+    upgrade_url: "/pricing"
+  });
 }
 ```
 
@@ -625,6 +685,13 @@ Viblog AI-Native：
 
 **Purpose:** 创建项目专属的 AI 知识助手
 
+**Commercial Model:**
+
+| Parameter | Free User | Subscriber |
+|-----------|-----------|------------|
+| `include_all_user_articles` | ✅ | ✅ |
+| `include_community_articles` | ❌ | ✅ |
+
 **Parameters:**
 ```typescript
 {
@@ -638,12 +705,24 @@ Viblog AI-Native：
     | "learning";
 
   knowledge_sources: {
-    include_all_user_articles: boolean;
+    include_all_user_articles: boolean;      // [FREE] 用户自己的文章
     specific_sessions?: string[];
-    include_community_articles?: string[];
+    include_community_articles?: string[];   // [SUBSCRIPTION] 社区文章
   };
 
   custom_instructions?: string;
+}
+```
+
+**Permission Check:**
+```typescript
+if (knowledge_sources.include_community_articles?.length > 0 && !user.hasSubscription) {
+  throw new PermissionError({
+    code: "SUBSCRIPTION_REQUIRED",
+    message: "Including community articles requires subscription",
+    fallback: "Use user_articles only",
+    upgrade_url: "/pricing"
+  });
 }
 ```
 
@@ -661,11 +740,33 @@ Viblog AI-Native：
 
 **Purpose:** 获取用户的成长数据
 
+**Commercial Model:**
+
+| Feature | Free User | Subscriber |
+|---------|-----------|------------|
+| Self metrics only | ✅ | ✅ |
+| Community benchmark | ❌ | ✅ |
+
 **Parameters:**
 ```typescript
 {
   time_range?: { from: string; to: string };
   granularity?: "day" | "week" | "month";
+
+  // [SUBSCRIPTION] 社区对比基准
+  include_community_benchmark?: boolean;
+}
+```
+
+**Permission Check:**
+```typescript
+if (include_community_benchmark && !user.hasSubscription) {
+  throw new PermissionError({
+    code: "SUBSCRIPTION_REQUIRED",
+    message: "Community benchmark requires subscription",
+    fallback: "Self metrics only",
+    upgrade_url: "/pricing"
+  });
 }
 ```
 
@@ -702,12 +803,19 @@ Viblog AI-Native：
     impact: string;
   }>;
 
-  community_comparison: {
+  // [SUBSCRIPTION] 仅订阅用户可见
+  community_comparison?: {
     percentile: number;
     top_skills: string[];
     areas_to_improve: string[];
+    similar_developers: Array<{
+      user_id: string;
+      similarity_score: number;
+      shared_skills: string[];
+    }>;
   };
 }
+```
 ```
 
 ---
@@ -715,6 +823,8 @@ Viblog AI-Native：
 #### 3.5.5 check_content_freshness
 
 **Purpose:** 检测文章内容是否过时
+
+**Commercial Model:** `[FREE]` - Available to all users (self-articles only)
 
 **Parameters:**
 ```typescript
@@ -752,6 +862,217 @@ Viblog AI-Native：
     affected_articles: string[];
     suggested_fix: string;
   }>;
+}
+```
+
+---
+
+#### 3.5.6 evaluate_article_value `[SUBSCRIPTION]`
+
+**Purpose:** 评估文章在社区中的价值定位
+
+**Value Proposition:** "知道自己的文章还有没有价值"
+
+**Parameters:**
+```typescript
+{
+  article_id: string;
+
+  evaluation_dimensions: Array<
+    | "uniqueness"           // 与社区文章的差异化程度
+    | "timeliness"           // 内容时效性
+    | "completeness"         // 内容完整性
+    | "actionability"        // 可实践性
+    | "community_relevance"  // 社区关注度
+  >;
+}
+```
+
+**Returns:**
+```typescript
+{
+  article_id: string;
+  overall_value_score: number;  // 0-100
+
+  dimensions: {
+    uniqueness: {
+      score: number;
+      similar_articles: Array<{
+        article_id: string;
+        title: string;
+        similarity_score: number;
+        what_they_have: string[];
+        what_you_miss: string[];
+      }>;
+    };
+
+    timeliness: {
+      score: number;
+      freshness_level: "cutting_edge" | "current" | "aging" | "outdated";
+      related_trending_topics: string[];
+    };
+
+    completeness: {
+      score: number;
+      missing_aspects: string[];
+      suggested_additions: string[];
+    };
+
+    actionability: {
+      score: number;
+      has_code_examples: boolean;
+      has_clear_steps: boolean;
+      improvement_suggestions: string[];
+    };
+
+    community_relevance: {
+      score: number;
+      view_count_estimate: number;
+      potential_reach: string;
+      recommended_tags: string[];
+    };
+  };
+
+  value_improvement_roadmap: Array<{
+    priority: "high" | "medium" | "low";
+    action: string;
+    expected_value_increase: number;
+    related_examples?: string[];
+  }>;
+}
+```
+
+---
+
+#### 3.5.7 discover_content_opportunities `[SUBSCRIPTION]`
+
+**Purpose:** 发现内容创作机会，找到值得写的话题
+
+**Value Proposition:** "知道往哪里走"
+
+**Parameters:**
+```typescript
+{
+  scope: {
+    technologies?: string[];    // 技术栈范围
+    topics?: string[];          // 主题范围
+  };
+
+  opportunity_types: Array<
+    | "gap_analysis"           // 社区内容空白
+    | "trend_riding"           // 顺势热点
+    | "unique_angle"           // 独特视角
+    | "update_needed"          // 需要更新的旧内容
+    | "cross_domain"           // 跨领域融合
+  >;
+
+  user_context?: {
+    expertise_areas: string[];
+    recent_articles: string[];
+    skills_to_showcase: string[];
+  };
+}
+```
+
+**Returns:**
+```typescript
+{
+  opportunities: Array<{
+    opportunity_type: string;
+    title_suggestion: string;
+    topic: string;
+    potential_value: number;  // 0-100
+
+    why_valuable: string;
+    competition_level: "low" | "medium" | "high";
+    estimated_effort: "low" | "medium" | "high";
+
+    supporting_data: {
+      community_gap: string;       // 社区缺什么
+      search_trend?: string;       // 搜索趋势
+      related_articles: Array<{    // 相关文章
+        article_id: string;
+        title: string;
+        what_they_cover: string;
+        what_you_can_add: string;
+      }>;
+    };
+
+    writing_prompt?: string;  // AI 生成的写作提示
+  }>;
+
+  prioritized_list: Array<{
+    rank: number;
+    opportunity_id: string;
+    reason: string;
+  }>;
+}
+```
+
+---
+
+#### 3.5.8 track_similar_developers `[SUBSCRIPTION]`
+
+**Purpose:** 追踪技能相似的开发者，发现学习对象
+
+**Value Proposition:** "知道同类开发者在做什么"
+
+**Parameters:**
+```typescript
+{
+  similarity_dimensions: Array<
+    | "technology_stack"
+    | "skill_level"
+    | "writing_style"
+    | "problem_domains"
+  >;
+
+  tracking_options: {
+    max_developers?: number;        // 最多追踪人数
+    include_activity_feed?: boolean;
+    notification_preferences?: {
+      new_article: boolean;
+      milestone_achieved: boolean;
+    };
+  };
+}
+```
+
+**Returns:**
+```typescript
+{
+  similar_developers: Array<{
+    user_id: string;
+    display_name: string;
+    similarity_score: number;
+    matched_dimensions: string[];
+
+    profile: {
+      technology_stack: string[];
+      article_count: number;
+      top_skills: string[];
+      recent_activity: string;
+    };
+
+    recent_articles: Array<{
+      article_id: string;
+      title: string;
+      published_at: string;
+      relevance_to_you: string;
+    }>;
+
+    learning_opportunities: Array<{
+      what_they_know: string;
+      what_you_can_learn: string;
+      related_article: string;
+    }>;
+  }>;
+
+  collective_insights: {
+    trending_topics_among_peers: string[];
+    common_challenges: string[];
+    emerging_technologies: string[];
+  };
 }
 ```
 
