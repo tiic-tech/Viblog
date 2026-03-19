@@ -179,7 +179,7 @@ describe('ToolHandler', () => {
           success: true,
           fragment: {
             id: 'fragment-1',
-            fragment_type: 'conversation',
+            fragment_type: 'user_prompt',
             content: 'Test content',
             sequence_number: 1,
             metadata: null,
@@ -190,7 +190,7 @@ describe('ToolHandler', () => {
 
       const result = await handler.handleToolCall('append_session_context', {
         session_id: 'session-1',
-        fragment_type: 'conversation',
+        fragment_type: 'user_prompt',
         content: 'Test content',
       })
 
@@ -208,7 +208,7 @@ describe('ToolHandler', () => {
 
       const result = await handler.handleToolCall('append_session_context', {
         session_id: 'non-existent',
-        fragment_type: 'conversation',
+        fragment_type: 'user_prompt',
         content: 'Test',
       })
 
@@ -223,7 +223,7 @@ describe('ToolHandler', () => {
           success: true,
           fragment: {
             id: 'f1',
-            fragment_type: 'code_snippet',
+            fragment_type: 'code_block',
             content: '',
             sequence_number: 5,
             metadata: null,
@@ -234,7 +234,7 @@ describe('ToolHandler', () => {
 
       await handler.handleToolCall('append_session_context', {
         session_id: 's1',
-        fragment_type: 'code_snippet',
+        fragment_type: 'code_block',
         content: 'code',
         sequence_number: 5,
         metadata: { language: 'typescript' },
@@ -268,9 +268,9 @@ describe('ToolHandler', () => {
       const result = await handler.handleToolCall('upload_session_context', {
         session_id: 'session-1',
         fragments: [
-          { fragment_type: 'conversation', content: 'C1', sequence_number: 1 },
-          { fragment_type: 'code_snippet', content: 'C2', sequence_number: 2 },
-          { fragment_type: 'file_change', content: 'C3', sequence_number: 3 },
+          { fragment_type: 'user_prompt', content: 'C1', sequence_number: 1 },
+          { fragment_type: 'code_block', content: 'C2', sequence_number: 2 },
+          { fragment_type: 'file_content', content: 'C3', sequence_number: 3 },
         ],
       })
 
@@ -287,7 +287,7 @@ describe('ToolHandler', () => {
 
       const result = await handler.handleToolCall('upload_session_context', {
         session_id: 'invalid',
-        fragments: [{ fragment_type: 'conversation', content: 'Test', sequence_number: 1 }],
+        fragments: [{ fragment_type: 'user_prompt', content: 'Test', sequence_number: 1 }],
       })
 
       expect(result.isError).toBe(true)

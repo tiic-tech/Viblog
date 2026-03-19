@@ -78,7 +78,7 @@ export interface SessionFragment {
 }
 
 export interface AppendFragmentInput {
-  fragment_type: 'conversation' | 'code_snippet' | 'file_change' | 'command' | 'document'
+  fragment_type: 'user_prompt' | 'ai_response' | 'code_block' | 'file_content' | 'command_output' | 'error_log' | 'system_message' | 'external_link'
   content: string
   metadata?: Record<string, unknown>
   sequence_number?: number

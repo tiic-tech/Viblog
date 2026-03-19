@@ -34,11 +34,14 @@ import {
 
 describe('FragmentTypeSchema', () => {
   it('should accept valid fragment types', () => {
-    expect(FragmentTypeSchema.parse('conversation')).toBe('conversation')
-    expect(FragmentTypeSchema.parse('code_snippet')).toBe('code_snippet')
-    expect(FragmentTypeSchema.parse('file_change')).toBe('file_change')
-    expect(FragmentTypeSchema.parse('command')).toBe('command')
-    expect(FragmentTypeSchema.parse('document')).toBe('document')
+    expect(FragmentTypeSchema.parse('user_prompt')).toBe('user_prompt')
+    expect(FragmentTypeSchema.parse('ai_response')).toBe('ai_response')
+    expect(FragmentTypeSchema.parse('code_block')).toBe('code_block')
+    expect(FragmentTypeSchema.parse('file_content')).toBe('file_content')
+    expect(FragmentTypeSchema.parse('command_output')).toBe('command_output')
+    expect(FragmentTypeSchema.parse('error_log')).toBe('error_log')
+    expect(FragmentTypeSchema.parse('system_message')).toBe('system_message')
+    expect(FragmentTypeSchema.parse('external_link')).toBe('external_link')
   })
 
   it('should reject invalid fragment types', () => {
@@ -165,7 +168,7 @@ describe('AppendSessionContextInputSchema', () => {
   it('should accept valid input', () => {
     const input = {
       session_id: 'session-123',
-      fragment_type: 'conversation',
+      fragment_type: 'user_prompt',
       content: 'Test content',
     }
     const result = AppendSessionContextInputSchema.parse(input)
@@ -175,7 +178,7 @@ describe('AppendSessionContextInputSchema', () => {
   it('should accept optional fields', () => {
     const input = {
       session_id: 'session-123',
-      fragment_type: 'code_snippet',
+      fragment_type: 'code_block',
       content: 'const x = 1',
       metadata: { language: 'typescript' },
       sequence_number: 5,
@@ -187,7 +190,7 @@ describe('AppendSessionContextInputSchema', () => {
   it('should reject empty session_id', () => {
     const result = AppendSessionContextInputSchema.safeParse({
       session_id: '',
-      fragment_type: 'conversation',
+      fragment_type: 'user_prompt',
       content: 'Test',
     })
     expect(result.success).toBe(false)
@@ -196,7 +199,7 @@ describe('AppendSessionContextInputSchema', () => {
   it('should reject empty content', () => {
     const result = AppendSessionContextInputSchema.safeParse({
       session_id: 'session-123',
-      fragment_type: 'conversation',
+      fragment_type: 'user_prompt',
       content: '',
     })
     expect(result.success).toBe(false)
@@ -214,7 +217,7 @@ describe('AppendSessionContextInputSchema', () => {
   it('should reject non-positive sequence_number', () => {
     const result = AppendSessionContextInputSchema.safeParse({
       session_id: 'session-123',
-      fragment_type: 'conversation',
+      fragment_type: 'user_prompt',
       content: 'Test',
       sequence_number: 0,
     })
@@ -231,8 +234,8 @@ describe('UploadSessionContextInputSchema', () => {
     const input = {
       session_id: 'session-123',
       fragments: [
-        { fragment_type: 'conversation', content: 'Content 1', sequence_number: 1 },
-        { fragment_type: 'code_snippet', content: 'Content 2', sequence_number: 2 },
+        { fragment_type: 'user_prompt', content: 'Content 1', sequence_number: 1 },
+        { fragment_type: 'code_block', content: 'Content 2', sequence_number: 2 },
       ],
     }
     const result = UploadSessionContextInputSchema.parse(input)
@@ -244,7 +247,7 @@ describe('UploadSessionContextInputSchema', () => {
       session_id: 'session-123',
       fragments: [
         {
-          fragment_type: 'code_snippet',
+          fragment_type: 'code_block',
           content: 'const x = 1',
           sequence_number: 1,
           metadata: { language: 'typescript' },
@@ -267,7 +270,7 @@ describe('UploadSessionContextInputSchema', () => {
     const result = UploadSessionContextInputSchema.safeParse({
       session_id: 'session-123',
       fragments: [
-        { fragment_type: 'conversation', content: 'Test' },
+        { fragment_type: 'user_prompt', content: 'Test' },
       ],
     })
     expect(result.success).toBe(false)
@@ -277,7 +280,7 @@ describe('UploadSessionContextInputSchema', () => {
     const result = UploadSessionContextInputSchema.safeParse({
       session_id: 'session-123',
       fragments: [
-        { fragment_type: 'conversation', content: '', sequence_number: 1 },
+        { fragment_type: 'user_prompt', content: '', sequence_number: 1 },
       ],
     })
     expect(result.success).toBe(false)
@@ -494,7 +497,7 @@ describe('validateAppendSessionContextInput', () => {
   it('should validate valid input', () => {
     const result = validateAppendSessionContextInput({
       session_id: 'session-123',
-      fragment_type: 'conversation',
+      fragment_type: 'user_prompt',
       content: 'Test content',
     })
 
@@ -503,7 +506,7 @@ describe('validateAppendSessionContextInput', () => {
 
   it('should reject missing session_id', () => {
     const result = validateAppendSessionContextInput({
-      fragment_type: 'conversation',
+      fragment_type: 'user_prompt',
       content: 'Test content',
     })
 
@@ -516,7 +519,7 @@ describe('validateUploadSessionContextInput', () => {
     const result = validateUploadSessionContextInput({
       session_id: 'session-123',
       fragments: [
-        { fragment_type: 'conversation', content: 'Test', sequence_number: 1 },
+        { fragment_type: 'user_prompt', content: 'Test', sequence_number: 1 },
       ],
     })
 

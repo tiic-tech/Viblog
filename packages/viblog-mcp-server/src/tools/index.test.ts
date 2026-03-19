@@ -137,11 +137,14 @@ describe('MCP Tool Definitions', () => {
     it('should have enum values for fragment_type in append_session_context', () => {
       const fragmentType = APPEND_SESSION_CONTEXT_TOOL.inputSchema.properties.fragment_type as PropertyWithEnum
       expect(fragmentType.enum).toBeDefined()
-      expect(fragmentType.enum).toContain('conversation')
-      expect(fragmentType.enum).toContain('code_snippet')
-      expect(fragmentType.enum).toContain('file_change')
-      expect(fragmentType.enum).toContain('command')
-      expect(fragmentType.enum).toContain('document')
+      expect(fragmentType.enum).toContain('user_prompt')
+      expect(fragmentType.enum).toContain('ai_response')
+      expect(fragmentType.enum).toContain('code_block')
+      expect(fragmentType.enum).toContain('file_content')
+      expect(fragmentType.enum).toContain('command_output')
+      expect(fragmentType.enum).toContain('error_log')
+      expect(fragmentType.enum).toContain('system_message')
+      expect(fragmentType.enum).toContain('external_link')
     })
 
     it('should have enum values for article_style in generate_article_draft', () => {

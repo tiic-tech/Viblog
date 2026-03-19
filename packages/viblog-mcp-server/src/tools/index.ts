@@ -52,7 +52,7 @@ export const APPEND_SESSION_CONTEXT_TOOL: McpTool = {
       },
       fragment_type: {
         type: 'string',
-        enum: ['conversation', 'code_snippet', 'file_change', 'command', 'document'],
+        enum: ['user_prompt', 'ai_response', 'code_block', 'file_content', 'command_output', 'error_log', 'system_message', 'external_link'],
         description: 'Type of context being appended',
       },
       content: {
@@ -90,7 +90,7 @@ export const UPLOAD_SESSION_CONTEXT_TOOL: McpTool = {
           properties: {
             fragment_type: {
               type: 'string',
-              enum: ['conversation', 'code_snippet', 'file_change', 'command', 'document'],
+              enum: ['user_prompt', 'ai_response', 'code_block', 'file_content', 'command_output', 'error_log', 'system_message', 'external_link'],
             },
             content: { type: 'string' },
             sequence_number: { type: 'number' },

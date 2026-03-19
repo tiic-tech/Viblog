@@ -12,14 +12,17 @@ import { z } from 'zod'
 // ============================================
 
 export const FragmentTypeSchema = z.enum([
-  'conversation',
-  'code_snippet',
-  'file_change',
-  'command',
-  'document',
+  'user_prompt',
+  'ai_response',
+  'code_block',
+  'file_content',
+  'command_output',
+  'error_log',
+  'system_message',
+  'external_link',
 ], {
   errorMap: () => ({
-    message: 'fragment_type must be one of: conversation, code_snippet, file_change, command, document',
+    message: 'fragment_type must be one of: user_prompt, ai_response, code_block, file_content, command_output, error_log, system_message, external_link',
   }),
 })
 

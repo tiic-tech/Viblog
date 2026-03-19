@@ -276,7 +276,7 @@ describe('ViblogApiClient', () => {
     it('should append a fragment successfully', async () => {
       const mockFragment: SessionFragment = {
         id: 'fragment-1',
-        fragment_type: 'conversation',
+        fragment_type: 'user_prompt',
         content: 'Test content',
         sequence_number: 1,
         metadata: null,
@@ -292,7 +292,7 @@ describe('ViblogApiClient', () => {
       })
 
       const result = await client.appendFragment('session-1', {
-        fragment_type: 'conversation',
+        fragment_type: 'user_prompt',
         content: 'Test content',
       })
 
@@ -308,7 +308,7 @@ describe('ViblogApiClient', () => {
       })
 
       const result = await client.appendFragment('session-1', {
-        fragment_type: 'conversation',
+        fragment_type: 'user_prompt',
         content: 'Test',
       })
 
@@ -328,7 +328,7 @@ describe('ViblogApiClient', () => {
         fragments: [
           {
             id: 'fragment-1',
-            fragment_type: 'conversation',
+            fragment_type: 'user_prompt',
             content: 'Content 1',
             sequence_number: 1,
             metadata: null,
@@ -336,7 +336,7 @@ describe('ViblogApiClient', () => {
           },
           {
             id: 'fragment-2',
-            fragment_type: 'code_snippet',
+            fragment_type: 'code_block',
             content: 'Content 2',
             sequence_number: 2,
             metadata: null,
@@ -352,8 +352,8 @@ describe('ViblogApiClient', () => {
 
       const result = await client.uploadFragments('session-1', {
         fragments: [
-          { fragment_type: 'conversation', content: 'Content 1', sequence_number: 1 },
-          { fragment_type: 'code_snippet', content: 'Content 2', sequence_number: 2 },
+          { fragment_type: 'user_prompt', content: 'Content 1', sequence_number: 1 },
+          { fragment_type: 'code_block', content: 'Content 2', sequence_number: 2 },
         ],
       })
 
@@ -391,7 +391,7 @@ describe('ViblogApiClient', () => {
       const mockFragments: SessionFragment[] = [
         {
           id: 'fragment-1',
-          fragment_type: 'conversation',
+          fragment_type: 'user_prompt',
           content: 'Content',
           sequence_number: 1,
           metadata: null,

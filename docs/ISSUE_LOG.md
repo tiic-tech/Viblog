@@ -18,7 +18,33 @@
 
 | ID | Issue | Root Cause | Resolution | Time to Resolve | Reference |
 |----|-------|------------|------------|-----------------|-----------|
+| ISSUE-002 | MCP/API fragment_type mismatch | MCP Server used generic types, API used vibe-specific types | Aligned MCP types with API validation (user_prompt, ai_response, etc.) | 45 min | packages/viblog-mcp-server/src/types.ts, validation.ts, tools/index.ts |
 | ISSUE-001 | MCP test type errors | SDK union types require narrowing | Added type guards and proper type assertions | 30 min | packages/viblog-mcp-server/src/tools/handlers.test.ts |
+
+---
+
+## Issue Detail
+
+### ISSUE-002: MCP/API fragment_type Mismatch (RESOLVED)
+
+**Discovered:** 2026-03-20 during MCP full workflow test
+
+**Problem:**
+MCP Server and API Endpoint had inconsistent `fragment_type` definitions.
+
+**Resolution:**
+Aligned MCP Server types with API validation. Updated:
+- `packages/viblog-mcp-server/src/types.ts`
+- `packages/viblog-mcp-server/src/validation.ts`
+- `packages/viblog-mcp-server/src/tools/index.ts`
+- All test files
+
+**Final Fragment Types:**
+- `user_prompt`, `ai_response`, `code_block`, `file_content`
+- `command_output`, `error_log`, `system_message`, `external_link`
+
+**Verification:**
+Full MCP workflow test passed. Article published successfully.
 
 ---
 

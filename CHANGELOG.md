@@ -1,12 +1,31 @@
 # CHANGELOG
 
-> **Version:** 4.1
+> **Version:** 4.2
 > **Updated:** 2026-03-20
 > **Phase:** Phase 0 - Technical Foundation
 
 ---
 
 ## Phase 12 Changelog
+
+### 2026-03-20: fragment_type Alignment Fix
+
+#### fix(mcp): Align fragment_type with API validation
+
+**Issue:** ISSUE-002 - MCP/API fragment_type mismatch
+
+**Problem:**
+MCP Server and API Endpoint had inconsistent `fragment_type` definitions, causing all MCP upload operations to fail.
+
+**Resolution:**
+Aligned MCP types with API validation using vibe-specific types:
+- `user_prompt`, `ai_response`, `code_block`, `file_content`
+- `command_output`, `error_log`, `system_message`, `external_link`
+
+**Verification:**
+Full MCP workflow test passed. Article published via MCP tools.
+
+---
 
 ### 2026-03-20: publish_article MCP Tool
 

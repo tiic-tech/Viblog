@@ -2,7 +2,7 @@
   "mcpServers": {
     "viblog": {
       "command": "node",
-      "args": ["/Users/archy/Projects/StartUp/Viblog/.claude/worktrees/backend/packages/viblog-mcp-server/dist/index.js"],
+      "args": ["/Users/archy/Projects/StartUp/Viblog/packages/viblog-mcp-server/dist/index.js"],
       "env": {
         "VIBLOG_API_URL": "https://viblog.tiic.tech",
         "VIBLOG_API_KEY": "vb_bhY7E3LM8frJuwqReLWYqLrb2oMj55RJ"
