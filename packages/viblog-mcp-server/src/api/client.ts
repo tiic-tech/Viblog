@@ -22,6 +22,8 @@ import type {
   ListSessionsResponse,
   VibeSession,
   SessionFragment,
+  PublishArticleInput,
+  PublishArticleResponse,
 } from '../types.js'
 import { RateLimiter, createRateLimiter } from './rate-limiter.js'
 
@@ -159,6 +161,18 @@ export class ViblogApiClient {
     return this.request<GenerateArticleDraftResponse>(
       'POST',
       '/api/vibe-sessions/generate-article-draft',
+      input
+    )
+  }
+
+  // ============================================
+  // Article Publishing
+  // ============================================
+
+  async publishArticle(input: PublishArticleInput): Promise<ApiResponse<PublishArticleResponse>> {
+    return this.request<PublishArticleResponse>(
+      'POST',
+      '/api/vibe-sessions/publish-article',
       input
     )
   }

@@ -56,6 +56,12 @@ export const ToneSchema = z.enum(['casual', 'professional', 'educational'], {
   }),
 })
 
+export const ArticleVisibilitySchema = z.enum(['public', 'private', 'unlisted'], {
+  errorMap: () => ({
+    message: 'visibility must be one of: public, private, unlisted',
+  }),
+})
+
 // ============================================
 // Base Schemas
 // ============================================
@@ -144,6 +150,19 @@ export const ListUserSessionsInputSchema = z.object({
   offset: z.number().int().min(0).optional(),
 })
 
+/**
+ * publish_article tool input validation
+ */
+export const PublishArticleInputSchema = z.object({
+  session_id: SessionIdSchema,
+  title: z.string().min(1, 'title is required').max(500, 'title must be 500 characters or less'),
+  content: z.string().min(1, 'content is required'),
+  excerpt: z.string().max(1000, 'excerpt must be 1000 characters or less').optional(),
+  visibility: ArticleVisibilitySchema.optional(),
+  cover_image: z.string().url('cover_image must be a valid URL').optional(),
+  project_id: z.string().uuid('project_id must be a valid UUID').optional(),
+})
+
 // ============================================
 // Validation Helper Functions
 // ============================================
@@ -219,4 +238,11 @@ export function validateGenerateArticleDraftInput(input: unknown) {
  */
 export function validateListUserSessionsInput(input: unknown) {
   return validateInput(ListUserSessionsInputSchema, input)
+}
+
+/**
+ * Validate publish_article input
+ */
+export function validatePublishArticleInput(input: unknown) {
+  return validateInput(PublishArticleInputSchema, input)
 }

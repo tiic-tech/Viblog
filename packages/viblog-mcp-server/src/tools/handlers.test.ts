@@ -1,11 +1,11 @@
 /**
  * Tests for ToolHandler
  *
- * Tests all 6 MCP tool handlers with mocked API client.
+ * Tests all 7 MCP tool handlers with mocked API client.
  * Covers success cases, error handling, and edge cases.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
 import { ToolHandler } from './handlers.js'
 import { ViblogApiClient } from '../api/client.js'
 import type {
@@ -22,9 +22,19 @@ vi.mock('../api/client.js', () => {
   }
 })
 
+// Type guard for text content
+function getTextContent(content: CallToolResult['content'][0]): string {
+  if (content.type === 'text') {
+    return content.text
+  }
+  throw new Error('Expected text content')
+}
+
+import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
+
 describe('ToolHandler', () => {
   let handler: ToolHandler
-  let mockClient: { [K in keyof ViblogApiClient]?: vi.Mock }
+  let mockClient: { [K in keyof ViblogApiClient]?: Mock }
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -39,10 +49,11 @@ describe('ToolHandler', () => {
       listFragments: vi.fn(),
       generateStructuredContext: vi.fn(),
       generateArticleDraft: vi.fn(),
+      publishArticle: vi.fn(),
     }
 
     // Mock constructor
-    ;(ViblogApiClient as unknown as vi.Mock).mockImplementation(() => mockClient)
+    ;(ViblogApiClient as unknown as Mock).mockImplementation(() => mockClient)
 
     handler = new ToolHandler(mockClient as unknown as ViblogApiClient)
   })
@@ -113,7 +124,7 @@ describe('ToolHandler', () => {
       })
 
       expect(result.isError).toBeUndefined()
-      const parsed = JSON.parse(result.content[0].text as string)
+      const parsed = JSON.parse(getTextContent(result.content[0]))
       expect(parsed.success).toBe(true)
       expect(parsed.session_id).toBe('session-123')
       expect(parsed.message).toContain('session-123')
@@ -129,8 +140,8 @@ describe('ToolHandler', () => {
       })
 
       expect(result.isError).toBe(true)
-      expect(result.content[0].text).toContain('Failed to create session')
-      expect(result.content[0].text).toContain('Unauthorized')
+      expect(getTextContent(result.content[0])).toContain('Failed to create session')
+      expect(getTextContent(result.content[0])).toContain('Unauthorized')
     })
 
     it('should pass optional metadata', async () => {
@@ -184,7 +195,7 @@ describe('ToolHandler', () => {
       })
 
       expect(result.isError).toBeUndefined()
-      const parsed = JSON.parse(result.content[0].text as string)
+      const parsed = JSON.parse(getTextContent(result.content[0]))
       expect(parsed.success).toBe(true)
       expect(parsed.fragment_id).toBe('fragment-1')
       expect(parsed.sequence_number).toBe(1)
@@ -202,7 +213,7 @@ describe('ToolHandler', () => {
       })
 
       expect(result.isError).toBe(true)
-      expect(result.content[0].text).toContain('Failed to append context')
+      expect(getTextContent(result.content[0])).toContain('Failed to append context')
     })
 
     it('should pass optional sequence_number and metadata', async () => {
@@ -264,7 +275,7 @@ describe('ToolHandler', () => {
       })
 
       expect(result.isError).toBeUndefined()
-      const parsed = JSON.parse(result.content[0].text as string)
+      const parsed = JSON.parse(getTextContent(result.content[0]))
       expect(parsed.success).toBe(true)
       expect(parsed.count).toBe(3)
     })
@@ -280,7 +291,7 @@ describe('ToolHandler', () => {
       })
 
       expect(result.isError).toBe(true)
-      expect(result.content[0].text).toContain('Failed to upload context')
+      expect(getTextContent(result.content[0])).toContain('Failed to upload context')
     })
   })
 
@@ -323,7 +334,7 @@ describe('ToolHandler', () => {
       })
 
       expect(result.isError).toBeUndefined()
-      const parsed = JSON.parse(result.content[0].text as string)
+      const parsed = JSON.parse(getTextContent(result.content[0]))
       expect(parsed.success).toBe(true)
       expect(parsed.structured_context.session_id).toBe('session-1')
     })
@@ -338,7 +349,7 @@ describe('ToolHandler', () => {
       })
 
       expect(result.isError).toBe(true)
-      expect(result.content[0].text).toContain('Failed to generate structured context')
+      expect(getTextContent(result.content[0])).toContain('Failed to generate structured context')
     })
 
     it('should pass optional parameters', async () => {
@@ -396,7 +407,7 @@ describe('ToolHandler', () => {
       })
 
       expect(result.isError).toBeUndefined()
-      const parsed = JSON.parse(result.content[0].text as string)
+      const parsed = JSON.parse(getTextContent(result.content[0]))
       expect(parsed.success).toBe(true)
       expect(parsed.article_draft.title).toBe('How to Build a Test')
       expect(parsed.message).toContain('Preview and edit')
@@ -412,7 +423,7 @@ describe('ToolHandler', () => {
       })
 
       expect(result.isError).toBe(true)
-      expect(result.content[0].text).toContain('Failed to generate article draft')
+      expect(getTextContent(result.content[0])).toContain('Failed to generate article draft')
     })
 
     it('should pass all optional parameters', async () => {
@@ -490,7 +501,7 @@ describe('ToolHandler', () => {
       const result = await handler.handleToolCall('list_user_sessions', {})
 
       expect(result.isError).toBeUndefined()
-      const parsed = JSON.parse(result.content[0].text as string)
+      const parsed = JSON.parse(getTextContent(result.content[0]))
       expect(parsed.success).toBe(true)
       expect(parsed.sessions).toHaveLength(2)
       expect(parsed.pagination.total).toBe(2)
@@ -522,7 +533,94 @@ describe('ToolHandler', () => {
       const result = await handler.handleToolCall('list_user_sessions', {})
 
       expect(result.isError).toBe(true)
-      expect(result.content[0].text).toContain('Failed to list sessions')
+      expect(getTextContent(result.content[0])).toContain('Failed to list sessions')
+    })
+  })
+
+  // ============================================
+  // publish_article
+  // ============================================
+
+  describe('publish_article', () => {
+    it('should publish article successfully with default visibility', async () => {
+      mockClient.publishArticle!.mockResolvedValueOnce({
+        success: true,
+        data: {
+          success: true,
+          article: {
+            id: 'article-123',
+            title: 'Test Article',
+            slug: 'test-article-abc123',
+            status: 'draft',
+            visibility: 'private',
+            published_at: null,
+            url: 'https://viblog.tiic.tech/articles/test-article-abc123',
+          },
+        },
+      })
+
+      const result = await handler.handleToolCall('publish_article', {
+        session_id: 'session-1',
+        title: 'Test Article',
+        content: '# Test Article\n\nThis is a test article.',
+      })
+
+      expect(result.isError).toBeUndefined()
+      const parsed = JSON.parse(getTextContent(result.content[0]))
+      expect(parsed.success).toBe(true)
+      expect(parsed.article.id).toBe('article-123')
+      expect(parsed.article.visibility).toBe('private')
+      expect(parsed.message).toContain('viblog.tiic.tech')
+    })
+
+    it('should publish article with public visibility', async () => {
+      mockClient.publishArticle!.mockResolvedValueOnce({
+        success: true,
+        data: {
+          success: true,
+          article: {
+            id: 'article-456',
+            title: 'Public Article',
+            slug: 'public-article',
+            status: 'published',
+            visibility: 'public',
+            published_at: '2024-01-01T00:00:00Z',
+            url: 'https://viblog.tiic.tech/articles/public-article',
+          },
+        },
+      })
+
+      const result = await handler.handleToolCall('publish_article', {
+        session_id: 'session-1',
+        title: 'Public Article',
+        content: 'Content here',
+        visibility: 'public',
+      })
+
+      expect(mockClient.publishArticle).toHaveBeenCalledWith(
+        expect.objectContaining({
+          visibility: 'public',
+        })
+      )
+      expect(result.isError).toBeUndefined()
+      const parsed = JSON.parse(getTextContent(result.content[0]))
+      expect(parsed.article.visibility).toBe('public')
+      expect(parsed.article.status).toBe('published')
+    })
+
+    it('should handle publish error', async () => {
+      mockClient.publishArticle!.mockResolvedValueOnce({
+        error: 'Session not found',
+      })
+
+      const result = await handler.handleToolCall('publish_article', {
+        session_id: 'invalid',
+        title: 'Test',
+        content: 'Test',
+      })
+
+      expect(result.isError).toBe(true)
+      expect(getTextContent(result.content[0])).toContain('Failed to publish article')
     })
   })
 
@@ -537,7 +635,7 @@ describe('ToolHandler', () => {
       const result = await handler.handleToolCall('create_vibe_session', {})
 
       expect(result.isError).toBe(true)
-      expect(result.content[0].text).toContain('Unexpected error')
+      expect(getTextContent(result.content[0])).toContain('Unexpected error')
     })
 
     it('should handle non-Error exceptions', async () => {
@@ -546,7 +644,7 @@ describe('ToolHandler', () => {
       const result = await handler.handleToolCall('create_vibe_session', {})
 
       expect(result.isError).toBe(true)
-      expect(result.content[0].text).toContain('String error')
+      expect(getTextContent(result.content[0])).toContain('String error')
     })
 
     it('should catch errors in tool routing', async () => {
@@ -558,7 +656,7 @@ describe('ToolHandler', () => {
       const result = await handler.handleToolCall('list_user_sessions', {})
 
       expect(result.isError).toBe(true)
-      expect(result.content[0].text).toContain('Sync error')
+      expect(getTextContent(result.content[0])).toContain('Sync error')
     })
   })
 })

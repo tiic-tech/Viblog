@@ -1,12 +1,43 @@
 # CHANGELOG
 
-> **Version:** 4.0
-> **Updated:** 2026-03-19
-> **Phase:** Phase 12 - Planning
+> **Version:** 4.1
+> **Updated:** 2026-03-20
+> **Phase:** Phase 0 - Technical Foundation
 
 ---
 
 ## Phase 12 Changelog
+
+### 2026-03-20: publish_article MCP Tool
+
+#### feat(mcp): Implement publish_article tool with visibility options
+
+**Authority:** CAO Architecture Decision
+
+**New Features:**
+- `publish_article` MCP tool for publishing articles from vibe sessions
+- Visibility options: `public`, `private`, `unlisted`
+- Auto-converts Markdown to HTML
+- Generates URL-friendly slugs
+- Updates session status on publish
+
+**API Endpoint:**
+- `POST /api/vibe-sessions/publish-article`
+
+**MCP Tools Status (7/7 Complete):**
+| Layer | Tool | Status |
+|-------|------|--------|
+| 1 | create_vibe_session | Implemented |
+| 1 | append_session_context | Implemented |
+| 1 | upload_session_context | Implemented |
+| 2 | generate_structured_context | Implemented |
+| 3 | generate_article_draft | Implemented |
+| 4 | list_user_sessions | Implemented |
+| 4 | publish_article | **NEW** |
+
+**Tests:** 203 passing (8 test files)
+
+---
 
 ### 2026-03-19: Document System Restructuring
 

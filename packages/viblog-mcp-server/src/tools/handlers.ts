@@ -15,6 +15,7 @@ import {
   validateGenerateStructuredContextInput,
   validateGenerateArticleDraftInput,
   validateListUserSessionsInput,
+  validatePublishArticleInput,
 } from '../validation.js'
 
 export class ToolHandler {
@@ -45,6 +46,9 @@ export class ToolHandler {
         case 'list_user_sessions':
           return await this.listUserSessions(args)
 
+        case 'publish_article':
+          return await this.publishArticle(args)
+
         default:
           return this.createErrorResponse(`Unknown tool: ${name}`)
       }
@@ -66,7 +70,7 @@ export class ToolHandler {
     return {
       content: [{ type: 'text', text: message }],
       isError: true,
-      _meta: details,
+      _meta: details as Record<string, unknown> | undefined,
     }
   }
 
@@ -227,6 +231,30 @@ export class ToolHandler {
       success: true,
       sessions: data.sessions,
       pagination: data.pagination,
+    })
+  }
+
+  private async publishArticle(args: Record<string, unknown>): Promise<CallToolResult> {
+    const validation = validatePublishArticleInput(args)
+    if (!validation.success) {
+      throw new ValidationError(validation.error, validation.details)
+    }
+
+    const response = await this.client.publishArticle(validation.data)
+
+    if (response.error) {
+      throw new ApiError(
+        `Failed to publish article: ${response.error}`,
+        response.details ? 400 : 500,
+        response.details
+      )
+    }
+
+    const data = response.data!
+    return this.createSuccessResponse({
+      success: true,
+      article: data.article,
+      message: `Article published successfully. View at: ${data.article.url}`,
     })
   }
 }

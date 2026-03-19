@@ -12,9 +12,17 @@ import {
   GENERATE_STRUCTURED_CONTEXT_TOOL,
   GENERATE_ARTICLE_DRAFT_TOOL,
   LIST_USER_SESSIONS_TOOL,
+  PUBLISH_ARTICLE_TOOL,
   VIBLOG_MCP_TOOLS,
   TOOL_REGISTRY,
 } from './index.js'
+
+// Type helper for schema properties with enum
+interface PropertyWithEnum {
+  type?: string
+  enum?: string[]
+  description?: string
+}
 
 describe('MCP Tool Definitions', () => {
   describe('Individual Tool Definitions', () => {
@@ -63,11 +71,19 @@ describe('MCP Tool Definitions', () => {
       expect(LIST_USER_SESSIONS_TOOL.inputSchema.properties.limit).toBeDefined()
       expect(LIST_USER_SESSIONS_TOOL.inputSchema.properties.offset).toBeDefined()
     })
+
+    it('should define publish_article tool', () => {
+      expect(PUBLISH_ARTICLE_TOOL.name).toBe('publish_article')
+      expect(PUBLISH_ARTICLE_TOOL.inputSchema.required).toContain('session_id')
+      expect(PUBLISH_ARTICLE_TOOL.inputSchema.required).toContain('title')
+      expect(PUBLISH_ARTICLE_TOOL.inputSchema.required).toContain('content')
+      expect(PUBLISH_ARTICLE_TOOL.inputSchema.properties.visibility).toBeDefined()
+    })
   })
 
   describe('VIBLOG_MCP_TOOLS Array', () => {
-    it('should contain all 6 tools', () => {
-      expect(VIBLOG_MCP_TOOLS).toHaveLength(6)
+    it('should contain all 7 tools', () => {
+      expect(VIBLOG_MCP_TOOLS).toHaveLength(7)
     })
 
     it('should have unique tool names', () => {
@@ -84,6 +100,7 @@ describe('MCP Tool Definitions', () => {
       expect(names).toContain('generate_structured_context')
       expect(names).toContain('generate_article_draft')
       expect(names).toContain('list_user_sessions')
+      expect(names).toContain('publish_article')
     })
 
     it('should have valid inputSchema for all tools', () => {
@@ -104,10 +121,11 @@ describe('MCP Tool Definitions', () => {
       expect(TOOL_REGISTRY['generate_structured_context']).toBe(GENERATE_STRUCTURED_CONTEXT_TOOL)
       expect(TOOL_REGISTRY['generate_article_draft']).toBe(GENERATE_ARTICLE_DRAFT_TOOL)
       expect(TOOL_REGISTRY['list_user_sessions']).toBe(LIST_USER_SESSIONS_TOOL)
+      expect(TOOL_REGISTRY['publish_article']).toBe(PUBLISH_ARTICLE_TOOL)
     })
 
-    it('should have 6 entries', () => {
-      expect(Object.keys(TOOL_REGISTRY)).toHaveLength(6)
+    it('should have 7 entries', () => {
+      expect(Object.keys(TOOL_REGISTRY)).toHaveLength(7)
     })
 
     it('should return undefined for unknown tools', () => {
@@ -117,7 +135,7 @@ describe('MCP Tool Definitions', () => {
 
   describe('Tool Schema Validation', () => {
     it('should have enum values for fragment_type in append_session_context', () => {
-      const fragmentType = APPEND_SESSION_CONTEXT_TOOL.inputSchema.properties.fragment_type
+      const fragmentType = APPEND_SESSION_CONTEXT_TOOL.inputSchema.properties.fragment_type as PropertyWithEnum
       expect(fragmentType.enum).toBeDefined()
       expect(fragmentType.enum).toContain('conversation')
       expect(fragmentType.enum).toContain('code_snippet')
@@ -127,7 +145,7 @@ describe('MCP Tool Definitions', () => {
     })
 
     it('should have enum values for article_style in generate_article_draft', () => {
-      const articleStyle = GENERATE_ARTICLE_DRAFT_TOOL.inputSchema.properties.article_style
+      const articleStyle = GENERATE_ARTICLE_DRAFT_TOOL.inputSchema.properties.article_style as PropertyWithEnum
       expect(articleStyle.enum).toBeDefined()
       expect(articleStyle.enum).toContain('tutorial')
       expect(articleStyle.enum).toContain('case_study')
@@ -137,7 +155,7 @@ describe('MCP Tool Definitions', () => {
     })
 
     it('should have enum values for target_audience in generate_article_draft', () => {
-      const targetAudience = GENERATE_ARTICLE_DRAFT_TOOL.inputSchema.properties.target_audience
+      const targetAudience = GENERATE_ARTICLE_DRAFT_TOOL.inputSchema.properties.target_audience as PropertyWithEnum
       expect(targetAudience.enum).toBeDefined()
       expect(targetAudience.enum).toContain('beginner')
       expect(targetAudience.enum).toContain('intermediate')
@@ -145,11 +163,19 @@ describe('MCP Tool Definitions', () => {
     })
 
     it('should have enum values for tone in generate_article_draft', () => {
-      const tone = GENERATE_ARTICLE_DRAFT_TOOL.inputSchema.properties.tone
+      const tone = GENERATE_ARTICLE_DRAFT_TOOL.inputSchema.properties.tone as PropertyWithEnum
       expect(tone.enum).toBeDefined()
       expect(tone.enum).toContain('casual')
       expect(tone.enum).toContain('professional')
       expect(tone.enum).toContain('educational')
+    })
+
+    it('should have enum values for visibility in publish_article', () => {
+      const visibility = PUBLISH_ARTICLE_TOOL.inputSchema.properties.visibility as PropertyWithEnum
+      expect(visibility.enum).toBeDefined()
+      expect(visibility.enum).toContain('public')
+      expect(visibility.enum).toContain('private')
+      expect(visibility.enum).toContain('unlisted')
     })
   })
 })

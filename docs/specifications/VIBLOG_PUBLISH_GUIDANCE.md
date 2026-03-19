@@ -1,6 +1,6 @@
 # Viblog Publish Guidance
 
-> **Version:** 1.1
+> **Version:** 1.2
 > **Updated:** 2026-03-20
 > **Purpose:** Guide for publishing articles to Viblog via MCP Service
 > **Deployment:** viblog.tiic.tech
@@ -17,7 +17,9 @@
 | 2 | `generate_structured_context` | Implemented | Extract structured data via LLM |
 | 3 | `generate_article_draft` | Implemented | Generate article from session |
 | 4 | `list_user_sessions` | Implemented | List user's sessions |
-| 4 | `publish_article` | **Not implemented** | TODO: Auto-publish to articles table |
+| 4 | `publish_article` | **Implemented** | Publish article with visibility options |
+
+**All 7 MCP tools implemented.**
 
 ---
 

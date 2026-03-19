@@ -222,6 +222,51 @@ export const LIST_USER_SESSIONS_TOOL: McpTool = {
 }
 
 // ============================================
+// Layer 4: Publish Article Tool
+// ============================================
+
+export const PUBLISH_ARTICLE_TOOL: McpTool = {
+  name: 'publish_article',
+  description:
+    'Publish an article from session data to Viblog. Creates an article with the specified visibility and returns the published article URL.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      session_id: {
+        type: 'string',
+        description: 'ID of the session to publish from',
+      },
+      title: {
+        type: 'string',
+        description: 'Article title',
+      },
+      content: {
+        type: 'string',
+        description: 'Article content in Markdown or HTML format',
+      },
+      excerpt: {
+        type: 'string',
+        description: 'Short excerpt for article preview',
+      },
+      visibility: {
+        type: 'string',
+        enum: ['public', 'private', 'unlisted'],
+        description: 'Article visibility (default: private)',
+      },
+      cover_image: {
+        type: 'string',
+        description: 'URL for cover image',
+      },
+      project_id: {
+        type: 'string',
+        description: 'Project ID to associate with the article',
+      },
+    },
+    required: ['session_id', 'title', 'content'],
+  },
+}
+
+// ============================================
 // All MCP Tools
 // ============================================
 
@@ -234,8 +279,9 @@ export const VIBLOG_MCP_TOOLS: McpTool[] = [
   GENERATE_STRUCTURED_CONTEXT_TOOL,
   // Layer 3: Content Generation
   GENERATE_ARTICLE_DRAFT_TOOL,
-  // Layer 4: Session Management
+  // Layer 4: Session Management & Publishing
   LIST_USER_SESSIONS_TOOL,
+  PUBLISH_ARTICLE_TOOL,
 ]
 
 // ============================================

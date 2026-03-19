@@ -187,6 +187,32 @@ export interface ListSessionsResponse {
   }
 }
 
+// Publish Article Types
+export type ArticleVisibility = 'public' | 'private' | 'unlisted'
+
+export interface PublishArticleInput {
+  session_id: string
+  title: string
+  content: string
+  excerpt?: string
+  visibility?: ArticleVisibility
+  cover_image?: string
+  project_id?: string
+}
+
+export interface PublishArticleResponse {
+  success: boolean
+  article: {
+    id: string
+    title: string
+    slug: string
+    status: string
+    visibility: string
+    published_at: string | null
+    url: string
+  }
+}
+
 // ============================================
 // MCP Tool Types
 // ============================================

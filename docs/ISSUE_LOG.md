@@ -1,7 +1,7 @@
 # ISSUE_LOG.md
 
-> **Version:** 1.0
-> **Updated:** 2026-03-19
+> **Version:** 1.1
+> **Updated:** 2026-03-20
 > **Purpose:** Track issues, blockers, and resolutions
 
 ---
@@ -18,7 +18,35 @@
 
 | ID | Issue | Root Cause | Resolution | Time to Resolve | Reference |
 |----|-------|------------|------------|-----------------|-----------|
-| - | - | - | - | - | - |
+| ISSUE-001 | MCP test type errors | SDK union types require narrowing | Added type guards and proper type assertions | 30 min | packages/viblog-mcp-server/src/tools/handlers.test.ts |
+
+---
+
+## Development History
+
+### 2026-03-20: publish_article MCP Tool Implementation
+
+**Feature:** Add `publish_article` tool to MCP server
+
+**Changes:**
+- Added `PUBLISH_ARTICLE_TOOL` to tool definitions
+- Added `publishArticle` handler in ToolHandler
+- Added `publishArticle` method to API client
+- Created `/api/vibe-sessions/publish-article` endpoint
+- Supports visibility: `public`, `private`, `unlisted`
+
+**Tests Added:**
+- 3 new tests for publish_article in handlers.test.ts
+- 2 new tests in tools/index.test.ts
+- Total: 203 tests passing
+
+**Files Modified:**
+- `packages/viblog-mcp-server/src/types.ts`
+- `packages/viblog-mcp-server/src/validation.ts`
+- `packages/viblog-mcp-server/src/tools/index.ts`
+- `packages/viblog-mcp-server/src/tools/handlers.ts`
+- `packages/viblog-mcp-server/src/api/client.ts`
+- `src/app/api/vibe-sessions/publish-article/route.ts` (new)
 
 ---
 
