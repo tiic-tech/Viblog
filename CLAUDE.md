@@ -297,6 +297,11 @@ head -15 DEVELOPLOG.md CHANGELOG.md IMPLEMENTATION_PLAN.md
 - Unit tests for utilities
 - Integration tests for APIs
 - E2E tests for critical flows
+- **MANDATORY E2E for browser-interactive features:**
+  - Text selection/annotation (race conditions)
+  - Rich text editor (SSR hydration)
+  - Drag/resize interactions (real events)
+  - SSR-dependent components (hydration mismatch)
 
 ### 4. Security
 
@@ -330,6 +335,7 @@ head -15 DEVELOPLOG.md CHANGELOG.md IMPLEMENTATION_PLAN.md
 | Database optimization | `database-reviewer` | SQL/migrations |
 | TDD development | `tdd-guide` | When writing features |
 | Competitive analysis | `competitive-analyzer` | Analyzing competitors |
+| Browser-interactive features | `e2e-runner` | Text selection, editors, drag/resize, SSR |
 
 ### Proactive Agent Invocation
 
@@ -339,6 +345,36 @@ head -15 DEVELOPLOG.md CHANGELOG.md IMPLEMENTATION_PLAN.md
 1. develop_reviewer → Engineering blog
 2. design_reviewer → Design blog
 3. chief-technology-officer → Technical review (optional, for major changes)
+```
+
+### E2E Verification Workflow
+
+**MANDATORY for these feature categories:**
+
+| Feature | E2E Test File | Reason |
+|---------|---------------|--------|
+| Text Selection/Annotation | `e2e/annotations.spec.ts` | Browser clears selection on mousedown |
+| Rich Text Editor (Tiptap) | `e2e/editor.spec.ts` | SSR hydration, real DOM |
+| Drag/Resize Interactions | Feature-specific | Real mouse events |
+| SSR-Dependent Components | Feature-specific | Hydration mismatch |
+
+**Workflow:**
+
+```
+Unit Tests Pass
+       │
+       ▼
+Browser-Interactive? ── NO ──► COMPLETE
+       │
+       YES
+       │
+       ▼
+e2e-runner Agent ──── FAIL ──► Fix Browser Behavior
+       │
+       PASS
+       │
+       ▼
+COMPLETE
 ```
 
 ---

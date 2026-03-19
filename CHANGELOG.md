@@ -768,3 +768,83 @@ All notable changes to this project will be documented in this file.
 ---
 
 **Last Updated:** 2026-03-16
+### Added - Competitive Analysis: Effortel Blog (2026-03-17)
+
+- **Target:** https://www.effortel.com/categories/blog
+- **Platform:** Webflow (B2B Telecom/MVNE)
+- **Score:** 22/25 (Reference Implementation)
+
+**Key Findings:**
+
+- **Color System:**
+  - Dark theme: #1B2123 (page), #22282A (cards)
+  - Cyan accent: #66E8FA (primary CTA)
+  - Secondary accents: #2EF5BD (mint), #DCFC4C (yellow)
+  - Text hierarchy: White → #B1C5CE → #77858B
+
+- **Typography:**
+  - Font: Satoshi Variable (custom variable font)
+  - Hero headlines: 64-72px, tight line-height (1.1-1.15)
+  - Tags: Uppercase, wide letter-spacing (0.1em)
+  - Body: 16px, comfortable line-height (1.6)
+
+- **Card Design:**
+  - Border radius: 16px
+  - Border: 1px solid #394247
+  - Hover: Overlay with arrow reveal
+  - Thumbnail aspect ratio: 16:10
+
+- **Spacing:**
+  - Section padding: 80-120px
+  - Container max: 1400px
+  - Grid gaps: 24px (standard)
+
+- **Components:**
+  - Buttons: 8px border radius, 12-16px vertical padding
+  - Tags: Outlined, 4px border radius, uppercase
+  - Cookie modal: 16px border radius, subtle shadow
+
+**Design Patterns for Viblog:**
+- Adopt: Dark theme + cyan accent, 16px card radius, card hover overlays
+- Adapt: Font family to Inter/Outfit, adjust to brand colors
+- Avoid: Multiple accent colors, complex navigation
+
+**Artifacts:**
+- Full analysis: `.competitive-analysis/effortel-ui-ux-analysis.md`
+- Screenshots: `.comp_product_assets/traditional-blogs/effortel_screenshots/`
+- Scraped data: `.comp_product_assets/traditional-blogs/effortel-scraped.md`
+
+### Added - Code Gallery UI Development (2026-03-17)
+
+**Phase 1: Design Token Refinement - COMPLETED**
+- Border radius scale: 4px/8px/12px/16px (Effortel-aligned)
+- Hero/Display line heights: 1.1/1.15 (premium typography)
+- Tag/Badge system tokens: transparent bg, 4px radius, 0.1em letter-spacing
+- Deprecation: `rounded-2xl` (28px) → `rounded-xl` (16px)
+- Reference: `docs/dev-logs/phase-1-design-token-refinement.md`
+
+**Phase 2: Card Component Polish - COMPLETED**
+- **2.1 Border Radius Migration:** Updated cards from `rounded-2xl` to `rounded-xl`
+- **2.2 Hover Overlay Enhancement:**
+  - Added diagonal gradient overlay (135deg, black/80 → transparent)
+  - Arrow icon reveal on hover with spring animation
+  - 300ms transition duration
+- **2.3 16:10 Aspect Ratio:**
+  - Image containers use `aspect-[16/10]` for consistent proportions
+  - Object-cover for proper image fitting
+- **2.4 Outlined Tag Component:**
+  - Pattern: `bg-transparent border-white/[0.15] rounded-sm`
+  - Typography: 11px, uppercase, tracking-widest
+  - Displays: `vibe_model` and `vibe_duration_minutes` tags
+  - Positioned after title, before excerpt
+
+**Technical Implementation:**
+- Card structure: Image container (aspect ratio + badge + hover overlay) + Content section
+- Fixed duplicate hover overlay bug (removed incorrectly placed duplicate)
+- All changes aligned with Effortel design patterns (22/25 score reference)
+
+**Files Modified:**
+- `src/app/(public)/page.tsx` - Exhibition card component updates
+- `src/styles/design-system.css` - Phase 1 design tokens
+- `tailwind.config.ts` - Token synchronization
+

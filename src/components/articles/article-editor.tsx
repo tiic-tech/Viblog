@@ -31,12 +31,14 @@ export function ArticleEditor({ content, onChange }: ArticleEditorProps) {
       }),
     ],
     content: content,
+    immediatelyRender: false,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML())
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm dark:prose-invert max-w-none focus:outline-none min-h-[400px] px-4 py-3',
+        class:
+          'prose prose-sm dark:prose-invert max-w-none focus:outline-none min-h-[400px] px-4 py-3',
       },
     },
   })
@@ -46,8 +48,8 @@ export function ArticleEditor({ content, onChange }: ArticleEditorProps) {
   }
 
   return (
-    <div className="border rounded-lg overflow-hidden">
-      <div className="border-b bg-muted/50 p-2 flex flex-wrap gap-1">
+    <div className="overflow-hidden rounded-lg border">
+      <div className="flex flex-wrap gap-1 border-b bg-muted/50 p-2">
         <Button
           type="button"
           variant="ghost"

@@ -6,14 +6,15 @@ describe('ArticleCardSkeleton', () => {
   it('should render skeleton card structure', () => {
     const { container } = render(<ArticleCardSkeleton />)
 
-    // Should have card element
-    expect(container.querySelector('[class*="overflow-hidden"]')).toBeInTheDocument()
+    // Should have card element with bg-bg-card class
+    expect(container.querySelector('[class*="bg-bg-card"]')).toBeInTheDocument()
   })
 
   it('should render tag placeholders', () => {
     const { container } = render(<ArticleCardSkeleton />)
 
-    const skeletons = container.querySelectorAll('.animate-pulse')
+    // Shimmer variant uses animate-shimmer class
+    const skeletons = container.querySelectorAll('.animate-shimmer')
     expect(skeletons.length).toBeGreaterThan(0)
   })
 })
@@ -22,8 +23,8 @@ describe('FeedSkeleton', () => {
   it('should render 6 article card skeletons by default', () => {
     const { container } = render(<FeedSkeleton />)
 
-    // Should render 6 skeleton cards
-    const cards = container.querySelectorAll('[class*="overflow-hidden"]')
+    // Each card has bg-bg-card class - count those to get accurate card count
+    const cards = container.querySelectorAll('[class*="bg-bg-card"]')
     expect(cards).toHaveLength(6)
   })
 })

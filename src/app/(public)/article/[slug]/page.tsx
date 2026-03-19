@@ -5,6 +5,7 @@ import ArticleHeader from '@/components/public/article-header'
 import ArticleContent from '@/components/public/article-content'
 import ArticleActions from '@/components/public/article-actions'
 import RelatedArticles from '@/components/public/related-articles'
+import { ScrollProgressIndicator } from '@/components/ui/scroll-progress-indicator'
 import type { ArticleDetail, RelatedArticle } from '@/types/public'
 
 interface ArticlePageProps {
@@ -125,7 +126,23 @@ async function getArticle(slug: string) {
     .order('published_at', { ascending: false })
     .limit(3)
 
-  const relatedArticles: RelatedArticle[] = (relatedData || []).map((item) => {
+  type RelatedArticleQuery = {
+    id: string
+    title: string
+    slug: string
+    excerpt: string | null
+    cover_image: string | null
+    vibe_platform: string | null
+    vibe_duration_minutes: number | null
+    stars_count: number
+    views_count: number
+    published_at: string | null
+    profiles:
+      | { username: string; display_name: string | null; avatar_url: string | null }
+      | { username: string; display_name: string | null; avatar_url: string | null }[]
+  }
+
+  const relatedArticles: RelatedArticle[] = (relatedData || []).map((item: RelatedArticleQuery) => {
     const relatedProfile = Array.isArray(item.profiles) ? item.profiles[0] : item.profiles
     return {
       id: item.id,
@@ -192,8 +209,18 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   const { article, related: relatedArticles } = data
 
+  // Get current user for annotation functionality
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  const currentUserId = user?.id || 'anonymous'
+
   return (
     <article className="container py-8">
+      {/* Scroll Progress Indicator */}
+      <ScrollProgressIndicator />
+
       {/* Cover Image */}
       {article.cover_image && (
         <div className="mb-8 aspect-video max-h-96 w-full overflow-hidden rounded-lg">
@@ -206,7 +233,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       )}
 
       {/* Header */}
-      <ArticleHeader article={article} />
+      <ArticleHeader article={article} relatedArticles={relatedArticles} />
 
       {/* Actions */}
       <div className="my-6">
@@ -228,7 +255,11 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
       {/* Content */}
       <div className="my-8">
-        <ArticleContent content={article.content} />
+        <ArticleContent
+          content={article.content}
+          articleId={article.id}
+          currentUserId={currentUserId}
+        />
       </div>
 
       {/* Related Articles */}
