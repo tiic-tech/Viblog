@@ -295,25 +295,51 @@ USING hnsw (embedding vector_cosine_ops);
 
 ### 10.2 Knowledge Graph
 
-| Option | Version | Purpose | Notes |
-|--------|---------|---------|-------|
-| Apache AGE | 1.5.0 | Graph extension for PostgreSQL | Recommended for MVP |
-| Neo4j | 5.x | Dedicated graph database | Future consideration |
-| RedisGraph | 2.x | In-memory graph | Performance-critical scenarios |
+**Current Status (MVP):** Supabase does not support Apache AGE extension. Using JSONB-based fallback.
 
-**Apache AGE Configuration:**
+| Option | Version | Purpose | Status |
+|--------|---------|---------|--------|
+| Apache AGE | 1.5.0 | Graph extension for PostgreSQL | NOT AVAILABLE on Supabase |
+| **JSONB Graph Tables** | N/A | Fallback implementation | **IMPLEMENTED** |
+| Neo4j | 5.x | Dedicated graph database | Future microservice |
+
+**Fallback Implementation (graph_nodes + graph_edges):**
 ```sql
--- Enable Apache AGE extension
-CREATE EXTENSION IF NOT EXISTS age;
+-- Graph Nodes Table (fallback for Apache AGE)
+CREATE TABLE graph_nodes (
+  id UUID PRIMARY KEY,
+  user_id UUID NOT NULL,
+  node_type TEXT NOT NULL CHECK (node_type IN ('user', 'article', 'topic', 'technology', 'insight', 'external_link')),
+  node_data JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
 
--- Create graph
-SELECT create_graph('viblog_knowledge');
+-- Graph Edges Table (fallback for Apache AGE)
+CREATE TABLE graph_edges (
+  id UUID PRIMARY KEY,
+  user_id UUID NOT NULL,
+  source_node_id UUID NOT NULL REFERENCES graph_nodes(id),
+  target_node_id UUID NOT NULL REFERENCES graph_nodes(id),
+  edge_type TEXT NOT NULL CHECK (edge_type IN ('wrote', 'cites', 'related_to', 'uses', 'inspired_by', 'follows')),
+  edge_data JSONB DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
 
--- Example: Create user-article relationship
-SELECT * FROM cypher('viblog_knowledge', $$
-  CREATE (u:User {id: 'user-uuid'})-[:WROTE]->(a:Article {id: 'article-uuid'})
-  RETURN u, a
-$$) as (u agtype, a agtype);
+**Future Migration to Neo4j (Microservice Architecture):**
+```
+Migration Path:
+1. Create graph_sync_service (Node.js/Go)
+2. Implement CDC (Change Data Capture) from PostgreSQL
+3. Sync graph_nodes/edges to Neo4j in real-time
+4. Update API layer to query Neo4j for graph operations
+5. PostgreSQL tables remain as source-of-truth
+
+Technical Reserve:
+- Abstract graph operations behind IGraphRepository interface
+- Use dependency injection for easy swapping
+- Document Cypher query equivalents in comments
 ```
 
 **Graph Schema:**
@@ -337,32 +363,40 @@ Edge Types:
 
 ### 10.3 Time Series Database
 
-| Package | Version | Purpose |
-|---------|---------|---------|
-| TimescaleDB | 2.x | PostgreSQL extension for time series |
-| PostgreSQL Partitioning | 15+ | Native table partitioning (alternative) |
+**Current Status (MVP):** Supabase does not support TimescaleDB extension. Using native PostgreSQL indexing and partitioning.
 
-**TimescaleDB Configuration:**
+| Package | Version | Purpose | Status |
+|---------|---------|---------|--------|
+| TimescaleDB | 2.x | PostgreSQL extension for time series | NOT AVAILABLE on Supabase |
+| **PostgreSQL Native Indexing** | 15+ | Time-based indices | **IMPLEMENTED** |
+| InfluxDB | 3.x | Dedicated time series database | Future microservice |
+
+**Fallback Implementation (user_interactions table):**
 ```sql
--- Enable TimescaleDB extension
-CREATE EXTENSION IF NOT EXISTS timescaledb;
+-- Time-optimized indices (fallback for TimescaleDB)
+CREATE INDEX idx_user_interactions_user ON public.user_interactions(user_id);
+CREATE INDEX idx_user_interactions_created_at ON public.user_interactions(created_at DESC);
+CREATE INDEX idx_user_interactions_type ON public.user_interactions(interaction_type);
 
--- Create hypertable for user interactions
-SELECT create_hypertable(
-  'user_interactions',
-  'created_at',
-  chunk_time_interval => INTERVAL '1 month'
-);
+-- Future: Native partitioning for large datasets
+-- CREATE TABLE user_interactions_y2026m03 PARTITION OF user_interactions
+--   FOR VALUES FROM ('2026-03-01') TO ('2026-04-01');
+```
 
--- Create continuous aggregate for daily stats
-CREATE MATERIALIZED VIEW daily_interactions
-WITH (timescaledb.continuous) AS
-SELECT
-  time_bucket('1 day', created_at) AS day,
-  interaction_type,
-  COUNT(*) as count
-FROM user_interactions
-GROUP BY day, interaction_type;
+**Future Migration to TimescaleDB/InfluxDB (Microservice Architecture):**
+```
+Migration Path:
+1. Create analytics_service (Go/Rust for high throughput)
+2. Implement event streaming (Kafka/Redis Streams)
+3. Dual-write to PostgreSQL (source-of-truth) and TimescaleDB
+4. Add read replicas for analytics queries
+5. Implement data retention policies
+
+Technical Reserve:
+- Abstract time-series operations behind ITimeSeriesRepository interface
+- Use event sourcing pattern for replay capability
+- Document aggregation queries in separate module
+- Design API endpoints to support both real-time and batch queries
 ```
 
 ### 10.4 AI Data Access Protocol
@@ -380,6 +414,235 @@ GROUP BY day, interaction_type;
 | Embedding generation | ~500 tokens | $0.00002 | ~$10 for 500K tokens |
 | Vector search | ~100 tokens | $0.00002 | ~$5 for 250K queries |
 | Structured data API | ~1000 tokens | $0.003 (Sonnet) | ~$30 for 10K requests |
+
+### 10.5 All-in-One PostgreSQL Architecture (MVP)
+
+**Design Principle:** Use PostgreSQL as the single data store for MVP, with clear abstraction layers for future microservice extraction.
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                     CURRENT MVP ARCHITECTURE                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   PostgreSQL (Supabase)                                                     │
+│   ├── Relational Data (profiles, articles, projects, etc.)                  │
+│   ├── Vector Data (pgvector - article_paragraphs, user_insights)            │
+│   ├── Graph Data (JSONB - graph_nodes, graph_edges)                        │
+│   └── Time Series Data (indexed - user_interactions)                        │
+│                                                                             │
+│   Benefits:                                                                 │
+│   - Single database to manage                                               │
+│   - Simplified deployment                                                   │
+│   - Lower operational costs                                                 │
+│   - ACID transactions across all data types                                 │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Future Microservice Extraction Points:**
+
+| Service | Extract From | Trigger Condition | Target Technology |
+|---------|--------------|-------------------|-------------------|
+| Graph Service | graph_nodes, graph_edges | >1M nodes | Neo4j / AWS Neptune |
+| Analytics Service | user_interactions | >100M rows | TimescaleDB / ClickHouse |
+| Vector Service | article_paragraphs embeddings | >10M vectors | Pinecone / Weaviate |
+| Search Service | Full-text search | Complex queries | Elasticsearch / Meilisearch |
+
+**Abstraction Layer Requirements:**
+```typescript
+// Repository interfaces for future decoupling
+interface IGraphRepository {
+  createNode(type: NodeType, data: NodeData): Promise<Node>
+  createEdge(source: string, target: string, type: EdgeType): Promise<Edge>
+  queryGraph(cypher: string): Promise<GraphResult>
+}
+
+interface ITimeSeriesRepository {
+  insert(metric: Metric): Promise<void>
+  queryRange(start: Date, end: Date): Promise<Metric[]>
+  aggregate(interval: string): Promise<Aggregation[]>
+}
+
+interface IVectorRepository {
+  upsert(id: string, embedding: number[]): Promise<void>
+  search(query: number[], k: number): Promise<SearchResult[]>
+}
+```
+
+**Migration Checklist (when extracting):**
+- [ ] Create repository interface
+- [ ] Implement PostgreSQL adapter (current)
+- [ ] Implement target service adapter
+- [ ] Add feature flag for switching
+- [ ] Implement data sync mechanism
+- [ ] Run dual-write period
+- [ ] Verify consistency
+- [ ] Cut over to new service
+
+---
+
+### 10.6 Dual-Track Database Architecture (CRITICAL)
+
+**Core Principle:** Platform database and User database are decoupled. Platform microservice migration does NOT affect user configuration.
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                     DUAL-TRACK DATABASE ARCHITECTURE                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   Platform Database (Viblog Managed)         User Database (User Managed)   │
+│   ================================         ================================   │
+│   • Published public content                 • Private creation data         │
+│   • Platform interactions (analytics)        • Personal knowledge graph     │
+│   • Credits system                          • External link citations      │
+│   • Authorization tokens                    • Vibe sessions                │
+│                                                                             │
+│   Ownership: Viblog Platform                Ownership: User                 │
+│   Migration: Platform decides independently Migration: User chooses         │
+│                                                                             │
+│   ═════════════════════════════════════════════════════════════════════════ │
+│   KEY INSIGHT: Platform microservice migration is INVISIBLE to users        │
+│   ═════════════════════════════════════════════════════════════════════════ │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Platform Microservice Migration Path
+
+```
+Phase 1 (Current): All-in-One Supabase
+├── Relational: profiles, articles, projects
+├── Vector: article_paragraphs (pgvector)
+├── Graph: graph_nodes, graph_edges (JSONB)
+└── Time-Series: user_interactions (indexed)
+
+        ↓ Platform migrates independently, users unaffected
+
+Phase 2: Extract Graph Service
+├── Supabase: Relational + Vector + Time-Series
+└── Neo4j: graph_nodes, graph_edges migrated
+    └── CDC sync during transition
+
+        ↓
+
+Phase 3: Extract Analytics Service
+├── Supabase: Relational + Vector
+├── Neo4j: Graph data
+└── TimescaleDB: user_interactions migrated
+
+Final State:
+├── Supabase: Core relational + vector search
+├── Neo4j: Knowledge graph queries
+└── TimescaleDB: Behavioral analytics
+```
+
+**User Impact: NONE** - Users continue using their PostgreSQL connection string.
+
+### User Database Architecture: Managed Proxy Pattern
+
+**Problem:** User database also has graph/time-series needs. Should users configure Neo4j/TimescaleDB?
+
+**Solution: Platform Managed Proxy (托管代理架构)**
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                     MANAGED PROXY ARCHITECTURE                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   User Side (Full Control)              Platform Side (Managed Service)    │
+│   ─────────────────────────             ─────────────────────────           │
+│                                                                             │
+│   ┌─────────────────┐                   ┌─────────────────┐                │
+│   │ User PostgreSQL │                   │ Viblog Platform │                │
+│   │ (REQUIRED)      │◄─── Core Data ───►│                 │                │
+│   │                 │    User owns      │ Supabase Main   │                │
+│   │ ├── profiles    │                   │                 │                │
+│   │ ├── articles    │                   │ ┌─────────────┐ │                │
+│   │ ├── user_settings                   │ │ Neo4j       │ │                │
+│   │ └── vibe_sessions                   │ │ (Managed)   │ │                │
+│   │                 │                   │ └─────────────┘ │                │
+│   │ User only needs │                   │                 │                │
+│   │ ONE connection  │                   │ ┌─────────────┐ │                │
+│   └─────────────────┘                   │ │TimescaleDB  │ │                │
+│            │                            │ │(Managed)    │ │                │
+│            │                            │ └─────────────┘ │                │
+│            ▼                            └─────────────────┘                │
+│   ┌─────────────────┐                         │                            │
+│   │ authorization_  │◄── Authorization Token ──┘                            │
+│   │ tokens          │   (User grants platform access)                       │
+│   │                 │                                                       │
+│   │ Controls what   │   Platform can only access                             │
+│   │ platform can    │   user-authorized data                                 │
+│   │ access          │                                                       │
+│   └─────────────────┘                                                       │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Data Layering Strategy
+
+| Data Type | Storage Location | Control | Notes |
+|-----------|------------------|---------|-------|
+| **User Core Data** ||||
+| profiles | User PostgreSQL | User | User profile |
+| articles (draft) | User PostgreSQL | User | Private articles |
+| user_settings | User PostgreSQL | User | User preferences |
+| vibe_sessions | User PostgreSQL | User | Session raw data |
+| **User-Authorized Data** ||||
+| user_insights | User PostgreSQL + Platform Neo4j (replica) | User | Insight graph analysis |
+| external_links | User PostgreSQL + Platform Neo4j (replica) | User | Citation graph |
+| session_fragments | User PostgreSQL + Platform TimescaleDB (replica) | User | Time-series analysis |
+| **Platform Data** ||||
+| published_articles | Platform Supabase | Platform | Public articles |
+| article_paragraphs | Platform Supabase | Platform | Vector retrieval |
+| annotations | Platform Supabase | Platform | Public annotations |
+| user_interactions | Platform TimescaleDB | Platform | Analytics |
+| user_credits | Platform Supabase | Platform | Incentives |
+
+### User Configuration (Simple)
+
+```typescript
+// Phase 10.1 (Current) - User only needs ONE database
+interface UserDatabaseConfig {
+  primary_database: {
+    type: 'supabase' | 'postgresql'
+    connection_url: string  // encrypted
+  }
+  // Graph/Time-Series: Platform managed by default
+}
+
+// Future (Advanced Users) - Optional self-hosting
+interface AdvancedUserConfig {
+  primary_database: {
+    type: 'supabase' | 'postgresql'
+    connection_url: string
+  }
+  graph_database?: {
+    type: 'neo4j' | 'platform_managed'
+    connection_url?: string  // only for self-hosted
+  }
+  timeseries_database?: {
+    type: 'timescaledb' | 'platform_managed'
+    connection_url?: string
+  }
+}
+```
+
+### Migration Triggers
+
+| Service | Extract From | Data Volume Trigger | Performance Trigger | Target Tech |
+|---------|--------------|---------------------|---------------------|--------------|
+| Graph Service | graph_nodes, graph_edges | >1M nodes | >500ms 3-hop query | Neo4j / Neptune |
+| Analytics Service | user_interactions | >100M rows | >5s monthly aggregation | TimescaleDB / ClickHouse |
+| Vector Service | article_paragraphs | >10M vectors | >1s similarity search | Pinecone / Weaviate |
+
+### Key Architecture Insights
+
+1. **Platform migration is invisible to users** - Decoupled databases
+2. **Users only need one PostgreSQL connection** - Platform manages complexity
+3. **Data sovereignty preserved** - User core data stays in user database
+4. **Smooth upgrade path** - No breaking changes when platform scales
+5. **Repository interfaces enable future extraction** - Clean abstraction layers
 
 ---
 

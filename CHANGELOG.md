@@ -14,324 +14,266 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-### Fixed - Phase 10.4 (2026-03-18)
+### Added
+- **Phase 11.6.6: Usage Dashboard API - COMPLETE (2026-03-18 14:15):**
+  - **Usage Statistics API (`/api/llm/usage`):**
+    - GET: Usage summary with total tokens, cost, request count
+    - Time period filtering (7d, 30d, 90d, all)
+    - Provider breakdown with cost attribution
+    - Model breakdown with usage statistics
+    - User-scoped data with authentication
+  - **Usage Export API (`/api/llm/usage/export`):**
+    - CSV export for billing and analysis
+    - Date range filtering with from/to parameters
+    - Provider and model columns with token counts
+    - Cost calculation per request
+  - **Comprehensive Test Coverage:**
+    - 10 tests for usage endpoint
+    - 8 tests for usage-export endpoint
+    - Mocked Supabase client for isolation
+- **Phase 11.6.4 & 11.6.5: Chat API & Structured Output - COMPLETE (2026-03-18 10:19):**
+  - **Chat API (`/api/llm/chat`):**
+    - Non-streaming mode with full response
+    - Streaming mode with Server-Sent Events (SSE)
+    - Model selection from user config or override
+    - Custom parameters and prompts integration
+    - Usage logging with token counting and cost calculation
+    - Provider-specific error handling
+  - **Structured Output API (`/api/llm/structured`):**
+    - Named schemas: `article_generation`, `content_analysis`, `entity_extraction`, etc.
+    - Custom schema support with Zod validation
+    - Automatic retry on validation failure (max 3 attempts)
+    - Provider-aware: native structured output or prompt engineering fallback
+    - JSON extraction from various response formats
+  - **Schema Library (`src/lib/llm/schemas/`):**
+    - Article schemas: generation, outline, improvement
+    - Analysis schemas: content analysis, classification
+    - Entity schemas: general entities, code entities
+    - Vibe session schemas: context extraction, article draft
+    - Schema registry for easy reference by name
+- **Phase 11.6.3: Configuration API Endpoints - COMPLETE (2026-03-18 10:10):**
+  - Created REST API for LLM configuration management
+  - `GET /api/llm/providers` - List all available providers with capabilities and models
+  - `GET /api/llm/models` - List models for a provider (optional provider_id filter)
+  - `GET /api/llm/config` - List user's configurations with masked API keys
+  - `POST /api/llm/config` - Create or update user configuration with encrypted API key
+  - `DELETE /api/llm/config?id=xxx` - Remove user configuration
+  - `PATCH /api/llm/config` - Update specific config fields (model, params, prompts)
+  - `POST /api/llm/config/validate` - Validate API key and return available models
+  - `POST /api/llm/config/primary` - Set primary provider for user
+  - Auto-primary for first configuration
+  - API key encryption using AES-256-GCM
+  - All endpoints with authentication, error handling, and structured responses
+- **Phase 11.6.2: Provider Adapter Layer - COMPLETE (2026-03-18 09:51):**
+  - Created `src/lib/llm/` library with Strategy Pattern for multi-provider support
+  - Core types: `ILLMProviderAdapter`, `ChatMessage`, `ChatResponse`, `StreamChunk`, etc.
+  - Abstract base class `BaseProviderAdapter` with common utilities:
+    - Cost estimation based on token pricing
+    - HTTP request helpers with error handling
+    - Token counting heuristics
+    - Options merging with model defaults
+  - Provider factory with `getProviderAdapter()`, `getAllProviders()`, `isProviderSupported()`
+  - 9 Provider Adapters implemented:
+    - OpenAI - Reference implementation with streaming, structured output, vision
+    - Anthropic - Claude models with messages API
+    - Gemini - Google's Gemini with OpenAI-compatible endpoint
+    - DeepSeek - Chinese provider with competitive pricing
+    - Moonshot - Kimi models with long context
+    - Qwen - Alibaba's Qwen series
+    - Zhipu AI - GLM models from Tsinghua University
+    - MiniMax - abab models with voice capabilities
+    - OpenRouter - Gateway to 100+ models from various providers
+  - Fixed logger.test.ts to use `vi.stubEnv()` for environment variable mocking
+  - TypeScript compilation clean with no errors
+- **Phase 11.6.1: Database Schema & Provider Registry - COMPLETE (2026-03-18 10:30):**
+  - Created `llm_providers` table - Provider metadata with capabilities
+  - Created `llm_models` table - Model catalog with pricing and context windows
+  - Created `user_llm_configs` table - User configurations with encrypted API keys
+  - Created `llm_usage_logs` table - Usage tracking and cost attribution
+  - Row Level Security policies for all tables
+  - Performance indexes for common query patterns
+  - Auto-updating `updated_at` triggers
+  - Seed data: 9 providers (OpenAI, Anthropic, Google Gemini, DeepSeek, Moonshot, Qwen, Zhipu AI, MiniMax, OpenRouter)
+  - Seed data: 36 models across all providers
+  - Migrations applied via Supabase MCP
+- **Phase 11.6: LLM Platform Configuration - PLANNED (2026-03-18):**
+  - Comprehensive plan for multi-provider LLM support integrated into IMPLEMENTATION_PLAN.md
+  - 9 LLM Providers planned: OpenAI, Anthropic, Google Gemini, DeepSeek, Moonshot, OpenRouter, Qwen, Zhipu AI, MiniMax
+  - LLM Provider Adapter Pattern using Strategy design pattern for extensibility
+  - Database schema designed: llm_providers, llm_models, user_llm_configs, llm_usage_logs
+  - AES-256-GCM encryption for secure API key storage
+  - SSE (Server-Sent Events) for streaming chat responses
+  - JSON Schema structured output for type-safe AI responses
+  - Usage tracking and cost attribution per user/provider
+  - 7 implementation steps (Phase 11.6.1-11.6.7)
+  - Estimated 8-day implementation timeline
+  - This is a P0 requirement for Human Experience enhancement
+- **Phase 11.5.2: Health Check Endpoints - COMPLETE (2026-03-18 00:30):**
+  - Created `/api/health` - Comprehensive health check with component status
+  - Created `/api/health/ready` - Kubernetes readiness probe endpoint
+  - Created `/api/health/live` - Kubernetes liveness probe endpoint
+  - Features:
+    - Database connectivity check with latency measurement
+    - Cache health with Redis/memory mode detection
+    - Overall status aggregation (healthy/degraded/unhealthy)
+    - Request ID tracking for distributed tracing
+    - Uptime tracking for liveness probe
+  - 12 comprehensive tests covering all endpoints
+  - Structured logging integration for health events
+- **Phase 11.5.1: Structured Logging - COMPLETE (2026-03-18 00:24):**
+  - Created structured JSON logging utility with request ID tracking
+  - Implemented performance timing with `logger.time()` and `startTimer()`
+  - Added specialized logging methods: `apiRequest()`, `dbOperation()`, `cacheOperation()`, `authEvent()`
+  - Integrated structured logging into key modules:
+    - `token-auth.ts`: Auth event logging, cache hit/miss tracking
+    - `cache.ts`: Structured error logging for Redis operations
+    - `rate-limit.ts`: Rate limit violation logging
+  - Request ID context management: `setRequestId()`, `getRequestId()`, `clearRequestId()`
+  - Helper functions: `withLogging()`, `withLoggingAsync()` for scoped logging
+  - File: `src/lib/logger.ts` with 22 passing tests
+- **Phase 11.4: Caching Layer - COMPLETE (2026-03-17 23:50):**
+  - Implemented Redis-compatible cache layer with Upstash support
+  - Created cache utilities: getCache, setCache, getOrSetCache, deleteCache
+  - Implemented cache-aside pattern for read-heavy endpoints
+  - Cache invalidation on token mutations (DELETE/PATCH operations)
+  - TTL configurations: API key validation (5 min), LLM context (1 hour), User sessions (5 min)
+  - Cache key prefixes for organized invalidation: api_key:, session:, llm_context:
+  - Token hash (SHA-256) used as cache key for secure invalidation
+  - Files: `src/lib/cache/client.ts`, `src/lib/cache/cache.ts`, `src/lib/cache/invalidation.ts`
+  - Tests: 11 cache invalidation tests passing
+- **Phase 11.2.2: Environment-Based Rate Limiting & Monitoring - COMPLETE (2026-03-17 23:38):**
+  - Environment-based rate limit configuration (stricter in production)
+  - Production limits are 50% of development limits automatically
+  - Rate limit violation monitoring and statistics tracking
+  - Statistics API: `getRateLimitStats()` for monitoring
+  - Structured JSON logging for production rate limit violations
+  - New exports: `isProduction()`, `getRateLimitStats()`, `clearStats()`
+  - 9 new tests for environment config and statistics (58 total tests)
+  - Updated `.env.local.example` with rate limiting documentation
+  - All API routes automatically protected via middleware integration
+- **Phase 11.2.1: Rate Limiting Middleware - COMPLETE (2026-03-17 23:31):**
+  - Implemented sliding window rate limiting algorithm
+  - Created in-memory rate limit store with automatic cleanup
+  - Per-IP and per-user identification from request headers
+  - Configurable rate limits per endpoint pattern:
+    - Auth: 10 req/min (strict security)
+    - LLM/generate: 20 req/min (cost control)
+    - AI: 50 req/min
+    - Vibe sessions: 100 req/min
+    - Fragments: 500 req/min (high for MCP use)
+    - Default: 60 req/min
+  - Rate limit response headers (X-RateLimit-Limit, -Remaining, -Reset, Retry-After)
+  - Integration with Next.js middleware for API routes
+  - Comprehensive test suite: 49 tests passing
+  - Commit ec01da7: 5 files changed, 1001 insertions
+  - Files: `src/lib/rate-limit.ts`, `src/lib/middleware/rate-limit.ts`
+- **Phase 11.1: Test Coverage Expansion - COMPLETE (2026-03-17 21:34):**
+  - Added Vitest testing framework with v8 coverage
+  - Created 68 comprehensive tests across 5 test files
+  - Achieved 99.03% overall coverage (target: 90%+)
+  - 100% function coverage, 98.38% branch coverage
+  - Test files:
+    - `src/api/client.test.ts` - 23 tests for ViblogApiClient
+    - `src/tools/handlers.test.ts` - 22 tests for ToolHandler
+    - `src/tools/index.test.ts` - 17 tests for tool definitions
+    - `src/types.test.ts` - 4 tests for getServerConfig
+    - `src/server.test.ts` - 2 tests for server creation
+  - Phase 11.1 P0 BLOCKER resolved
+- **Phase 11.3: Error Handling Improvements - COMPLETE (2026-03-17 22:48):**
+  - Created custom error class hierarchy for MCP Server:
+    - `McpServerError` (base class with toJSON, toUserMessage)
+    - `ConfigurationError`, `ValidationError`, `ApiError`
+    - `RateLimitError`, `NetworkError`, `UnknownError`
+  - Implemented Zod validation schemas for all 6 MCP tools:
+    - `create_vibe_session`, `append_session_context`, `upload_session_context`
+    - `generate_structured_context`, `generate_article_draft`, `list_user_sessions`
+  - Added helper functions: `toMcpError()` (error conversion), `isMcpError()` (type guard)
+  - 198 tests passing across 8 test files (99%+ coverage)
+  - Commit 8843891: 19 files changed
+  - Files: `src/errors.ts`, `src/validation.ts`, `src/errors.test.ts`, `src/validation.test.ts`
+- **MILESTONE: End-to-End MCP Verification Complete (2026-03-17 20:55):**
+  - All 6 MCP tools verified working in Claude Code session
+  - Verified tools: list_user_sessions, create_vibe_session, append_session_context
+  - Created verification session: bd46ae60-d7b2-48bb-b568-71ae77ccdd76
+  - Full workflow: Claude Code → MCP Server → REST API → Supabase (all green)
+  - Article generation requires LLM API key (optional feature)
+  - **Mission Accomplished:** Claude Code can now write directly to Viblog via MCP
+- **MILESTONE: MCP Server MVP Complete - Production Working (2026-03-17 17:40):**
+  - MCP API Key authentication fully functional in production
+  - Tested endpoints: create session, append fragments - ALL PASSING
+  - Critical fix: SUPABASE_SERVICE_SECRET_KEY (not ROLE_KEY) environment variable
+  - Session created: fcc763ff-9d3e-460a-8e11-5ddf71e7c428 (Milestone recording)
+  - Next: Configure global MCP settings for Claude Code auto-loading
+- **CORE GOAL: Claude Code → Viblog MCP Integration (2026-03-17):**
+  - Mission: Enable Claude Code to write and publish directly to Viblog via MCP configuration
+  - Eliminates Playwright-based indirect publishing workflow
+  - Timeline: 5-8 days for full MCP integration
+  - User selected "Pivot to MCP Server (Recommended)" approach
+- **Phase 10.4: MCP Server npm Package (BUILD SUCCESSFUL - 2026-03-17):**
+  - Created standalone npm package `@viblog/mcp-server` with stdio transport
+  - Package location: `packages/viblog-mcp-server/`
+  - Implemented 6 MCP tools:
+    - Layer 1: Data Collection (create_vibe_session, append_session_context, upload_session_context)
+    - Layer 2: Structured Processing (generate_structured_context)
+    - Layer 3: Content Generation (generate_article_draft)
+    - Layer 4: Session Management (list_user_sessions)
+  - Architecture:
+    - `src/index.ts` - Entry point with StdioServerTransport
+    - `src/server.ts` - MCP server setup with ListToolsRequestSchema and CallToolRequestSchema handlers
+    - `src/tools/index.ts` - Tool definitions with Zod-style inputSchema
+    - `src/tools/handlers.ts` - Tool execution logic with error handling
+    - `src/api/client.ts` - REST API client for backend communication
+    - `src/types.ts` - Shared types (re-exports CallToolResult from SDK)
+  - Uses `@modelcontextprotocol/sdk` for MCP protocol implementation
+  - TypeScript ESM modules with NodeNext resolution
+  - **CI PASSED (2026-03-17 14:43):** All checks green (Type check, Build, Tests 166 passed)
+  - PR #9 ready for merge: https://github.com/tiic-tech/Viblog/pull/9
+- **Phase 10.3: AI Data Access Protocol (2026-03-17):**
+  - Implemented AIDataSchema endpoint (GET /api/v1/ai/schema)
+  - Implemented Vector Search API (POST /api/v1/ai/vectors/{store}/search)
+  - Implemented Knowledge Graph API (POST /api/v1/ai/graph/{graph}/query)
+  - Implemented Time Series API (GET /api/v1/ai/timeseries/{metric})
+  - Created AI data access validation schemas (Zod)
+  - Created token-based authentication middleware for MCP/authorization tokens
+  - Created embedding service with fetch-based OpenAI API calls
+  - Added getUserLLMConfig utility for LLM configuration retrieval
+- **Phase 10.2: Core MCP Tools (2026-03-17):**
+  - Created vibe_sessions and session_fragments tables with RLS policies
+  - Implemented create_vibe_session MCP tool (POST /api/vibe-sessions)
+  - Implemented append_session_context MCP tool (POST /api/vibe-sessions/[id]/fragments)
+  - Implemented upload_session_context MCP tool (PUT /api/vibe-sessions/[id]/fragments)
+  - Implemented generate_structured_context MCP tool (POST /api/vibe-sessions/generate-structured-context)
+  - Implemented generate_article_draft MCP tool (POST /api/vibe-sessions/generate-article-draft)
+  - Created LLM service with fetch-based OpenAI API calls (no SDK dependency)
+  - Created Zod validation schemas for session and structured context types
+  - Full CRUD API for vibe sessions (GET/POST/PATCH/DELETE)
+  - Fragment management API (GET/POST/PUT/DELETE)
+- **Phase 10.1: Database Infrastructure (2026-03-16 ~ 2026-03-17):**
+  - Enabled pgvector extension for vector similarity search
+  - Created 11 new AI-Data-Native tables with RLS policies:
+    - `graph_nodes`, `graph_edges` - JSONB-based knowledge graph fallback
+    - `external_links` - User external link citations with embeddings
+    - `user_insights` - User reflections with vector embeddings
+    - `insight_links` - Insight-source associations
+    - `article_paragraphs` - Paragraph-level content for retrieval
+    - `annotations` - Medium-style highlights and margin notes
+    - `user_interactions` - Behavioral analytics (time-series)
+    - `user_credits`, `credit_transactions` - Credits system
+    - `authorization_tokens` - MCP API and authorization tokens
+  - Created token generation utility (`src/lib/token-generator.ts`)
+  - Created token verification utility (`src/lib/token-verification.ts`)
+  - Created MCP API Keys endpoint (`/api/user/mcp-keys`)
+  - Created Authorization Tokens endpoint (`/api/user/authorization-tokens`)
+  - Updated TypeScript types for all new tables
+  - Documented All-in-One PostgreSQL architecture with microservice migration paths
+  - Documented Dual-Track Database Architecture (2026-03-17):
+    - Platform DB + User DB decoupled architecture
+    - Managed Proxy Architecture: Users need only ONE PostgreSQL connection
+    - Platform microservice migration is INVISIBLE to users
+    - Migration triggers and thresholds for future scaling
 
-- **Tiptap SSR Hydration Error** - CRITICAL
-  - [x] Added `immediatelyRender: false` to `article-editor.tsx` useEditor config
-  - [x] Added `immediatelyRender: false` to `split-pane-editor.tsx` useEditor config
-  - Impact: Article editor pages now load correctly without SSR hydration errors
-  - Issue: Tiptap requires explicit SSR handling in Next.js App Router
-
-- **SplitPaneEditor Integration** - CRITICAL
-  - [x] Changed `ArticleForm` to use `SplitPaneEditor` instead of `ArticleEditor`
-  - [x] Verified with Playwright: toggle preview button, separator, and preview pane visible
-  - Impact: Split pane editor features (live preview, resizable panes) now available to users
-  - Issue: Component was implemented but not integrated into the application
-
-- **Annotation Tooltip Race Condition** - HIGH PRIORITY
-  - [x] Added `e.preventDefault()` in `annotation-tooltip.tsx` onMouseDown handler
-  - [x] Added `data-annotation-tooltip="true"` attribute to identify tooltip elements
-  - [x] Added tooltip click detection in `use-text-selection.ts` handleMouseDown
-  - [x] Unified annotation system: `handleHighlight` now uses `addAnnotation` with empty content
-  - Impact: Highlight/Comment/Share buttons on annotation tooltip now work correctly
-  - Issue: Browser clears text selection on mousedown before onClick fires, causing race condition
-  - Root Cause: mousedown event -> browser clears selection -> selectionchange fires -> selection becomes null -> onClick fires with null selection
-
-### Added - Phase 10.4 Human User Experience Features (2026-03-18)
-
-- **Soul Mission:** When I'm NOT a vibe coder today - when I just want to write my thoughts, feelings, things I saw - do I still feel at home in Viblog? The answer must be YES.
-
-- **TDD Checkpoint 10.4.3.1: Annotation Type Definition** COMPLETE
-  - [x] Created `src/types/annotation.ts` with Annotation, DiscussionItem, AnnotationVisibility, AnnotationColor types
-  - [x] Created `src/types/__tests__/annotation.test.ts` with 12 passing tests
-  - [x] Added JSDoc documentation for soul-centered annotation system
-  - Soul Impact: Transform reading from passive consumption to active dialogue
-
-- **TDD Checkpoint 10.4.3.2: Annotation Hook** COMPLETE
-  - [x] Created `src/hooks/use-annotations.ts` with full annotation CRUD operations
-  - [x] Created `src/hooks/__tests__/use-annotations.test.ts` with 18 passing tests
-  - [x] Implemented localStorage persistence per article
-  - [x] Implemented addAnnotation with duplicate prevention
-  - [x] Implemented updateAnnotation, deleteAnnotation, addReply, clearAnnotations
-  - Soul Impact: Every annotation is a mark of intellectual presence
-
-- **TDD Checkpoint 10.4.3.3: Comment Modal Component** COMPLETE
-  - [x] Created `src/components/annotations/comment-modal.tsx` (~150 lines)
-  - [x] Created `src/components/annotations/__tests__/comment-modal.test.tsx` with 18 passing tests
-  - [x] Implemented selected text preview with italic styling
-  - [x] Implemented 5-color picker and 3-option visibility selector
-  - [x] Added keyboard accessibility (Escape to close, focus management)
-  - Soul Impact: "I've been here. This is my thought. This matters."
-
-- **TDD Checkpoint 10.4.3.4: Annotation Sidebar Component** COMPLETE
-  - [x] Created `src/components/annotations/annotation-sidebar.tsx` (~220 lines)
-  - [x] Created `src/components/annotations/__tests__/annotation-sidebar.test.tsx` with 16 passing tests
-  - [x] Implemented annotation list with color indicators
-  - [x] Implemented user filter and visibility filter
-  - [x] Implemented ownership indicator ("Yours" badge)
-  - [x] Implemented discussion count badges
-  - [x] Implemented click navigation to annotation positions
-  - Soul Impact: "I've been here. I've grown here. This is my intellectual home."
-
-- **TDD Checkpoint 10.4.3.5: Article Content Integration** COMPLETE
-  - [x] Created `src/components/public/__tests__/article-content-integration.test.tsx` with 10 passing tests
-  - [x] Added sidebar toggle button for AnnotationSidebar (fixed positioning)
-  - [x] Integrated CommentModal for annotation creation
-  - [x] Synced annotations with highlights on mount
-  - [x] Added annotation click navigation with scroll and highlight effect
-  - [x] Integrated useAnnotations hook into ArticleContent
-  - Soul Impact: Transform article reading into personal intellectual dialogue
-
-- **TDD Checkpoint 10.4.1.1: Editor State Hook** COMPLETE
-  - [x] Created `src/hooks/use-editor-state.ts` with preview/TOC state management
-  - [x] Created `src/hooks/__tests__/use-editor-state.test.ts` with 13 passing tests
-  - [x] Implemented isPreviewVisible, isTocVisible state with toggles
-  - [x] Implemented getContent (HTML/JSON) and setContent methods
-  - [x] TypeScript fixes for annotation integration (article-content.tsx, use-annotations.test.ts)
-  - [x] Fixed feed-skeleton.test.tsx selectors for shimmer variant
-  - Soul Impact: Make writing feel like thinking out loud - fluid, supported, inspiring
-
-- **TDD Checkpoint 10.4.1.2: Split Pane Editor Component** COMPLETE
-  - [x] Created `src/components/editor/split-pane-editor.tsx` with dual-pane layout
-  - [x] Created `src/components/editor/__tests__/split-pane-editor.test.tsx` with 12 passing tests
-  - [x] Created `src/hooks/use-split-pane.ts` custom hook for resizable divider logic
-  - [x] Created `src/hooks/__tests__/use-split-pane.test.ts` with 13 passing tests
-  - [x] Implemented resizable divider with drag functionality
-  - [x] Implemented keyboard navigation (ArrowLeft/ArrowRight)
-  - [x] Implemented scroll synchronization between editor and preview panes
-  - [x] Implemented ARIA attributes for accessibility (role="separator", aria-valuenow/min/max)
-  - [x] Integrated useEditorState and useSplitPane hooks
-  - Soul Impact: Make writing feel like thinking out loud - where every keystroke becomes visible art
-
-### Added - Phase 11 Code Gallery UI/UX Plan (2026-03-17)
-
-- **Strategic Context:** Implements Phases 3-7 from VIBLOG_CODE_GALLERY_UI_DEV_PLAN.md
-- **Source:** Effortel competitive analysis (22/25 score) - learning principles, maintaining uniqueness
-- **Estimated Effort:** 4-5 days
-- **Dependencies:** Phase 1-2 (Design Token, Card Polish) - COMPLETE
-
-- **Soul Check: User Story Mapping:**
-  | Step | User Story | AI-Native Soul |
-  |------|------------|----------------|
-  | 11.1 Button System | US-103: Dual Format | Trust in AI-human collaboration |
-  | 11.2 Navigation | US-100: MCP Session | Discoverable MCP entry points |
-  | 11.3 Footer | US-101: Draft Bucket | Clear product navigation |
-  | 11.4 Micro-interactions | All Stories | Premium feel for AI content |
-  | 11.5 Mobile Polish | All Stories | Mobile-first AI learners |
-
-- **Step 11.1: Button System Standardization** COMPLETE
-  - [x] 11.1.1: Update button border-radius to 8px (rounded-md)
-  - [x] 11.1.2: Create Premium Button Variant (gradient + accent variants)
-  - [x] 11.1.3: Update Homepage CTA Buttons (Hero + Final sections)
-  - [x] 11.1.4: Add Button Design Tokens to design-system.css
-  - Primary/Secondary/Icon button variants with 40x40px icon size
-  - Hover glow effect on primary buttons: `0 0 20px rgba(139,92,246,0.3)`
-  - Premium variant with violet-to-cyan gradient for main CTAs
-
-- **Step 11.2: Navigation Implementation** COMPLETE
-  - [x] 11.2.1: Create Navigation Component (72px fixed header, backdrop-blur)
-  - [x] 11.2.2: Implement Scroll Behavior (hide down, show up)
-  - [x] 11.2.3: Add Navigation Styling (14px font, accent hover, gradient logo)
-  - [x] 11.2.4: Implement Mobile Navigation (hamburger, slide-in overlay)
-  - [x] 11.2.5: Integrate Navigation into Layout (pt-[72px] compensation)
-  - Nav items: Explore, Features, Pricing, About
-  - Premium "Get Started" CTA button with gradient variant
-  - Mobile menu with smooth slide animation from right
-
-- **Step 11.3: Footer Implementation** COMPLETE
-  - [x] 11.3.1: Create Footer Component (bg-surface, 80px/48px padding)
-  - [x] 11.3.2: Implement CTA Card (gradient bg, animated arrow, /register link)
-  - [x] 11.3.3: Implement Footer Grid (4-column responsive: Product/Resources/Company/Legal)
-  - [x] 11.3.4: Add Footer Bottom Section (copyright, social links, AI tagline)
-  - [x] 11.3.5: Integrate Footer into Layout
-  - AI-Native tagline: "Made with AI, for AI"
-  - Social links: Twitter, GitHub
-
-- **Step 11.3: Footer Implementation**
-  - 4-column layout (Product, Resources, Company, Legal)
-  - CTA card with gradient background
-  - Social links (Twitter, GitHub)
-
-- **Step 11.4: Micro-interactions Polish** COMPLETE
-  - [x] 11.4.1: Define Hover Effects Catalog (design-system.css lines 275-311)
-  - [x] 11.4.2: Implement Card Hover Enhancement (hover overlay with arrow reveal)
-  - [x] 11.4.3: Implement Scroll Animations (premium easing: cubic-bezier(0.16,1,0.3,1))
-  - [x] 11.4.4: Add Loading States (shimmer skeleton placeholders)
-  - [x] 11.4.5: Verify Progress Indicator (reusable ScrollProgressIndicator component)
-  - Card hover: translateY(-4px) + glow shadow + overlay reveal
-  - Premium easing: `cubic-bezier(0.16, 1, 0.3, 1)` for smooth animations
-  - Hover overlay with gradient background and arrow animation
-  - **Checkpoint 11.4.4 Loading States:**
-    - Enhanced `skeleton.tsx` with shimmer variant for premium loading feel
-    - Updated `feed-skeleton.tsx` to match article-card.tsx structure (16:10 aspect ratio)
-    - Added shimmer animation: `linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent)`
-    - Tests: 6 passing (3 new shimmer variant tests)
-  - **Checkpoint 11.4.5 Progress Indicator:**
-    - Created reusable `ScrollProgressIndicator` component
-    - Added to article detail page (`/article/[slug]`)
-    - Spring animation with stiffness: 100, damping: 30
-    - Tests: 5 passing for new component
-
-- **Step 11.5: Mobile Responsive Polish** COMPLETE
-  - [x] 11.5.1: Mobile Typography Adaptations (already responsive)
-  - [x] 11.5.2: Mobile Spacing Adaptations (py-32 -> py-16 md:py-32)
-  - [x] 11.5.3: Mobile Grid Adaptations (already responsive: grid-cols-1 md:grid-cols-2 lg:grid-cols-3)
-  - [x] 11.5.4: Mobile Navigation (implemented in 11.2.4)
-  - [x] 11.5.5: Mobile Footer (implemented in 11.3.3)
-  - [x] 11.5.6: Touch Interactions (active:scale-[0.98] feedback on cards)
-  - [x] 11.5.7: Mobile Card Adaptations (touch feedback added)
-  - Section padding: `py-16 md:py-32` for all sections
-  - CTA card padding: `p-8 md:p-12 lg:p-16`
-  - Touch feedback: `active:scale-[0.98]` on article cards
-
-- **CRITICAL FIX: Container Centering** (2026-03-17)
-  - Issue: All page elements except hero were left-aligned instead of centered
-  - Root cause: Tailwind's default `container` class does NOT center content
-  - Fix: Added container configuration to `tailwind.config.ts`:
-    ```typescript
-    container: {
-      center: true,
-      padding: { DEFAULT: '1rem', sm: '2rem', lg: '4rem', xl: '5rem' }
-    }
-    ```
-  - This fix affects ALL page layouts across the entire application
-
-- **Step 11.5: Mobile Responsive Polish**
-  - Hero title: 60-128px desktop, 36-48px mobile
-  - Section padding: 128px desktop, 64px mobile
-  - Grid: 3 columns desktop, 1 column mobile
-  - Touch targets: 44px minimum
-
-- **Design Target:** Grade A (85+/100) across 10 Design Metrics
-
-- **Documentation:**
-  - `IMPLEMENTATION_PLAN.md` - Phase 11 detailed checkpoints
-  - `VIBLOG_CODE_GALLERY_UI_DEV_PLAN.md` - Source plan
-  - `docs/UI_TEAM_WORKFLOW.md` - Working method
-
-### Added - UI Team Workflow Phase 3: Article Detail Polish (2026-03-17)
-- **Soul-Centered Design:**
-  - Immersive reading typography (65ch, 1.75 line-height)
-  - Code block theming with language badge + copy button
-  - Annotation UI for text selection (US-205, US-206)
-  - Author journey section celebrating Vibe Coder
-
-- **Components Created:**
-  - `src/components/ui/code-block.tsx` - Syntax highlighted code
-  - `src/hooks/use-text-selection.ts` - Selection detection
-  - `src/components/ui/annotation-tooltip.tsx` - Annotation UI
-
-- **Design Metrics Improved:**
-  - Typography: 6/10 → 9/10
-  - Component Design: 6/10 → 9/10
-  - Brand Identity: 6/10 → 9/10
-
-- **Documentation:**
-  - `docs/dev-logs/phase-3-article-detail-polish.md` - Full design review
-
-### Added - UI Team Workflow Phase 2: Card Component Polish (2026-03-17)
-- **Design Review Score: 83/100 (Grade A-)**
-- **Effortel-Inspired Design Patterns:**
-  - Border radius migration: `rounded-2xl` → `rounded-xl` (16px)
-  - 16:10 aspect ratio image containers for cinematic feel
-  - Hover overlay with diagonal gradient + arrow icon reveal
-  - Outlined tag component for vibe metadata (model, duration)
-  - Platform color badges (claude=rose, cursor=violet)
-
-- **10 Design Metrics Evaluation:**
-  - Visual Hierarchy: 9/10 - Excellent
-  - Balance & Layout: 8/10 - Very Good
-  - Typography: 8/10 - Very Good
-  - Color Harmony: 9/10 - Excellent
-  - Spacing System: 9/10 - Excellent
-  - Component Design: 9/10 - Excellent
-  - Micro-interactions: 8/10 - Very Good
-  - Responsive Design: 7/10 - Good
-  - Brand Identity: 9/10 - Excellent
-  - Premium Feel: 8/10 - Very Good
-
-- **Key Code Patterns:**
-  - Hover overlay with backdrop-blur and scale animation
-  - Outlined tags with uppercase + 0.1em letter-spacing
-  - Vibe metadata as "badges of honor" for creators
-
-- **Documentation:**
-  - `docs/dev-logs/phase-2-card-component-polish.md` - Full design review
-  - `docs/UI_TEAM_WORKFLOW.md` - Workflow status update
-
-### Added - Three Revolutionary Homepage Designs (2026-03-17)
-- **Three Completely Different Design Directions:**
-
-  1. **Code Gallery (Immersive Exhibition)**
-     - Full-screen parallax hero with "Where Code Meets Art" gradient title
-     - Mouse-tracking spotlight effect (600px radius)
-     - Floating code particles animation in background
-     - Three-step journey timeline (Record → Share → Grow)
-     - Asymmetric masonry grid (first article 2x2)
-     - Terminal-style code art showcase
-     - Scroll progress indicator with spring animation
-     - Route: `/` (default)
-
-  2. **Cyberpunk Terminal**
-     - Matrix rain canvas animation (Japanese + numbers)
-     - Neon grid background with perspective effect
-     - CRT scanline overlay
-     - Typing animation with cycling commands
-     - Glitch text effect on titles
-     - File system-style article cards (SYSTEM://, EXEC://)
-     - Monospace-only typography
-     - Route: `/cyberpunk`
-
-  3. **Editorial Magazine**
-     - Serif typography (Georgia) for headlines
-     - Pull quote design with decorative lines
-     - Magazine-style asymmetric grid
-     - Reading time prominently displayed
-     - Newsletter subscription section
-     - Elegant, content-focused design
-     - Route: `/editorial`
-
-- **Documentation:**
-  - Created `docs/REVOLUTIONARY_DESIGNS.md` - Design overview and comparison
-  - Created `docs/PROMPT_ENGINEERING_DESIGNS.md` - Engineering prompts for each design
-  - Prompts enable recreation/iteration of each design direction
-
-- **Technical Implementation:**
-  - All designs use Framer Motion for animations
-  - Mock data for preview without Supabase connection
-  - Defensive Supabase client for offline development
-  - Shared design tokens from design-system.css
-
-### Added - Frontend Redesign Phase 1 (2026-03-16)
-- **Revolutionary Design System Foundation:**
-  - Created `src/styles/design-system.css` with ~100 design tokens
-  - Extended `tailwind.config.ts` with custom colors, spacing, shadows, animations
-  - Updated `src/app/layout.tsx` with Outfit (display) and JetBrains Mono (code) fonts
-  - Created `src/lib/animations.ts` with Framer Motion variants
-  - Design Vision: "Code Gallery" - Where Every Article is an Exhibition Piece
-  - Core Identity: Gradient Mesh | Glassmorphism | Code as Hero | Neon Accent
-  - Design Review Score: 219/250 (Grade A - 87.6/100)
-
-- **Color System:**
-  - Background: Deep Space Black (#050508)
-  - Primary Accent: Electric Violet (#8b5cf6)
-  - Secondary Accent: Cyan Electric (#06b6d4)
-  - Tertiary Accent: Rose Glow (#f43f5e)
-  - Complete glow variables for each accent
-
-- **Typography Strategy:**
-  - Display: Outfit (geometric sans for headlines)
-  - Body: Inter (optimized for readability)
-  - Code: JetBrains Mono (excellent legibility)
-  - Reading: Georgia (Medium-inspired 21px, 1.6 line-height)
-
-- **Animation System:**
-  - 6 duration presets (instant to slowest)
-  - 7 custom easing functions (spring, dramatic, smooth)
-  - 15+ Framer Motion variant presets
-  - State-based animations (rest/hover/tap)
-
-### Changed - CLAUDE.md Complete Rewrite (2026-03-16):
+### Changed
+- **CLAUDE.md Complete Rewrite (2026-03-16):**
   - Version 3.0 - Complete team architecture documentation
   - Added Executive Layer: CTO + Chief UI Designer
   - Added Full Agent Roster with roles and levels
@@ -410,6 +352,10 @@ All notable changes to this project will be documented in this file.
   - Independent from develop_reviewer (parallel execution)
 
 ### Fixed
+- **CI TypeScript Errors (2026-03-17):**
+  - Fixed mock `TokenAuthResult` type errors in `dual-auth.test.ts` (added missing `null` properties)
+  - Excluded `packages/` directory from root TypeScript config (MCP server is standalone npm package)
+  - Root cause: TypeScript include pattern `**/*.ts` picked up MCP server files without SDK installed
 - **Image Analyzer Skills - Execution Capability (2026-03-16):**
   - Fixed image-analyzer-kimi and image-analyzer-qwen skills to be executable
   - Previous version: Skills returned documentation instead of performing analysis

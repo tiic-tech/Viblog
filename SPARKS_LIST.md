@@ -36,141 +36,123 @@
 
 ---
 
-### Spark 002: Smart Markdown Editor - Intelligent Writing Experience (Frontend)
+### Spark 002: Smart Markdown Editor Backend Support
 **Date:** 2026-03-18
 **Source:** User Idea
 **Priority:** P1
-**Status:** Integrated into IMPLEMENTATION_PLAN.md
-**Integrated At:** 2026-03-18
-**Recorded From:** Frontend Worktree
+**Status:** Pending
+**Recorded From:** Backend Worktree
 
-**Integration:** Added as TDD Checkpoints 10.4.1.6 - 10.4.1.15 in IMPLEMENTATION_PLAN.md
+**Description:**
+为前端 Smart Markdown Editor 提供后端支持，实现 LM 驱动的智能编辑功能。
 
-**Core Objective:**
-Based on LLM infrastructure, create an **efficient, intelligent, differentiated** Markdown editing experience that replaces traditional manual operations.
+**Frontend Features (User Requested):**
+- Visual toolbar with formatting actions
+- LM-based intelligent table generation
+- LM-based flowchart/diagram generation
+- Voice input support
 
----
+**Backend Architecture Requirements:**
 
-#### Current Frontend Gaps
-1. **Incomplete TipTap Extensions:** Missing support for:
-   - Flowcharts / Mermaid diagrams
-   - Mind maps
-   - Swimlane diagrams
-   - Enhanced table editor
+1. **LLM Integration (Phase 11.6 Support)**
+   - Use `/api/llm/chat` streaming endpoint (Step 11.6.4)
+   - Provider-aware model selection
+   - Streaming response for real-time preview
+   - Context injection with editor state
 
-2. **Inefficient UI Interactions:**
-   - No visual sidebar toolbar for quick element insertion
-   - Table insertion requires manual row/column setup
-   - No intelligent content generation UI
+2. **Markdown Processing APIs**
+   ```
+   POST /api/markdown/transform
+   - Convert natural language to markdown table
+   - Generate mermaid diagrams from description
+   - Format code blocks with syntax detection
 
-3. **No Voice Input UI:**
-   - No microphone button for voice input
-   - No real-time transcription display
-   - No voice recording list/playback UI
+   POST /api/markdown/enhance
+   - Grammar/style improvement
+   - Heading structure optimization
+   - Link/reference validation
+   ```
 
----
+3. **Voice Input Pipeline**
+   - Speech-to-text API integration (Whisper/Deepgram)
+   - Real-time streaming transcription
+   - Punctuation restoration
+   - Multi-language support (zh/en)
 
-#### Frontend Components to Build
+4. **AST-based Operations**
+   - Parse markdown to abstract syntax tree
+   - Enable structural transformations
+   - Support partial updates without full re-render
 
-**1. EditorSidebarToolbar Component** (`src/components/editor/sidebar-toolbar.tsx`)
-- Vertical fixed toolbar beside TipTap editor
-- Icons: bullet list, table, flowchart, mind map, hyperlink, image, code block
-- Click triggers appropriate insertion action
-- Position: fixed right side of editor container
+**Implementation Phases:**
+- Phase 12.x: Markdown transform APIs
+- Phase 13.x: Voice input integration
+- Phase 14.x: Advanced diagram generation
 
-**2. EnhancedLinkDialog Component** (`src/components/editor/enhanced-link-dialog.tsx`)
-- Search/select own articles (autocomplete dropdown)
-- Search/select bookmarked articles
-- Paste external URL
-- Selected text -> auto-populate link text field
-
-**3. SmartInsertDialog Component** (`src/components/editor/smart-insert-dialog.tsx`)
-- Modal triggered by toolbar click (table/flowchart/mind map/swimlane)
-- Input textarea for content description
-- Voice input button (microphone icon)
-- "Generate" button -> calls LLM API
-- Preview area showing generated structure
-- "Insert" button -> inserts into TipTap editor
-
-**4. SmartSyntaxHandler** (`src/hooks/use-smart-syntax.ts`)
-- Detects `@table`, `@flowchart`, `@mindmap` triggers
-- Shows inline prompt for content input
-- Calls LLM API for structure generation
-- Inserts result at cursor position
-
-**5. VoiceInputButton Component** (`src/components/editor/voice-input-button.tsx`)
-- Microphone toggle button
-- Visual feedback: recording state (pulsing red dot)
-- Real-time transcription display in tooltip
-- On stop: returns transcribed text to parent component
-
-**6. VoiceRecordingList Component** (`src/components/editor/voice-recording-list.tsx`)
-- List of saved voice recordings (from draft bucket)
-- Each item: playback button, transcription preview, timestamp
-- Click to re-use transcription or regenerate
+**Dependencies:**
+- Phase 11.6 Chat API (in progress)
+- Provider adapters for OpenAI/Anthropic/Gemini
 
 ---
 
-#### Frontend State Management
+### Spark 003: Multi-LLM Model Routing Layer
+**Date:** 2026-03-18
+**Source:** User Idea
+**Priority:** P1
+**Status:** Pending
+**Recorded From:** Backend Worktree
 
-```typescript
-// Voice recording state
-interface VoiceRecording {
-  id: string
-  blob: Blob
-  transcription: string
-  timestamp: Date
-  duration: number
-}
+**Description:**
+支持用户同时配置多个不同的LLM，提供模型路由层让用户自定义不同LLM执行不同任务。类似于Claude Code的Opus/Sonnet/Haiku策略。
 
-// Smart insert state
-interface SmartInsertState {
-  isOpen: boolean
-  type: 'table' | 'flowchart' | 'mindmap' | 'swimlane'
-  inputText: string
-  isGenerating: boolean
-  previewContent: string | null
-}
-```
+**Use Case:**
+- 用户可以快速切换不同LLM完成不同任务
+- 针对海外社交媒体：优先使用ChatGPT、Gemini
+- 针对国内社交媒体：配置DeepSeek、豆包、Qwen
+- 不同任务类型选择最适合的模型（写作、翻译、代码等）
 
----
+**Implementation Ideas:**
+1. **模型路由层架构**
+   ```
+   user_llm_route_rules 表:
+   - user_id: 用户ID
+   - task_type: 任务类型 (social_overseas, social_china, writing, translation, code)
+   - preferred_provider_id: 首选提供商
+   - fallback_provider_id: 备选提供商
+   - priority: 优先级
+   ```
 
-#### API Calls Required (Frontend -> Backend)
+2. **任务类型定义**
+   - `social_overseas`: 海外社交媒体内容生成 (ChatGPT, Gemini)
+   - `social_china`: 国内社交媒体内容生成 (DeepSeek, 豆包, Qwen)
+   - `article_writing`: 文章写作 (高质量模型)
+   - `translation`: 翻译任务
+   - `code_generation`: 代码生成
 
-| Action | Endpoint | Payload |
-|--------|----------|---------|
-| Smart generate | `POST /api/llm/generate-structure` | `{ type, content }` |
-| Voice transcribe | `POST /api/voice/transcribe` | `FormData (audio blob)` |
-| Save voice recording | `POST /api/voice/recordings` | `{ blob, transcription }` |
-| Get voice recordings | `GET /api/voice/recordings` | - |
-| Search own articles | `GET /api/articles/search?q={query}` | - |
-| Get bookmarked articles | `GET /api/articles/bookmarked` | - |
+3. **API扩展**
+   ```
+   POST /api/llm/route
+   - task_type: 指定任务类型
+   - 自动选择用户配置的最佳模型
+   - 支持fallback机制
 
----
+   GET /api/llm/route/config
+   - 获取用户的路由配置
 
-#### TipTap Extensions to Add
+   PUT /api/llm/route/config
+   - 更新路由规则
+   ```
 
-| Extension | Package | Purpose |
-|-----------|---------|---------|
-| `@tiptap/extension-table` | Already exists | Enhanced table editing |
-| `tiptap-extension-mermaid` | Custom | Flowchart/diagram support |
-| Custom mindmap extension | Build | Mind map visualization |
-| Smart syntax trigger | Build custom | Detect `@table` etc. |
+4. **智能路由逻辑**
+   - 根据任务类型匹配用户配置
+   - 优先使用首选模型
+   - 首选失败时自动fallback
+   - 支持负载均衡（多模型轮询）
 
----
-
-#### Core Value (Frontend Perspective)
-- Reduce clicks for common operations from 5+ to 1-2
-- Real-time visual feedback for voice input
-- Intelligent content generation without leaving editor
-- Differentiated UX vs Feishu, Obsidian, Notion
-
----
-
-#### Integration Point
-- Phase 10.4.1: Smart Markdown Editor (extends current plan)
-- Frontend-only: Sidebar toolbar, dialog components, voice UI
-- Backend dependency: LLM API + Voice API (from Phase 11.6 Platform LLM Config)
+**Integration Point:**
+- Phase 12: 社交媒体分发模块
+- 可与现有的 user_llm_configs 表整合
+- 扩展 /api/llm/chat 端点支持 task_type 参数
 
 ---
 
@@ -189,4 +171,4 @@ interface SmartInsertState {
 
 ---
 
-**Last Updated:** 2026-03-18 (Added Spark 002: Smart Markdown Editor)
+**Last Updated:** 2026-03-18
