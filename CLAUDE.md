@@ -20,23 +20,40 @@
 │                    VIBLOG EXECUTIVE TEAM                        │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│   Chief Technology Officer      Chief UI Designer               │
-│   ========================      ==================               │
+│   Chief Architect Officer       Chief Technology Officer        │
+│   ======================        ========================        │
+│   (CAO - HIGHEST AUTHORITY)     10 Technical Metrics            │
 │                                                                 │
-│   10 Technical Metrics          10 Design Metrics               │
-│   ├── Architecture Alignment    ├── Visual Hierarchy            │
-│   ├── Code Quality              ├── Balance & Layout            │
-│   ├── Performance Impact        ├── Typography                  │
-│   ├── Security Posture          ├── Color Harmony               │
-│   ├── Test Coverage             ├── Spacing System              │
-│   ├── Error Handling            ├── Component Design            │
-│   ├── Maintainability           ├── Micro-interactions          │
-│   ├── Scalability               ├── Responsive Design           │
-│   ├── Documentation             ├── Brand Identity              │
-│   └── Technical Debt            └── Premium Feel                │
+│   Vibe Coding Methodology       ├── Architecture Alignment       │
+│   ├── 9 Pre-Dev Steps           ├── Code Quality                │
+│   ├── 5 Dev Key Points          ├── Performance Impact          │
+│   └── Challenge Before Implement├── Security Posture            │
+│                                 ├── Test Coverage               │
+│   Authority:                    ├── Error Handling              │
+│   - Strategic architecture      ├── Maintainability             │
+│   - Final decision authority    ├── Scalability                 │
+│   - Can override CTO            ├── Documentation               │
+│                                 └── Technical Debt              │
+│                                 Target: Grade A (80+)           │
+│                                 Grade C or below = BLOCK        │
 │                                                                 │
-│   Target: Grade A (80+)         Target: Grade A (80+)           │
-│   Grade C or below = BLOCK      Grade C or below = BLOCK        │
+│   Chief UI Designer                                             │
+│   ==================                                            │
+│                                                                 │
+│   10 Design Metrics                                             │
+│   ├── Visual Hierarchy                                          │
+│   ├── Balance & Layout                                          │
+│   ├── Typography                                                │
+│   ├── Color Harmony                                             │
+│   ├── Spacing System                                            │
+│   ├── Component Design                                          │
+│   ├── Micro-interactions                                        │
+│   ├── Responsive Design                                         │
+│   ├── Brand Identity                                            │
+│   └── Premium Feel                                              │
+│                                                                 │
+│   Target: Grade A (80+)                                         │
+│   Grade C or below = BLOCK                                      │
 │                                                                 │
 │   Sub-Agents:                                                   │
 │   ├── code-reviewer                                             │
@@ -47,12 +64,42 @@
 └─────────────────────────────────────────────────────────────────┘
 ```
 
+### Agent Hierarchy
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│   AUTHORITY HIERARCHY                                           │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   Level 4: chief-architect-officer (CAO)                       │
+│            - Strategic architecture decisions                   │
+│            - Vibe Coding methodology enforcement                │
+│            - FINAL AUTHORITY on architectural matters           │
+│                                                                 │
+│   Level 3: chief-technology-officer (CTO)                      │
+│            - Implementation quality                             │
+│            - Technical review and grading                       │
+│            - Subordinate to CAO on architecture                 │
+│                                                                 │
+│   Level 2: architect                                            │
+│            - System design decisions                            │
+│            - Architecture Decision Records (ADRs)               │
+│            - Escalates to CAO for strategic decisions           │
+│                                                                 │
+│   Level 1: Technical specialists                                │
+│            - code-reviewer, security-reviewer                   │
+│            - database-reviewer, tdd-guide, e2e-runner           │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
 ### Full Agent Roster
 
 | Agent | Role | Level | Focus |
 |-------|------|-------|-------|
+| `chief-architect-officer` | Strategic Architect | Executive (Highest) | Vibe Coding, challenge before implement |
 | `chief-technology-officer` | Technical Executive | Executive | System quality, architecture |
-| `chief-ui-designer` | Design Executive | Executive | Visual quality, aesthetics |
+| `chief-ui-officer` | Design Executive | Executive | Visual quality, aesthetics |
 | `develop_reviewer` | Engineering Publisher | Independent | Tech blog, functional testing |
 | `design_reviewer` | Design Publisher | Independent | Design blog, UI analysis |
 | `planner` | Implementation Planner | Engineer | Task breakdown, dependencies |
@@ -317,6 +364,47 @@ head -15 DEVELOPLOG.md CHANGELOG.md IMPLEMENTATION_PLAN.md
 - Design review: Grade A target for every page
 - P0 issues block merge/publish
 
+### 6. Challenge Before Implement (CRITICAL)
+
+**Core Principle: "你负责边界和验收，AI负责提需求"**
+
+(User defines boundaries and acceptance criteria; AI proposes requirements and solutions.)
+
+Before implementing ANY architectural decision:
+
+1. **Ask "Why?"** - What problem are we solving?
+2. **Ask "What else?"** - What alternatives exist?
+3. **Ask "What if?"** - What are the implications?
+
+**Never just implement what's asked. Always evaluate and challenge.**
+
+#### When to Challenge
+
+| Situation | Action |
+|-----------|--------|
+| User proposes architecture | Analyze pros/cons, suggest alternatives |
+| Requirements are unclear | Ask clarifying questions before implementing |
+| Technical decision is impactful | Document trade-offs in ADR |
+| Security implications exist | Raise security concerns immediately |
+
+#### Challenge Format
+
+```
+⚠️ ARCHITECTURE CHALLENGE
+
+Context: [What triggered this challenge]
+Issue: [Describe the potential issue]
+Alternatives: [List alternatives with pros/cons]
+Recommendation: [Your recommended approach]
+Rationale: [Why this is the best approach]
+```
+
+#### Escalation
+
+- Unresolved challenges escalate to **chief-architect-officer (CAO)**
+- CAO has final authority on architectural matters
+- Document all challenges and resolutions in ADRs
+
 ---
 
 ## Agent Invocation Rules
@@ -325,17 +413,35 @@ head -15 DEVELOPLOG.md CHANGELOG.md IMPLEMENTATION_PLAN.md
 
 | Scenario | Agent | Trigger |
 |----------|-------|---------|
+| Strategic architecture decision | `chief-architect-officer` | Before implementing new architecture |
 | Complex feature planning | `planner` | Before implementation |
 | Step completion | `develop_reviewer` | After git commit |
 | UI/UX analysis | `design_reviewer` | After frontend changes |
 | Technical review | `chief-technology-officer` | Before merge |
-| Design critique | `chief-ui-designer` | Via design_reviewer |
+| Design critique | `chief-ui-officer` | Via design_reviewer |
 | Code quality | `code-reviewer` | Via CTO |
 | Security audit | `security-reviewer` | Via CTO |
 | Database optimization | `database-reviewer` | SQL/migrations |
 | TDD development | `tdd-guide` | When writing features |
 | Competitive analysis | `competitive-analyzer` | Analyzing competitors |
 | Browser-interactive features | `e2e-runner` | Text selection, editors, drag/resize, SSR |
+
+### Architecture Decision Workflow
+
+```
+User Request
+    │
+    ▼
+Is this an architectural decision?
+    │
+    ├── YES ──► Invoke chief-architect-officer (CAO)
+    │              │
+    │              ├── CAO challenges if needed
+    │              ├── CAO recommends approach
+    │              └── CAO escalates if unresolved
+    │
+    └── NO ──► Proceed with implementation
+```
 
 ### Proactive Agent Invocation
 
