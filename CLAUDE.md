@@ -34,7 +34,8 @@
 │                                                                 │
 │   CUIO - Chief UI Officer                                       │
 │   ├── Visual excellence gate                                    │
-│   ├── 15 Design Metrics                                         │
+│   ├── Real-World Interaction Verification                       │
+│   ├── 16 Design Metrics (including scenario testing)            │
 │   └── Production design approval                                │
 │                                                                 │
 │   SPECIALIST LAYER                                              │
@@ -61,7 +62,7 @@
 |-------|---------|---------|
 | CAO | Architecture decisions + Scenario verification | Before major changes, After implementation |
 | CTO | Quality gate (11 metrics) + Scenario testing | Before merge, After feature completion |
-| CUIO | Design gate (15 metrics) | After UI changes, before production |
+| CUIO | Design gate (16 metrics) + Real-world interaction testing | After UI changes, before production |
 | architect | System design | When detailed design needed |
 | planner | Task breakdown | Before implementation |
 | code-reviewer | Code quality | Via CTO |
@@ -192,11 +193,29 @@ When fixing any issue, ask:
 
 | Score | Grade | Action |
 |-------|-------|--------|
-| 130-150 | S | Award-worthy |
+| 130-144 | S | Award-worthy |
 | 110-129 | A | **APPROVE** production |
 | 90-109 | B | Publish with P0 documented |
 | 70-89 | C | **BLOCK**, document debt |
 | <70 | D/F | **BLOCK**, redesign |
+
+**16 Metrics (9 points each):**
+1. Visual Hierarchy
+2. Balance & Layout
+3. Typography
+4. Color Harmony
+5. Spacing System
+6. Component Design
+7. Micro-interactions
+8. Responsive Design
+9. Premium Feel
+10. Brand Identity
+11. Design System Compliance
+12. UI Architecture
+13. UX Flow Clarity
+14. AI-Native UX
+15. Design Debt Control
+16. **Real-World Scenario Testing** (Actual browser interaction tested)
 
 ---
 

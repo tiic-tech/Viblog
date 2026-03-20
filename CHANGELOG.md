@@ -32,6 +32,14 @@
 - Added: Scenario Testing Protocol
 - Added: Issue Discovery Protocol
 
+**CUIO (v2.1):**
+- Added: Real-World Interaction Verification as second responsibility
+- Added: Real-World Scenario Testing as 16th metric
+- Changed: 15 metrics → 16 metrics (9 points each, 144 total)
+- Added: Interaction Testing Checklist (mandatory before UI approval)
+- Added: Issue Discovery Protocol for UI
+- Added: Common UI Issue Patterns to Audit
+
 **CLAUDE.md (v4.1):**
 - Added: Issue Discovery Protocol section
 - Added: Issue Workflow diagram
