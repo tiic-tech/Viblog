@@ -1,7 +1,7 @@
 # DOC_CATALOG.md
 
-> **Version:** 1.0
-> **Updated:** 2026-03-19
+> **Version:** 2.0
+> **Updated:** 2026-03-20
 > **Purpose:** Central navigation hub for Viblog documentation
 
 ---
@@ -16,7 +16,11 @@
 | Review architecture decisions | docs/architecture/ADR-XXX.md | ~100 each |
 | Plan implementation | plans/BACKEND_PLAN.md or plans/FRONTEND_PLAN.md | ~200 each |
 | Track changes | CHANGELOG.md | ~100 |
-| Find issue resolutions | docs/ISSUE_LOG.md | ~50 |
+| Find issue resolutions | docs/issues/[TEAM]_ISSUES.md | ~50 |
+| Check cross-team issues | docs/issues/SHARED_ISSUES.md | ~30 |
+| Review CAO decisions | docs/DECISION_LOG.md | ~50 |
+| Check API contracts | docs/INTERFACE_CONTRACT.md | ~100 |
+| Parallel dev protocol | docs/PARALLEL_DEVELOPMENT_PROTOCOL.md | ~200 |
 
 ---
 
@@ -81,6 +85,24 @@
 
 ---
 
+## Parallel Development Documents
+
+| Document | Purpose | Update Frequency |
+|----------|---------|------------------|
+| `PARALLEL_DEVELOPMENT_PROTOCOL.md` | Worktree coordination rules | Process changes |
+| `INTERFACE_CONTRACT.md` | API/Data contracts | Interface changes |
+| `DECISION_LOG.md` | CAO rulings, shared decisions | When CAO invoked |
+| `issues/SHARED_ISSUES.md` | Cross-team issues | When conflict found |
+
+### Team-Specific Documents
+
+| Team | Issue Log | Dev Log | Focus |
+|------|-----------|---------|-------|
+| Backend | `issues/BACKEND_ISSUES.md` | `dev-logs/BACKEND_DEVLOG.md` | API, DB, MCP |
+| Frontend | `issues/FRONTEND_ISSUES.md` | `dev-logs/FRONTEND_DEVLOG.md` | UI, UX, Components |
+
+---
+
 ## Archive (docs/archive/)
 
 | Directory | Content | Phase |
@@ -98,29 +120,56 @@
 
 1. Read `DOC_CATALOG.md` (this file) - understand what exists
 2. Read `IMPLEMENTING_STATUS.md` - check current state
-3. Read relevant ADR(s) - understand constraints
-4. Read relevant implementation plan - understand tasks
+3. Read `DECISION_LOG.md` - check new rulings
+4. Read relevant ADR(s) - understand constraints
+5. Read relevant implementation plan - understand tasks
+
+### Starting a Worktree Session
+
+1. **Sync first:**
+   - `git fetch origin`
+   - Read `IMPLEMENTING_STATUS.md` (global progress)
+   - Read `DECISION_LOG.md` (new rulings)
+   - Read `issues/SHARED_ISSUES.md` (cross-team issues)
+2. **Check counterpart:**
+   - Read other team's DEVLOG
+   - Check for INTERFACE_CONTRACT changes
+3. **Proceed with work**
 
 ### Planning a Feature
 
 1. Check `IMPLEMENTING_STATUS.md` for current phase
 2. Read relevant `ADR-XXX.md` for architecture constraints
 3. Read `plans/BACKEND_PLAN.md` or `plans/FRONTEND_PLAN.md`
-4. Create task in `IMPLEMENTING_STATUS.md`
+4. Check `INTERFACE_CONTRACT.md` for existing contracts
+5. Create task in `IMPLEMENTING_STATUS.md`
 
 ### Encountering an Issue
 
-1. Check `docs/ISSUE_LOG.md` for similar issues
-2. If new issue, add to `ISSUE_LOG.md` with status BLOCKED
-3. Resolve and document in `ISSUE_LOG.md`
+1. Check `docs/issues/[TEAM]_ISSUES.md` for similar issues
+2. If cross-team, check `issues/SHARED_ISSUES.md`
+3. If new issue:
+   - Team-only: Add to `[TEAM]_ISSUES.md`
+   - Cross-team: Add to `SHARED_ISSUES.md`
+4. Resolve and document
 
 ### Making an Architectural Decision
 
 1. Check existing ADRs for relevant decisions
 2. If new decision needed:
    - Create `ADR-XXX.md` using template
+   - Update `INTERFACE_CONTRACT.md` if API affected
    - Update affected documents
    - Update `IMPLEMENTING_STATUS.md`
+
+### Detecting Cross-Team Conflict
+
+1. Check your changes against `INTERFACE_CONTRACT.md`
+2. If conflict detected:
+   - Add to `SHARED_ISSUES.md`
+   - If unresolved, invoke CAO
+   - CAO ruling → `DECISION_LOG.md`
+   - Both teams acknowledge
 
 ---
 
@@ -134,9 +183,13 @@
 | CLAUDE.md | Agent instructions | CAO |
 | CHANGELOG.md | Change history | All agents |
 | ADR-XXX.md | Architecture decisions | CAO |
-| ISSUE_LOG.md | Issue tracking | All agents |
+| DECISION_LOG.md | CAO rulings | CAO |
+| INTERFACE_CONTRACT.md | API contracts | Backend + Frontend |
+| SHARED_ISSUES.md | Cross-team issues | Both teams |
+| [TEAM]_ISSUES.md | Team issues | Respective team |
+| [TEAM]_DEVLOG.md | Team progress | Respective team |
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** 2026-03-19
+**Document Version:** 2.0
+**Last Updated:** 2026-03-20

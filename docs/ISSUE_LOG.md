@@ -1,8 +1,24 @@
 # ISSUE_LOG.md
 
-> **Version:** 1.1
+> **Version:** 1.2
 > **Updated:** 2026-03-20
-> **Purpose:** Track issues, blockers, and resolutions
+> **Status:** ARCHIVED - Replaced by team-specific issue logs
+> **See Also:**
+> - Backend issues: `docs/issues/BACKEND_ISSUES.md`
+> - Frontend issues: `docs/issues/FRONTEND_ISSUES.md`
+> - Cross-team issues: `docs/issues/SHARED_ISSUES.md`
+
+---
+
+## Archive Notice
+
+This file is retained for historical reference. New issues should be recorded in:
+
+| Team | Issue Log |
+|------|-----------|
+| Backend | `docs/issues/BACKEND_ISSUES.md` |
+| Frontend | `docs/issues/FRONTEND_ISSUES.md` |
+| Cross-team | `docs/issues/SHARED_ISSUES.md` |
 
 ---
 
