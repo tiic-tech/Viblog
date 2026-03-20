@@ -1,0 +1,19 @@
+version: '3.8'
+
+# Development override - mounts source code for hot reload
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    volumes:
+      - ../src:/app/src
+      - ../public:/app/public
+      - ../packages:/app/packages
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://viblog:viblog@db:5432/viblog
+      - MCP_API_URL=http://localhost:3000/api
+      - ENABLE_AUTH=${ENABLE_AUTH:-false}
+      - JWT_SECRET=${JWT_SECRET:-}
+    command: pnpm dev

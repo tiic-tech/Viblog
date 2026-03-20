@@ -1,0 +1,72 @@
+# Viblog Docker Ignore
+# Reduces build context size and improves build speed
+
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build outputs
+.next
+out
+dist
+build
+
+# Development
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Environment files
+.env
+.env.*
+!.env.docker.example
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Docker (prevent recursion)
+docker/Dockerfile
+docker/docker-compose*.yml
+docker/*.log
+
+# Test coverage
+coverage
+.nyc_output
+
+# Documentation (not needed in container)
+docs/archive
+*.md
+!README.md
+
+# Data volumes (mounted externally)
+data
+
+# Claude Code
+.claude
+
+# Competitive analysis
+.competitive-analysis
+.comp_product_assets
+
+# E2E tests
+e2e
+playwright-report
+test-results
+
+# Temporary files
+tmp
+temp
+*.tmp

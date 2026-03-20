@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://viblog:viblog@db:5432/viblog
+      - MCP_API_URL=http://localhost:3000/api
+      - NODE_ENV=production
+      - ENABLE_AUTH=${ENABLE_AUTH:-false}
+      - JWT_SECRET=${JWT_SECRET:-}
+    volumes:
+      - ../data/uploads:/app/data/uploads
+      - ../data/exports:/app/data/exports
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - viblog-network
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=viblog
+      - POSTGRES_PASSWORD=viblog
+      - POSTGRES_DB=viblog
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - viblog-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U viblog -d viblog"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  viblog-network:
+    driver: bridge
