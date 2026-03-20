@@ -18,7 +18,8 @@
 
 | ID | Issue | Root Cause | Resolution | Time to Resolve | Reference |
 |----|-------|------------|------------|-----------------|-----------|
-| ISSUE-002 | MCP/API fragment_type mismatch | MCP Server used generic types, API used vibe-specific types | Aligned MCP types with API validation (user_prompt, ai_response, etc.) | 45 min | packages/viblog-mcp-server/src/types.ts, validation.ts, tools/index.ts |
+| ISSUE-003 | status/visibility语义混淆 | API将visibility映射到status | publish_article始终设置status=published | 10 min | src/app/api/vibe-sessions/publish-article/route.ts |
+| ISSUE-002 | MCP/API fragment_type mismatch | MCP Server used generic types, API used vibe-specific types | Aligned MCP types with API validation | 45 min | packages/viblog-mcp-server/src/types.ts, validation.ts |
 | ISSUE-001 | MCP test type errors | SDK union types require narrowing | Added type guards and proper type assertions | 30 min | packages/viblog-mcp-server/src/tools/handlers.test.ts |
 
 ---
@@ -45,6 +46,26 @@ Aligned MCP Server types with API validation. Updated:
 
 **Verification:**
 Full MCP workflow test passed. Article published successfully.
+
+### ISSUE-003: status/visibility Semantic Confusion (RESOLVED)
+
+**Discovered:** 2026-03-20 during user verification
+
+**Problem:**
+API code incorrectly mapped `visibility` to `status`:
+```javascript
+// Wrong
+const status = visibility === 'public' ? 'published' : 'draft'
+```
+
+This caused `visibility: private` articles to have `status: draft`.
+
+**Correct Semantics:**
+- `status` (draft/published/archived) = Workflow state
+- `visibility` (public/private/unlisted) = Access control
+
+**Resolution:**
+`publish_article` always sets `status: published`. The `visibility` parameter only controls who can see the article.
 
 ---
 

@@ -31,43 +31,45 @@ function generateSlug(title: string): string {
  * Convert Markdown to HTML (basic conversion)
  */
 function markdownToHtml(markdown: string): string {
-  return markdown
-    // Headers
-    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-    // Bold
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    // Italic
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    // Code blocks
-    .replace(/```(\w+)?\n([\s\S]+?)```/g, '<pre><code class="language-$1">$2</code></pre>')
-    // Inline code
-    .replace(/`(.+?)`/g, '<code>$1</code>')
-    // Links
-    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>')
-    // Lists
-    .replace(/^- (.+)$/gm, '<li>$1</li>')
-    .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
-    // Blockquotes
-    .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
-    // Paragraphs
-    .replace(/\n\n/g, '</p><p>')
-    // Line breaks
-    .replace(/\n/g, '<br>')
-    // Wrap in paragraph
-    .replace(/^/, '<p>')
-    .replace(/$/, '</p>')
-    // Clean up empty paragraphs
-    .replace(/<p><\/p>/g, '')
-    .replace(/<p>(<h[1-6]>)/g, '$1')
-    .replace(/(<\/h[1-6]>)<\/p>/g, '$1')
-    .replace(/<p>(<pre>)/g, '$1')
-    .replace(/(<\/pre>)<\/p>/g, '$1')
-    .replace(/<p>(<ul>)/g, '$1')
-    .replace(/(<\/ul>)<\/p>/g, '$1')
-    .replace(/<p>(<blockquote>)/g, '$1')
-    .replace(/(<\/blockquote>)<\/p>/g, '$1')
+  return (
+    markdown
+      // Headers
+      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+      .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+      // Bold
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      // Italic
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      // Code blocks
+      .replace(/```(\w+)?\n([\s\S]+?)```/g, '<pre><code class="language-$1">$2</code></pre>')
+      // Inline code
+      .replace(/`(.+?)`/g, '<code>$1</code>')
+      // Links
+      .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>')
+      // Lists
+      .replace(/^- (.+)$/gm, '<li>$1</li>')
+      .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
+      // Blockquotes
+      .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
+      // Paragraphs
+      .replace(/\n\n/g, '</p><p>')
+      // Line breaks
+      .replace(/\n/g, '<br>')
+      // Wrap in paragraph
+      .replace(/^/, '<p>')
+      .replace(/$/, '</p>')
+      // Clean up empty paragraphs
+      .replace(/<p><\/p>/g, '')
+      .replace(/<p>(<h[1-6]>)/g, '$1')
+      .replace(/(<\/h[1-6]>)<\/p>/g, '$1')
+      .replace(/<p>(<pre>)/g, '$1')
+      .replace(/(<\/pre>)<\/p>/g, '$1')
+      .replace(/<p>(<ul>)/g, '$1')
+      .replace(/(<\/ul>)<\/p>/g, '$1')
+      .replace(/<p>(<blockquote>)/g, '$1')
+      .replace(/(<\/blockquote>)<\/p>/g, '$1')
+  )
 }
 
 /**
@@ -87,7 +89,15 @@ export async function POST(request: Request) {
     const body = await request.json()
 
     // Validate required fields
-    const { session_id, title, content, excerpt, visibility = 'private', cover_image, project_id } = body
+    const {
+      session_id,
+      title,
+      content,
+      excerpt,
+      visibility = 'private',
+      cover_image,
+      project_id,
+    } = body
 
     if (!session_id || !title || !content) {
       return NextResponse.json(
@@ -123,9 +133,10 @@ export async function POST(request: Request) {
     // Convert content to HTML if it's Markdown
     const htmlContent = content.startsWith('<') ? content : markdownToHtml(content)
 
-    // Determine status based on visibility
-    const status = visibility === 'public' ? 'published' : 'draft'
-    const publishedAt = visibility === 'public' ? new Date().toISOString() : null
+    // publish_article always publishes the article (status: published)
+    // visibility controls who can see it
+    const status = 'published'
+    const publishedAt = new Date().toISOString()
 
     // Create article
     const { data: article, error: articleError } = await supabase
@@ -156,10 +167,7 @@ export async function POST(request: Request) {
     }
 
     // Update session status to indicate it's been published
-    await supabase
-      .from('vibe_sessions')
-      .update({ status: 'completed' })
-      .eq('id', session_id)
+    await supabase.from('vibe_sessions').update({ status: 'completed' }).eq('id', session_id)
 
     // Construct article URL
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://viblog.tiic.tech'

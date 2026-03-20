@@ -8,6 +8,35 @@
 
 ## Phase 12 Changelog
 
+### 2026-03-20: status/visibility Fix
+
+#### fix(api): Correct status/visibility semantics in publish_article
+
+**Issue:** ISSUE-003 - status/visibility semantic confusion
+
+**Problem:**
+API incorrectly mapped `visibility: private` to `status: draft`.
+This conflated two independent concepts:
+- `status` = workflow state (draft/published/archived)
+- `visibility` = access control (public/private/unlisted)
+
+**Resolution:**
+`publish_article` now always sets `status: published`.
+The `visibility` parameter only controls access.
+
+**Before:**
+```javascript
+const status = visibility === 'public' ? 'published' : 'draft'
+```
+
+**After:**
+```javascript
+const status = 'published'  // publish_article always publishes
+// visibility controls who can see it
+```
+
+---
+
 ### 2026-03-20: fragment_type Alignment Fix
 
 #### fix(mcp): Align fragment_type with API validation
