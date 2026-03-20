@@ -1,6 +1,6 @@
 # DOC_CATALOG.md
 
-> **Version:** 2.0
+> **Version:** 2.2
 > **Updated:** 2026-03-20
 > **Purpose:** Central navigation hub for Viblog documentation
 
@@ -12,7 +12,8 @@
 |---------------|-----------|-------|
 | Start a new session | CLAUDE.md | ~200 |
 | Check current tasks | IMPLEMENTING_STATUS.md | ~100 |
-| Understand product vision | PRD.md | ~270 |
+| Understand product vision | PRD.md | ~80 |
+| **Full PRD (V3.4)** | **docs/prd/Viblog_PRD_V3.4.md** | **~650** |
 | PRD template reference | docs/prd/PRD_TEMPLATE.md | ~100 |
 | Review architecture decisions | docs/architecture/ADR-XXX.md | ~100 each |
 | Plan implementation | plans/BACKEND_PLAN.md or plans/FRONTEND_PLAN.md | ~200 each |
@@ -22,6 +23,7 @@
 | Review CAO decisions | docs/DECISION_LOG.md | ~50 |
 | Check API contracts | docs/INTERFACE_CONTRACT.md | ~100 |
 | Parallel dev protocol | docs/PARALLEL_DEVELOPMENT_PROTOCOL.md | ~200 |
+| **Publish to Viblog via MCP** | **docs/specifications/VIBLOG_PUBLISH_GUIDANCE.md** | **~315** |
 
 ---
 
@@ -172,6 +174,27 @@
    - CAO ruling → `DECISION_LOG.md`
    - Both teams acknowledge
 
+### Publishing to Viblog via MCP
+
+**CRITICAL: Read `docs/specifications/VIBLOG_PUBLISH_GUIDANCE.md` BEFORE using any Viblog MCP tool.**
+
+1. **Create session first:**
+   - Use `create_vibe_session` to get a `session_id`
+   - Save the `session_id` for subsequent operations
+
+2. **Upload context:**
+   - Use `upload_session_context` with valid `fragment_type`
+   - **Valid types:** `user_prompt`, `ai_response`, `code_block`, `file_content`, `command_output`, `error_log`, `system_message`, `external_link`
+   - **INVALID types (will fail):** `conversation`, `document`, `insight`, `code_snippet`, `file_change`
+
+3. **Publish article:**
+   - Option A: Use `publish_article` directly with pre-written content
+   - Option B: Use `generate_article_draft` (requires server-side LLM API key)
+
+4. **If errors occur:**
+   - Check `VIBLOG_PUBLISH_GUIDANCE.md` Common Errors section
+   - Check `docs/issues/BACKEND_ISSUES.md` for known issues
+
 ---
 
 ## Document Responsibilities
@@ -192,5 +215,5 @@
 
 ---
 
-**Document Version:** 2.0
+**Document Version:** 2.2
 **Last Updated:** 2026-03-20

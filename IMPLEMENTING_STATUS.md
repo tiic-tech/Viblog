@@ -1,8 +1,38 @@
 # IMPLEMENTING_STATUS.md
 
-> **Version:** 1.1
+> **Version:** 2.0
 > **Updated:** 2026-03-20
 > **Current Phase:** Phase 0 - Technical Foundation
+> **PRD Version:** V3.4 (Dual-Layer Architecture)
+
+---
+
+## Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│   VIBLOG V3.4 - DUAL-LAYER ARCHITECTURE                              │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│   FOUNDATION (P0)                                                   │
+│   ├── 0.1 OpenAI Format Storage                                     │
+│   ├── 0.2 MCP Session Sync                                          │
+│   └── 0.3 Metrics Engine                                            │
+│                                                                     │
+│   PUBLIC LAYER - PROVE                                              │
+│   ├── 1.1 Efficiency Dashboard                                      │
+│   ├── 1.2 Public Profile                                            │
+│   ├── 1.3 Session Timeline                                          │
+│   └── 1.4 Product Showcase                                          │
+│                                                                     │
+│   PRIVATE LAYER - GROW                                              │
+│   ├── 2.1 Agent Team Manager                                        │
+│   ├── 2.2 Workflow Library                                          │
+│   ├── 2.3 Growth Insights                                           │
+│   └── 2.4 Cross-Platform Sync                                       │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
@@ -37,15 +67,65 @@ PENDING → IN_PROGRESS → CODE_COMPLETE → REVIEW_PENDING → CTO/CUIO_REVIEW
 
 ---
 
-## Active Checkpoints
+## Phase 0: Foundation Checkpoints
 
-| Checkpoint | Track | Status | Owner | Grade | Notes |
-|------------|-------|--------|-------|-------|-------|
-| 0.1 Database Schema Migration | Backend | PENDING | - | - | RLS policies |
-| 0.2 Security Hardening | Backend | PENDING | - | - | Encryption, audit |
-| 1.1 MCP Service Integration | Backend | COMPLETE | Claude | A | All 7 tools implemented |
-| 1.2 AI Auto-Blogging | Backend | PENDING | - | - | Depends on 1.1 |
-| 1.3 Public Article Feed | Full Stack | PENDING | - | - | Backend + Frontend |
+| Checkpoint | Description | Status | Owner | Grade | Notes |
+|------------|-------------|--------|-------|-------|-------|
+| **0.1** | OpenAI Format Storage | PENDING | - | - | Session fragment schema |
+| **0.2** | MCP Session Sync | **COMPLETE** | Claude | A | 7 MCP tools, 203 tests |
+| **0.3** | Metrics Engine | PENDING | - | - | Velocity, efficiency, economy |
+
+### 0.1 OpenAI Format Storage
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Database schema update | PENDING | ADR-005 alignment |
+| Session fragment table | PENDING | OpenAI content blocks |
+| Reasoning block support | PENDING | For decision analysis |
+
+### 0.2 MCP Session Sync ✅
+
+| Task | Status | Notes |
+|------|--------|-------|
+| create_vibe_session | COMPLETE | Working |
+| append_session_context | COMPLETE | Working |
+| upload_session_context | COMPLETE | Working |
+| generate_structured_context | COMPLETE | Working |
+| generate_article_draft | COMPLETE | Working |
+| list_user_sessions | COMPLETE | Working |
+| publish_article | COMPLETE | Working |
+
+### 0.3 Metrics Engine
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Velocity calculation | PENDING | Features/week |
+| Efficiency calculation | PENDING | Hours/feature |
+| Token economy calculation | PENDING | Output/input ratio |
+| Percentile benchmarking | PENDING | Industry comparison |
+| METR baseline integration | PENDING | Learning curve tracking |
+
+---
+
+## Phase 1: Public Layer Checkpoints
+
+| Checkpoint | Description | Status | Owner | Grade | Notes |
+|------------|-------------|--------|-------|-------|-------|
+| **1.1** | Efficiency Dashboard | PENDING | - | - | Metrics visualization |
+| **1.2** | Public Profile | PENDING | - | - | SEO-optimized profile pages |
+| **1.3** | Session Timeline | PENDING | - | - | Development journey view |
+| **1.4** | Product Showcase | PENDING | - | - | Group sessions by product |
+
+---
+
+## Phase 2: Private Layer Checkpoints
+
+| Checkpoint | Description | Status | Owner | Grade | Notes |
+|------------|-------------|--------|-------|-------|-------|
+| **2.1** | Agent Team Manager | PENDING | - | - | Configure AI assistants |
+| **2.2** | Workflow Library | PENDING | - | - | Reusable patterns |
+| **2.3** | Growth Insights | PENDING | - | - | Improvement tracking |
+| **2.4** | Cross-Platform Sync | PENDING | - | - | Deploy configs everywhere |
 
 ---
 
@@ -77,7 +157,7 @@ PENDING → IN_PROGRESS → CODE_COMPLETE → REVIEW_PENDING → CTO/CUIO_REVIEW
 
 | Checkpoint | Completed | Grade | Notes |
 |------------|-----------|-------|-------|
-| 1.1 MCP Service Integration | 2026-03-20 | A | 7 MCP tools, 203 tests passing |
+| 0.2 MCP Session Sync | 2026-03-20 | A | 7 MCP tools, 203 tests passing |
 
 ---
 
@@ -85,7 +165,8 @@ PENDING → IN_PROGRESS → CODE_COMPLETE → REVIEW_PENDING → CTO/CUIO_REVIEW
 
 | Timestamp | Checkpoint | Old State | New State | Agent |
 |-----------|------------|-----------|-----------|-------|
-| 2026-03-19 | Phase 0 | - | PENDING | CAO |
+| 2026-03-20 | Phase 0 | - | PENDING | CAO |
+| 2026-03-20 | 0.2 MCP Session Sync | REVIEW_PENDING | COMPLETE | CTO |
 
 ---
 
@@ -102,20 +183,25 @@ PENDING → IN_PROGRESS → CODE_COMPLETE → REVIEW_PENDING → CTO/CUIO_REVIEW
 
 | Risk | Probability | Impact | Status | Mitigation |
 |------|-------------|--------|--------|------------|
-| RLS policy complexity | Medium | High | Active | Thorough testing, rollback scripts |
-| LLM provider API changes | Low | Medium | Active | Provider abstraction layer |
-| Payment integration issues | Low | High | Active | Stripe sandbox testing |
-| Trial period conversion | Medium | Medium | Active | Clear value proposition |
+| OpenAI format migration complexity | Medium | High | Active | Incremental migration, backward compat |
+| Metrics calculation accuracy | Medium | Medium | Active | Unit tests, benchmark validation |
+| Cross-platform config compatibility | Medium | Medium | Active | Platform abstraction layer |
+| METR baseline accuracy | Low | Low | Active | Regular benchmark updates |
 
 ---
 
 ## References
 
-- Architecture Decisions: `docs/architecture/ADR-XXX.md`
-- Implementation Plans: `plans/BACKEND_PLAN.md`, `plans/FRONTEND_PLAN.md`
-- Issue Log: `docs/ISSUE_LOG.md`
+| Doc | Purpose |
+|-----|---------|
+| `docs/prd/Viblog_PRD_V3.4.md` | Full PRD |
+| `docs/architecture/ADR-005` | OpenAI Format Alignment |
+| `plans/BACKEND_PLAN.md` | Backend tasks |
+| `plans/FRONTEND_PLAN.md` | Frontend tasks |
+| `docs/issues/BACKEND_ISSUES.md` | Issue log |
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** 2026-03-19
+**Document Version:** 2.0
+**Last Updated:** 2026-03-20
+**PRD Version:** V3.4

@@ -1,12 +1,253 @@
 # CHANGELOG
 
-> **Version:** 4.4
+> **Version:** 4.8
 > **Updated:** 2026-03-20
 > **Phase:** Phase 0 - Technical Foundation
 
 ---
 
 ## Phase 12 Changelog
+
+### 2026-03-20: MCP Validation Fix
+
+#### fix(mcp): Add fragment_type enum validation to upload_session_context
+
+**Issue:** ISSUE-005 - FragmentInputSchema validation gap
+
+**Problem:**
+`FragmentInputSchema` in `validation.ts` used `z.string()` instead of `FragmentTypeSchema` for `fragment_type`, allowing invalid values to pass MCP validation and fail at API layer with confusing error messages.
+
+**Before:**
+```typescript
+export const FragmentInputSchema = z.object({
+  fragment_type: z.string().min(1, 'fragment_type is required'),  // ❌ No enum validation
+  ...
+})
+```
+
+**After:**
+```typescript
+export const FragmentInputSchema = z.object({
+  fragment_type: FragmentTypeSchema,  // ✅ Proper enum validation
+  ...
+})
+```
+
+**Impact:**
+- Invalid fragment_type now caught at MCP layer
+- Friendly error message: "fragment_type must be one of: user_prompt, ai_response, code_block, file_content, command_output, error_log, system_message, external_link"
+- All 203 tests passing
+
+**Documents:**
+- `docs/issues/BACKEND_ISSUES.md` (ISSUE-005)
+
+---
+
+### 2026-03-20: Dual-Layer Architecture
+
+#### docs: PRD V3.4 - Dual-Layer Growth Platform
+
+**Authority:** CAO Strategic Decision
+
+**Research Foundation:**
+
+| Finding | Source | Implication |
+|---------|--------|-------------|
+| AI tools cause 19% initial productivity drop | METR Study 2024 | Quantified learning curve = differentiation |
+| AGENTS.md adopted by Linux Foundation | Agentic AI Foundation | Cross-platform agent config is standardizing |
+| "Proof of work" products exist but fragmented | BragDoc, Codeboards, MindSkill | Market validates need, no complete solution |
+
+**Strategic Evolution:**
+
+| Dimension | V3.3 (Before) | V3.4 (After) |
+|-----------|---------------|--------------|
+| **Architecture** | Single-layer (Public) | **Dual-Layer (Public + Private)** |
+| **Mission** | Prove capability | **Prove + Accelerate Growth** |
+| **Private Tools** | None | **Agent Manager, Workflows, Insights** |
+
+**New Architecture:**
+
+```
+PUBLIC LAYER (Prove)
+├── Profile Dashboard
+├── Session Timeline
+├── Product Showcase
+└── Article Publishing
+
+PRIVATE LAYER (Grow)
+├── Agent Team Manager
+├── Workflow Library
+├── Growth Insights
+└── Cross-Platform Sync
+```
+
+**New Features (Private Layer):**
+
+| Priority | Feature | Purpose |
+|----------|---------|---------|
+| P1 | Agent Team Manager | Configure AI assistants, deploy cross-platform |
+| P1 | Workflow Library | Reuse proven patterns |
+| P2 | Growth Insights | Track improvement vs METR baseline |
+| P2 | Cross-Platform Sync | Deploy configs to Claude Code, Cursor, Windsurf |
+
+**Documents:**
+- `docs/prd/Viblog_PRD_V3.4.md`
+
+---
+
+### 2026-03-20: Strategic Pivot - Capability Archive
+
+#### docs: PRD V3.3 - Repositioned as Vibe Coder's Capability Archive
+
+**Authority:** CAO Strategic Decision
+
+**Problem Analysis:**
+- Previous positioning (Knowledge Asset Platform) was too broad
+- Canvas Editor over-engineered for core need
+- Target user unclear (platform vs personal tool)
+- No clear path to proving the product's value
+
+**Strategic Pivot:**
+
+| Dimension | V3.2 (Before) | V3.3 (After) |
+|-----------|---------------|--------------|
+| **Positioning** | Knowledge Asset Platform | **Capability Archive** |
+| **Core Value** | Manage knowledge | **Prove capability** |
+| **Target User** | Vibe Coders (broad) | **You** (and people like you) |
+| **Key Metric** | User count | **Opportunities created** |
+| **Business Model** | Subscription | **Open source, proof for yourself** |
+
+**New Core Features (Simplified):**
+
+| Priority | Feature | Purpose |
+|----------|---------|---------|
+| P0 | MCP Session Sync | Zero-effort recording |
+| P0 | Efficiency Dashboard | Quantified capability |
+| P0 | Public Profile | One-link proof |
+| P0 | Session Timeline | Journey showcase |
+| P1 | Product Showcase | Outcome display |
+| P1 | Article Generation | Thought leadership |
+| P2 | Verification Badge | Third-party trust |
+
+**What Was Cut:**
+
+| Removed Feature | Reason |
+|-----------------|--------|
+| Canvas Editor | Over-engineered, Markdown sufficient |
+| Decision Graph | Not core to proving capability |
+| Community Feed | Personal archive, not social platform |
+| Subscription System | Open source, no need to charge |
+| Dual-Layer Publishing | Simplified to single output |
+
+**New Success Metrics:**
+- Active Users: 1 (you) - First user is the target
+- Sessions Synced: 100+ - Proof of usage
+- Profile Views: 50+ - Proof of value
+- Opportunities: 1+ - Job/project/investment interest
+
+**Core Insight:**
+> Viblog doesn't need to make money. Viblog IS your proof of capability. The capability you prove WITH Viblog makes money (job, consulting, investment).
+
+**Documents:**
+- `docs/prd/Viblog_PRD_V3.3.md`
+
+---
+
+### 2026-03-20: AI-Native Data Architecture
+
+#### docs: PRD V3.2 - OpenAI Format Alignment
+
+**Authority:** CAO Architecture Decision
+
+**Problem Analysis:**
+- Session data used custom format, lacking interoperability
+- `reasoning` blocks (critical for Decision Graph) not captured
+- Token tracking for ROI not supported
+- No alignment with industry format convergence
+
+**PRD V3.2 Key Changes:**
+
+| Feature | Change |
+|---------|--------|
+| Problem Decomposition | Added "Format Lock-in" gap |
+| AI-Native Definition | Added "OpenAI-Aligned" as 7th pillar |
+| Feature Matrix | Added "OpenAI Format Storage" as P0 |
+| Core Loop | Added "Reasoning Block Extraction" step |
+| Data Model | Complete OpenAI-aligned Session Fragment schema |
+| New Section | "AI Session Format Standardization" |
+| ROI Metrics | Token tracking, cache efficiency, cost awareness |
+
+**OpenAI Content Block Types:**
+
+| Type | Purpose | Decision Graph Role |
+|------|---------|---------------------|
+| `text` | Standard messages | Context, prompts |
+| `reasoning` | Thinking content | **PRIMARY for decisions** |
+| `tool_call` | MCP invocations | Code operations |
+| `tool_output` | Execution results | Implementation details |
+| `code` | Code snippets | Code node generation |
+
+**Documents:**
+- `docs/prd/Viblog_PRD_V3.2.md` - Updated PRD with OpenAI format
+
+---
+
+#### docs: ADR-005 - Session Fragment OpenAI Format Alignment
+
+**Authority:** CAO Architecture Decision
+
+**Status:** Proposed
+
+**Decision:**
+Adopt OpenAI-compatible message format for `session_fragment` storage.
+
+**Schema:**
+```typescript
+interface SessionFragment {
+  id: string;
+  session_id: string;
+  role: 'user' | 'assistant' | 'tool' | 'developer' | 'system';
+  content: ContentBlock[];
+  tool_calls?: ToolCall[];
+  metadata: {
+    timestamp: string;
+    message_id?: string;
+    tokens?: TokenCount;
+  };
+  created_at: string;
+}
+
+type ContentBlock =
+  | { type: 'text'; text: string }
+  | { type: 'reasoning'; text: string }
+  | { type: 'tool_call'; tool_call_id: string; name: string; arguments: string }
+  | { type: 'tool_output'; text: string; metadata?: Record<string, any> }
+  | { type: 'code'; language: string; code: string; file_path?: string };
+```
+
+**Benefits:**
+- Interoperability with AI ecosystem
+- Reasoning preservation for Decision Graph
+- Token tracking for ROI analytics
+- Future-proof aligned with industry trend
+- Multi-source support (Claude, Cursor, Windsurf)
+
+**Source Format Mapping:**
+
+| Source | Reasoning Type | Converges To |
+|--------|---------------|--------------|
+| Claude | `thinking` block | `reasoning` |
+| Codex | `agent_reasoning` | `reasoning` |
+| Gemini | `thoughts` array | `reasoning` |
+| OpenCode | `reasoning` part | `reasoning` |
+
+**Documents:**
+- `docs/architecture/ADR-005-Session-Fragment-OpenAI-Format.md`
+
+**References:**
+- `convert_ai_session.py` v1.3.0 - Industry format analysis source
+
+---
 
 ### 2026-03-20: Parallel Development Architecture
 

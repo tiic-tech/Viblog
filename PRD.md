@@ -1,53 +1,105 @@
 # PRD (Product Requirements Document)
 
-> **Version:** 2.0
-> **Updated:** 2026-03-19
-> **Authority:** CAO Architecture Decision ADR-002
+> **Version:** 3.4
+> **Updated:** 2026-03-20
+> **Authority:** CAO Architecture Decision
 > **Navigation:** See `DOC_CATALOG.md` for document index
+> **Full PRD:** `docs/prd/Viblog_PRD_V3.4.md`
 
 ---
 
 ## Product Vision
 
-**Viblog** - An AI-Native Blogging Platform for Vibe Coders.
+**Viblog** - Your Vibe Coding Growth Platform
 
-**Mission:** Help every vibe coder manage their coding experience data, transform it into valuable content, and grow through community sharing.
+**Mission:** Prove your capability, accelerate your growth.
 
-**Core Value Proposition:** "Growth Has Value" (成长是有价值的)
-
----
-
-## Value Proposition Statement
-
-### For Vibe Coders
-
-> After a day of vibe coding with Claude Code or OpenClaw, you shouldn't need to spend hours manually writing a blog post. Viblog's MCP service automatically syncs your development sessions and AI helps summarize them into polished blog posts - building your personal IP while you focus on coding.
-
-### The Problem We Solve
-
-| Pain Point | Solution |
-|------------|----------|
-| Claude Code session logs scattered everywhere | Structured storage via MCP service |
-| Manual blog writing is time-consuming | AI auto-summarizes sessions into posts |
-| Can't find previous solutions to similar problems | AI-powered retrieval from personal knowledge base |
-| Want to learn from other vibe coders | Community sharing with AI-enhanced discovery |
-| Personal growth not visible | Growth trajectory visualization |
+**Dual-Layer Architecture:**
+- **Public Layer:** Prove your AI collaboration capability to the world
+- **Private Layer:** Accelerate your growth with AI-native tools
 
 ---
 
-## Business Model
+## Core Value Proposition
 
-### Phase 1: Data Management + Community Foundation
+> Viblog doesn't need to make money. Viblog IS your proof of capability. The capability you prove WITH Viblog makes money.
 
-**Core Value:** Data management tool + AI auto-blogging
+### Public Layer - "Prove"
 
-**User Value:**
-- Structured storage of vibe coding data
-- AI-powered automatic blog generation
-- Personal knowledge base with AI retrieval
-- Community content sharing
+| Feature | Value |
+|---------|-------|
+| Efficiency Dashboard | Quantified, verified metrics |
+| Public Profile | One-link proof of capability |
+| Session Timeline | Show your development journey |
+| Product Showcase | Display your outcomes |
 
-**Monetization:** Subscription unlocks LLM access to public articles
+### Private Layer - "Grow"
+
+| Feature | Value |
+|---------|-------|
+| Agent Team Manager | Configure and deploy AI assistants |
+| Workflow Library | Reuse proven patterns |
+| Growth Insights | Track improvement vs benchmarks |
+| Cross-Platform Sync | Deploy configs everywhere |
+
+---
+
+## Research Foundation
+
+| Finding | Source | Implication |
+|---------|--------|-------------|
+| AI tools cause 19% initial productivity drop | METR Study 2024 | Learning curve = differentiation |
+| AGENTS.md adopted by Linux Foundation | Agentic AI Foundation | Cross-platform config standard |
+| "Proof of work" products fragmented | Market Research 2026 | No complete solution exists |
+
+---
+
+## Target Users
+
+**Primary:** Vibe Coders who need to prove and improve their capability
+
+| Segment | Need | Viblog Value |
+|---------|------|--------------|
+| Job Seekers | Demonstrate AI proficiency | Verified Dashboard |
+| Freelancers | Win projects with proven speed | Project Timeline |
+| Founders | Show execution capability | Product Showcase |
+| Learners | Improve AI collaboration | Growth Insights |
+
+---
+
+## Success Metrics
+
+| Metric | Target | Why |
+|--------|--------|-----|
+| First User | You | Primary target |
+| Sessions Synced | 100+ | Proof of usage |
+| Profile Views | 50+ | Proof of value |
+| Opportunities | 1+ | Job, project, investment |
+
+---
+
+## Implementation Phases
+
+| Phase | Focus | Duration |
+|-------|-------|----------|
+| Phase 0 | Foundation (OpenAI format, metrics) | 1 week |
+| Phase 1 | Public Layer (Dashboard, Profile) | 2 weeks |
+| Phase 2 | Private Layer (Agent Manager, Workflows) | 2 weeks |
+| Phase 3 | Launch (Open source, personal usage) | - |
+
+---
+
+## References
+
+| Doc | Purpose |
+|-----|---------|
+| `docs/prd/Viblog_PRD_V3.4.md` | Full PRD document |
+| `docs/architecture/ADR-005` | OpenAI Format Alignment |
+| `CHANGELOG.md` | Version history |
+
+---
+
+**Full PRD:** See `docs/prd/Viblog_PRD_V3.4.md` for complete specifications.
 
 ### Phase 2: Platform LLM + Specialized Capabilities (Future)
 

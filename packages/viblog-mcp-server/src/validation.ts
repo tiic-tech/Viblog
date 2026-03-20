@@ -110,7 +110,7 @@ export const AppendSessionContextInputSchema = z.object({
  * upload_session_context tool input validation
  */
 export const FragmentInputSchema = z.object({
-  fragment_type: z.string().min(1, 'fragment_type is required'),
+  fragment_type: FragmentTypeSchema,
   content: z.string().min(1, 'content is required'),
   sequence_number: z.number().int().positive(),
   metadata: MetadataSchema,
