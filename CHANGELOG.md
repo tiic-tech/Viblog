@@ -1,12 +1,64 @@
 # CHANGELOG
 
-> **Version:** 4.9
+> **Version:** 4.10
 > **Updated:** 2026-03-20
-> **Phase:** Phase 0 - Technical Foundation
+> **Phase:** Phase 0 - Strategic Pivot
 
 ---
 
 ## Phase 12 Changelog
+
+### 2026-03-20: Strategic Pivot - Product Split
+
+#### docs: ADR-007 - Product Split Decision
+
+**Authority:** CAO Strategic Decision
+
+**Problem Analysis:**
+Current codebase mixes two fundamentally different products:
+- Docker-based personal tool (Viblog)
+- Cloud-hosted community platform (Viblog-community)
+
+**These requirements are mutually exclusive:**
+
+| Dimension | Personal Tool | Community Platform |
+|-----------|--------------|-------------------|
+| Deployment | Docker Compose | Vercel + Supabase |
+| Database | Local PostgreSQL | Supabase Cloud |
+| Users | Single user | Multi-user |
+| Privacy | Complete private | Public sharing |
+| Auth | Optional/Local | OAuth + JWT |
+
+**Decision:**
+
+Split into two independent products:
+
+| Product | Positioning | Tech Stack | Deployment |
+|---------|-------------|------------|------------|
+| **Viblog** | Open-source personal tool | Next.js + PostgreSQL (Docker) | docker-compose up |
+| **Viblog-community** | Community platform | Next.js + Supabase | Vercel |
+
+**Shared Packages:**
+
+- `@viblog/mcp-server` - MCP tools for both products
+- `@viblog/ui-components` - UI component library
+- `@viblog/core` - Business logic (metrics, sessions)
+
+**Implementation Timeline:**
+- Week 1: Viblog Docker setup
+- Week 2: Shared packages extraction
+- Week 3: Viblog-community setup
+- Week 4: Integration & testing
+
+**Documents Created:**
+- `docs/architecture/ADR-007-Product-Split-Viblog-Viblogcommunity.md`
+- `docs/plans/PRODUCT_SPLIT_PLAN.md`
+
+**Documents Updated:**
+- `PRD_TRACK.md` - Added product strategy
+- `DOC_CATALOG.md` (v2.3 → v2.4)
+
+---
 
 ### 2026-03-20: Gap Analysis & Implementation Plan Update
 

@@ -118,19 +118,59 @@
 
 ## Gap Analysis Status
 
-**当前任务：** 对齐Repo状态与PRD V3.4愿景
+**当前任务：** 产品拆分 - Viblog & Viblog-community
 
 | 分析维度 | 状态 | 负责人 | 结果文档 |
 |---------|------|--------|----------|
 | 架构层面对比 | ✅ 完成 | CAO | ADR-006 |
 | 技术层面评估 | ✅ 完成 | CTO | ADR-006 |
 | UI/UX层面评估 | ✅ 完成 | CUIO | ADR-006 |
+| **产品拆分决策** | **✅ 完成** | **CAO** | **ADR-007** |
 
 **Gap Resolution Plan:** `docs/architecture/ADR-006-Viblog-V3.4-Gap-Resolution-Plan.md`
+
+**Product Split Plan:** `docs/plans/PRODUCT_SPLIT_PLAN.md`
 
 **Implementation Plans Updated:**
 - `plans/BACKEND_IMPLEMENTATION_PLAN.md` (v2.0)
 - `plans/FRONTEND_IMPLEMENTATION_PLAN.md` (v2.0)
+
+---
+
+## Product Strategy
+
+### Two Products, One Vision
+
+| 产品 | 定位 | 部署 | 技术栈 |
+|------|------|------|--------|
+| **Viblog** | 开源个人工具 | Docker Compose | PostgreSQL (本地) |
+| **Viblog-community** | 社区平台 | Vercel + Supabase | Supabase Cloud |
+
+### Viblog (Personal Tool)
+
+```
+├── Docker化一键部署
+├── 本地PostgreSQL，完全私有
+├── MCP Server内置
+├── 可扩展：Apache AGE, TimescaleDB
+└── 目标：GitHub开源，积累Star
+```
+
+### Viblog-community (Community Platform)
+
+```
+├── 云端托管：viblog.tiic.tech
+├── 多用户注册与分享
+├── 内容运营：资讯、活动、教程
+├── 社交功能：关注、评论、分享
+└── 目标：吸引Viblog用户入驻
+```
+
+### Content Channels (Viblog-community)
+
+- 小红书：行业资讯、Vibe Coding趋势
+- 微信公众号：教程、深度文章
+- B站：视频内容、活动直播
 
 ---
 

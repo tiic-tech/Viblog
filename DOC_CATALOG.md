@@ -1,6 +1,6 @@
 # DOC_CATALOG.md
 
-> **Version:** 2.3
+> **Version:** 2.4
 > **Updated:** 2026-03-20
 > **Purpose:** Central navigation hub for Viblog documentation
 
@@ -46,8 +46,9 @@
 | ADR-002 | Business Model & Data Access | Approved |
 | ADR-003 | MCP Layer 5 Commercial Architecture | Approved |
 | ADR-004 | Agent Team Architecture Redesign | Approved |
-| **ADR-005** | **Session Fragment OpenAI Format** | **Proposed** |
-| **ADR-006** | **V3.4 Gap Resolution Plan** | **Proposed** |
+| ADR-005 | Session Fragment OpenAI Format | Proposed |
+| ADR-006 | V3.4 Gap Resolution Plan | Proposed |
+| **ADR-007** | **Product Split (Viblog + Community)** | **Proposed** |
 | ADR-TEMPLATE | Template for new ADRs | Reference |
 
 ---
@@ -87,6 +88,7 @@
 |------|-------|-------------------|
 | `BACKEND_IMPLEMENTATION_PLAN.md` | API, Database, MCP Service | `.claude/worktrees/backend` |
 | `FRONTEND_IMPLEMENTATION_PLAN.md` | UI, Components, UX | `.claude/worktrees/frontend` |
+| **`PRODUCT_SPLIT_PLAN.md`** | **Viblog ↔ Community拆分** | **Strategic** |
 
 ---
 
