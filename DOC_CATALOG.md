@@ -13,6 +13,7 @@
 | Start a new session | CLAUDE.md | ~200 |
 | Check current tasks | IMPLEMENTING_STATUS.md | ~100 |
 | Understand product vision | PRD.md | ~270 |
+| PRD template reference | docs/prd/PRD_TEMPLATE.md | ~100 |
 | Review architecture decisions | docs/architecture/ADR-XXX.md | ~100 each |
 | Plan implementation | plans/BACKEND_PLAN.md or plans/FRONTEND_PLAN.md | ~200 each |
 | Track changes | CHANGELOG.md | ~100 |
