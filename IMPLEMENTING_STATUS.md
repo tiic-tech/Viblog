@@ -1,10 +1,10 @@
 # IMPLEMENTING_STATUS.md
 
-> **Version:** 2.1
+> **Version:** 3.0
 > **Updated:** 2026-03-20
-> **Current Phase:** Phase 0 - Technical Foundation
+> **Current Phase:** Docker Refactor
 > **PRD Version:** V3.4 (Dual-Layer Architecture)
-> **Gap Analysis:** ADR-006 Complete
+> **Authority:** ADR-008 Docker Architecture
 
 ---
 
@@ -77,6 +77,46 @@ PENDING → IN_PROGRESS → CODE_COMPLETE → REVIEW_PENDING → CTO/CUIO_REVIEW
 | **0.3** | Metrics Engine | PENDING | - | - | Velocity, efficiency, economy |
 | **0.4** | Security Fix | PENDING | - | - | article_paragraphs user_id |
 | **0.5** | API Test Coverage | PENDING | - | - | vibe-sessions, fragments |
+
+---
+
+## Docker Refactor Phases (ADR-008)
+
+| Phase | Description | Status | Progress |
+|-------|-------------|--------|----------|
+| **Phase 1** | Docker Infrastructure | ✅ COMPLETE | 100% |
+| **Phase 2** | Database Migration | ✅ COMPLETE | 100% |
+| **Phase 3** | Code Refactoring | 🔴 PENDING | 0% |
+| **Phase 4** | Testing & Documentation | 🔴 PENDING | 0% |
+| **Phase 5** | Final Review & Release | 🔴 PENDING | 0% |
+
+### Phase 1: Docker Infrastructure ✅
+
+| Task | Status |
+|------|--------|
+| Create Dockerfile | ✅ Complete |
+| Create docker-compose.yml | ✅ Complete |
+| Create init-db.sql | ✅ Complete |
+| Create .env.docker.example | ✅ Complete |
+| Update next.config.mjs (standalone) | ✅ Complete |
+
+### Phase 2: Database Migration ✅
+
+| Task | Status |
+|------|--------|
+| Create PostgreSQL client | ✅ Complete |
+| Implement CRUD operations | ✅ Complete |
+| Update package.json | ✅ Complete |
+
+### Phase 3: Code Refactoring 🔴
+
+| Task | Est. Hours | Status |
+|------|------------|--------|
+| Remove auth components/pages | 2h | Pending |
+| Remove public components/pages | 2h | Pending |
+| Update API routes | 4h | Pending |
+| Update dashboard components | 4h | Pending |
+| Remove Supabase dependencies | 2h | Pending |
 
 ### 0.1 OpenAI Format Storage
 
@@ -186,6 +226,9 @@ PENDING → IN_PROGRESS → CODE_COMPLETE → REVIEW_PENDING → CTO/CUIO_REVIEW
 |-----------|------------|-----------|-----------|-------|
 | 2026-03-20 | Phase 0 | - | PENDING | CAO |
 | 2026-03-20 | 0.2 MCP Session Sync | REVIEW_PENDING | COMPLETE | CTO |
+| 2026-03-20 | Docker Refactor Phase 1 | - | COMPLETE | CAO |
+| 2026-03-20 | Docker Refactor Phase 2 | - | COMPLETE | CAO |
+| 2026-03-20 | Docker Refactor Phase 3-5 | - | PENDING | - |
 
 ---
 
@@ -215,15 +258,15 @@ PENDING → IN_PROGRESS → CODE_COMPLETE → REVIEW_PENDING → CTO/CUIO_REVIEW
 |-----|---------|
 | `PRD_TRACK.md` | PRD V3.4 status tracking |
 | `docs/prd/Viblog_PRD_V3.4.md` | Full PRD |
-| `docs/architecture/ADR-005` | OpenAI Format Alignment |
-| `docs/architecture/ADR-006` | Gap Resolution Plan |
+| `docs/architecture/ADR-008` | Docker Architecture |
+| `docs/dev-logs/docker-refactor-dev-log.md` | Docker refactor progress |
 | `plans/BACKEND_IMPLEMENTATION_PLAN.md` | Backend tasks (v2.0) |
 | `plans/FRONTEND_IMPLEMENTATION_PLAN.md` | Frontend tasks (v2.0) |
 | `docs/issues/BACKEND_ISSUES.md` | Issue log |
 
 ---
 
-**Document Version:** 2.1
+**Document Version:** 3.0
 **Last Updated:** 2026-03-20
 **PRD Version:** V3.4
-**Gap Analysis:** ADR-006 Complete
+**Authority:** ADR-008 Docker Architecture

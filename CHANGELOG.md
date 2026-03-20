@@ -1,12 +1,78 @@
 # CHANGELOG
 
-> **Version:** 4.10
+> **Version:** 5.0
 > **Updated:** 2026-03-20
-> **Phase:** Phase 0 - Strategic Pivot
+> **Phase:** Docker Refactor - Phase 2 Complete
 
 ---
 
-## Phase 12 Changelog
+## Phase 13 Changelog: Docker Refactor
+
+### 2026-03-20: Phase 1 & 2 Complete
+
+#### feat(docker): Transform Viblog into Docker-based personal tool
+
+**Authority:** CAO ADR-008 (Docker Architecture)
+
+**Strategic Decision:**
+Transform Viblog from multi-user Supabase platform into a pure open-source personal tool with Docker Compose deployment.
+
+**Challenge Resolutions:**
+| Challenge | Decision |
+|-----------|----------|
+| Redis Cache | **Remove** - Single-user doesn't need distributed cache |
+| SQLite | **No** - Docker + PostgreSQL only |
+| Annotation | **Keep with toggle** - `ENABLE_AUTH` enables auth features |
+
+**Phase 1 Complete: Docker Infrastructure**
+
+| File | Purpose |
+|------|---------|
+| `docker/Dockerfile` | Multi-stage build for Next.js standalone |
+| `docker/docker-compose.yml` | PostgreSQL + Next.js services |
+| `docker/docker-compose.dev.yml` | Development override with hot reload |
+| `docker/init-db.sql` | Complete database schema for single-user |
+| `docker/.dockerignore` | Build context optimization |
+| `docker/start.sh` | Quick start script |
+| `.env.docker.example` | Environment configuration template |
+| `next.config.mjs` | Enabled standalone output |
+
+**Phase 2 Complete: PostgreSQL Client Library**
+
+| File | Purpose |
+|------|---------|
+| `src/lib/db/client.ts` | PostgreSQL client with postgres.js |
+| `src/lib/db/index.ts` | Module exports |
+
+**Database Schema Created:**
+- `vibe_sessions` - Session tracking
+- `session_fragments` - OpenAI format content blocks
+- `projects` - Project grouping
+- `articles`, `article_paragraphs` - Article management
+- `llm_config` - LLM API key storage
+- `user_settings` - Application preferences
+- `metrics_cache` - Efficiency metrics
+- Optional auth tables (users, auth_sessions, annotations)
+
+**Deployment Modes:**
+```yaml
+# Mode A: Pure Local Tool (Default)
+ENABLE_AUTH=false  # No login, localhost only
+
+# Mode B: Personal Server
+ENABLE_AUTH=true   # Login required, deploy to your domain
+```
+
+**Dependencies Changed:**
+- Added: `postgres` (^3.4.5)
+- Removed: `@supabase/ssr`, `@supabase/supabase-js`, `@upstash/redis`
+
+**Next Steps:**
+- Phase 3: Code refactoring (remove auth/public/Supabase)
+- Phase 4: Testing & documentation
+- Phase 5: Final review & release
+
+---
 
 ### 2026-03-20: Strategic Pivot - Product Split
 

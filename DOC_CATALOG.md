@@ -1,6 +1,6 @@
 # DOC_CATALOG.md
 
-> **Version:** 2.4
+> **Version:** 2.5
 > **Updated:** 2026-03-20
 > **Purpose:** Central navigation hub for Viblog documentation
 
@@ -48,7 +48,8 @@
 | ADR-004 | Agent Team Architecture Redesign | Approved |
 | ADR-005 | Session Fragment OpenAI Format | Proposed |
 | ADR-006 | V3.4 Gap Resolution Plan | Proposed |
-| **ADR-007** | **Product Split (Viblog + Community)** | **Proposed** |
+| ADR-007 | Product Split (Viblog + Community) | Approved |
+| **ADR-008** | **Docker Architecture for Personal Tool** | **Approved** |
 | ADR-TEMPLATE | Template for new ADRs | Reference |
 
 ---
