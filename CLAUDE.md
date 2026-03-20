@@ -29,7 +29,7 @@
 │                                                                 │
 │   CTO - Chief Technology Officer                                │
 │   ├── Implementation quality gate                               │
-│   ├── 10 Technical Metrics                                      │
+│   ├── 11 Technical Metrics (including scenario testing)         │
 │   └── Merge approval/rejection                                  │
 │                                                                 │
 │   CUIO - Chief UI Officer                                       │
@@ -59,8 +59,8 @@
 
 | Agent | Purpose | Trigger |
 |-------|---------|---------|
-| CAO | Architecture decisions | Before major architectural changes |
-| CTO | Quality gate (10 metrics) | Before merge |
+| CAO | Architecture decisions + Scenario verification | Before major changes, After implementation |
+| CTO | Quality gate (11 metrics) + Scenario testing | Before merge, After feature completion |
 | CUIO | Design gate (15 metrics) | After UI changes, before production |
 | architect | System design | When detailed design needed |
 | planner | Task breakdown | Before implementation |
@@ -106,7 +106,7 @@ Code Complete
 ```
 PR Ready
     │
-    ├─ CTO Review (10 metrics)
+    ├─ CTO Review (11 metrics including scenario testing)
     │   ├─ Grade A → APPROVE merge
     │   ├─ Grade B → Fix P0, then approve
     │   └─ Grade C/D → REJECT, rework
@@ -118,17 +118,75 @@ PR Ready
 
 ---
 
+## Issue Discovery Protocol
+
+**Core Principle:** Every discovered issue is a growth opportunity. Document it.
+
+### Issue Workflow
+
+```
+DISCOVER → RECORD → ANALYZE → AUDIT → FIX → VERIFY → DOCUMENT
+              │                          │
+              ▼                          ▼
+        ISSUE_LOG.md              CHANGELOG.md
+```
+
+### When Issue Discovered
+
+1. **Record** → Add to `docs/ISSUE_LOG.md` immediately
+2. **Analyze** → Find root cause
+3. **Audit** → Check similar code for same issue (CRITICAL)
+4. **Fix** → Implement solution
+5. **Verify** → Test in real usage scenario
+6. **Document** → Update CHANGELOG.md, ADRs if needed
+
+### Issue Log Format
+
+```markdown
+| ID | Issue | Root Cause | Resolution | Time | Reference |
+|----|-------|------------|------------|------|-----------|
+| ISSUE-XXX | Brief description | Why it happened | How fixed | Time spent | File paths |
+```
+
+### Critical Mindset
+
+When fixing any issue, ask:
+
+1. **Is this issue isolated?** → Check similar code patterns
+2. **What assumptions were wrong?** → Document in ISSUE_LOG
+3. **How do we prevent this?** → Update tests, add validation
+
+**Example:** ISSUE-002 fragment_type mismatch
+- Found in upload_session_context
+- Audited: Also affected append_session_context
+- Fixed both, updated all tests
+
+---
+
 ## Quality Gates
 
 ### Technical Quality Gate (CTO)
 
 | Score | Grade | Action |
 |-------|-------|--------|
-| 90-100 | S | Reference implementation |
+| 90-99 | S | Reference implementation |
 | 80-89 | A | **APPROVE** merge |
 | 70-79 | B | Fix P0 first |
 | 60-69 | C | **REJECT** rework |
 | <60 | D/F | **REJECT** redesign |
+
+**11 Metrics (9 points each):**
+1. Architecture Alignment
+2. Code Quality
+3. Performance Impact
+4. Security Posture
+5. Test Coverage (>=80%)
+6. Error Handling
+7. Maintainability
+8. Scalability
+9. Documentation
+10. Technical Debt
+11. **Scenario Coverage** (Real-world usage tested)
 
 ### Design Quality Gate (CUIO)
 
@@ -231,6 +289,6 @@ Before implementing ANY architectural decision:
 
 ---
 
-**Document Version:** 4.0
-**Last Updated:** 2026-03-19
+**Document Version:** 4.1
+**Last Updated:** 2026-03-20
 **Mission:** Make Viblog the #1 AI-Native Blog Platform globally

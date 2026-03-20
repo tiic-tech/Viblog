@@ -1,12 +1,47 @@
 # CHANGELOG
 
-> **Version:** 4.2
+> **Version:** 4.3
 > **Updated:** 2026-03-20
 > **Phase:** Phase 0 - Technical Foundation
 
 ---
 
 ## Phase 12 Changelog
+
+### 2026-03-20: Process Improvement - Issue Discovery Protocol
+
+#### docs: Establish Issue Discovery Protocol and enhance agent responsibilities
+
+**Authority:** CAO Process Decision
+
+**Problem Analysis:**
+- Code tests passing ≠ Feature working correctly
+- Issue discovery was reactive, not systematic
+- No mandatory scenario testing workflow
+
+**Changes:**
+
+**CAO (v2.1):**
+- Added: Scenario Verification Authority
+- Added: Post-Implementation verification checklist
+- Added: Issue Discovery Protocol
+
+**CTO (v2.1):**
+- Added: Scenario Coverage as 11th metric
+- Changed: 10 metrics → 11 metrics (9 points each, 99 total)
+- Added: Scenario Testing Protocol
+- Added: Issue Discovery Protocol
+
+**CLAUDE.md (v4.1):**
+- Added: Issue Discovery Protocol section
+- Added: Issue Workflow diagram
+- Updated: Quality Gates with 11 metrics
+- Updated: Agent responsibilities
+
+**Core Principle:**
+> Every discovered issue is a growth opportunity. Document it.
+
+---
 
 ### 2026-03-20: status/visibility Fix
 
