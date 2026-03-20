@@ -1,243 +1,329 @@
 # Backend Implementation Plan
 
-> **Version:** 1.0
-> **Updated:** 2026-03-19
-> **Authority:** CAO Architecture Decision ADR-002
-> **Phase:** Phase 0 - Technical Foundation
+> **Version:** 2.0
+> **Updated:** 2026-03-20
+> **Authority:** CAO Architecture Decision ADR-006
+> **Phase:** Phase 0 - Foundation
+> **PRD:** V3.4 Dual-Layer Architecture
 
 ---
 
 ## Overview
 
-This plan covers all backend-focused tasks: database, API, MCP service, and security infrastructure.
+This plan covers backend implementation aligned with PRD V3.4 Dual-Layer Architecture:
+- **Foundation Layer:** MCP + OpenAI Format + Metrics Engine
+- **Public Layer:** Efficiency Dashboard + Profile + Timeline + Product Showcase
+- **Private Layer:** Agent Manager + Workflows + Growth Insights
 
 **Worktree:** `.claude/worktrees/backend`
 **Branch:** `feature/phase0-backend`
 
 ---
 
-## Phase 0: Technical Foundation (Week 1-2)
+## Gap Analysis Summary
 
-**Goal:** Establish multi-tenant data isolation foundation
+Based on CAO/CTO/CUIO joint analysis (ADR-006):
 
-### Sprint 0.1: Database Schema Migration
-
-| Task | Priority | Est. Hours | Status |
-|------|----------|------------|--------|
-| Add user_id to all tenant tables | P0 | 4h | Pending |
-| Create RLS policies for all tables | P0 | 8h | Pending |
-| Migrate article_paragraphs schema | P0 | 2h | Pending |
-| Create migration scripts (6 files) | P0 | 4h | Pending |
-| Write migration rollback scripts | P0 | 2h | Pending |
-| Test RLS policies with multiple users | P0 | 4h | Pending |
-
-**Deliverables:**
-- [ ] All tables have user_id column
-- [ ] RLS policies enforce tenant isolation
-- [ ] Migration scripts tested
-
-### Sprint 0.2: Security Hardening
-
-| Task | Priority | Est. Hours | Status |
-|------|----------|------------|--------|
-| Implement encryption key separation | P0 | 4h | Pending |
-| Add audit logging for data access | P1 | 4h | Pending |
-| Create API key secure storage | P0 | 4h | Pending |
-| Security review with security-reviewer | P0 | 2h | Pending |
-
-**Deliverables:**
-- [ ] Encryption keys separated by user
-- [ ] Audit logging functional
+| Layer | PRD V3.4 Requirement | Current State | Gap |
+|-------|---------------------|---------------|-----|
+| Foundation | MCP + OpenAI Format + Metrics | MCP ✅, OpenAI 🟡, Metrics ❌ | 60% |
+| Public | Dashboard + Profile + Timeline | Profile 🟡, Others ❌ | 85% |
+| Private | Agent + Workflow + Insights | All ❌ | 100% |
 
 ---
 
-## Phase 1: Data Management Core (Week 3-6)
+## Phase 0: Foundation (1-2 weeks)
 
-**Goal:** Enable MCP service sync and AI auto-blogging
+**Goal:** Establish PRD V3.4 foundation layer
 
-### Sprint 1.1: MCP Service Integration
+### Sprint 0.1: SessionFragment OpenAI Format Migration (ADR-005)
 
-| Task | Priority | Est. Hours | Status |
-|------|----------|------------|--------|
-| Design MCP sync protocol | P0 | 4h | Pending |
-| Implement session sync endpoint | P0 | 8h | Pending |
-| Create insight extraction pipeline | P0 | 8h | Pending |
-| Build annotation storage system | P1 | 6h | Pending |
-| Write MCP service tests | P0 | 4h | Pending |
+**Priority:** P0 (Critical - Blocks multi-platform support)
 
-**Deliverables:**
-- [ ] MCP service syncs development sessions
-
-### Sprint 1.2: AI Auto-Blogging
-
-| Task | Priority | Est. Hours | Status |
-|------|----------|------------|--------|
-| Design blog generation prompt | P0 | 4h | Pending |
-| Implement session-to-article pipeline | P0 | 8h | Pending |
-| Create draft editing interface | P0 | 6h | Pending |
-| Build publish workflow | P0 | 4h | Pending |
-| Write E2E tests for auto-blogging | P0 | 4h | Pending |
+| Task | Est. Hours | Status | Notes |
+|------|------------|--------|-------|
+| Design OpenAI format schema for session_fragments | 4h | Pending | ADR-005 reference |
+| Create migration: add role, content, tool_calls columns | 6h | Pending | Backward compatible |
+| Update MCP Server output to OpenAI format | 8h | Pending | All 7 tools |
+| Migrate existing data to new format | 4h | Pending | Batch migration |
+| Write migration tests | 4h | Pending | Rollback scenarios |
+| Verify and switch over | 2h | Pending | Feature flag |
 
 **Deliverables:**
-- [ ] AI generates blog post drafts from sessions
-- [ ] Users can edit and publish articles
+- [ ] session_fragments uses OpenAI ContentBlock[] format
+- [ ] MCP Server outputs OpenAI-compatible content
+- [ ] Migration tested with rollback capability
 
-### Sprint 1.3: Public Article Feed API
+### Sprint 0.2: Metrics Engine Implementation
 
-| Task | Priority | Est. Hours | Status |
-|------|----------|------------|--------|
-| Design public article schema | P0 | 4h | Pending |
-| Implement article feed API | P0 | 6h | Pending |
-| Add search and filtering | P1 | 4h | Pending |
-| Write API integration tests | P0 | 4h | Pending |
+**Priority:** P0 (Critical - Blocks Efficiency Dashboard)
+
+| Task | Est. Hours | Status | Notes |
+|------|------------|--------|-------|
+| Design metrics_cache table schema | 4h | Pending | See ADR-006 |
+| Implement velocity calculator | 6h | Pending | features/week |
+| Implement efficiency calculator | 6h | Pending | hours/feature |
+| Implement token economy calculator | 4h | Pending | output/input ratio |
+| Implement iteration ratio calculator | 4h | Pending | revisions/initial |
+| Implement cache efficiency calculator | 4h | Pending | cached/total |
+| Implement AI leverage calculator | 4h | Pending | generated/manual lines |
+| Create `/api/metrics/calculate` endpoint | 4h | Pending | Trigger calculation |
+| Create `/api/metrics/dashboard` endpoint | 4h | Pending | Get dashboard data |
+| Write metrics engine tests | 6h | Pending | Unit + integration |
 
 **Deliverables:**
-- [ ] Article feed API functional
+- [ ] metrics_cache table created
+- [ ] All 6 metric calculators implemented
+- [ ] API endpoints functional
+
+### Sprint 0.3: Security Fix - article_paragraphs
+
+**Priority:** P0 (Critical - Security risk)
+
+| Task | Est. Hours | Status | Notes |
+|------|------------|--------|-------|
+| Add user_id to article_paragraphs table | 2h | Pending | Migration |
+| Create RLS policy for article_paragraphs | 2h | Pending | user_id isolation |
+| Update API to filter by user_id | 2h | Pending | All paragraphs endpoints |
+| Write security tests | 2h | Pending | Multi-tenant isolation |
+
+**Deliverables:**
+- [ ] article_paragraphs has user_id column
+- [ ] RLS policy enforces tenant isolation
+- [ ] API returns only user's paragraphs
+
+### Sprint 0.4: API Test Coverage
+
+**Priority:** P1 (Important - Regression prevention)
+
+| Task | Est. Hours | Status | Notes |
+|------|------------|--------|-------|
+| Create vibe-sessions API tests | 6h | Pending | 0% → 80% coverage |
+| Create session-fragments API tests | 6h | Pending | CRUD + edge cases |
+| Create metrics API tests | 4h | Pending | Calculation + caching |
+| Create articles API tests | 4h | Pending | CRUD + publishing |
+
+**Deliverables:**
+- [ ] All API routes have 80%+ test coverage
+- [ ] Edge cases covered
+- [ ] Integration tests for workflows
 
 ---
 
-## Phase 2: User LLM Configuration (Week 7-10)
+## Phase 1: Public Layer (2 weeks)
 
-**Goal:** Enable users to configure their own LLM for data access
+**Goal:** Implement "Prove" layer for PRD V3.4
 
-### Sprint 2.1: LLM Provider Settings
+### Sprint 1.1: Efficiency Dashboard Backend
 
-| Task | Priority | Est. Hours | Status |
-|------|----------|------------|--------|
-| Design LLM configuration schema | P0 | 4h | Pending |
-| Implement provider adapters (Anthropic, OpenAI) | P0 | 8h | Pending |
-| Create API key encryption and storage | P0 | 6h | Pending |
-| Test connection functionality | P0 | 4h | Pending |
+**Priority:** P0
 
-**Deliverables:**
-- [ ] Users can configure their own LLM API
-
-### Sprint 2.2: AI Access Proxy Layer
-
-| Task | Priority | Est. Hours | Status |
-|------|----------|------------|--------|
-| Design access proxy architecture | P0 | 4h | Pending |
-| Implement permission checking middleware | P0 | 8h | Pending |
-| Create data access abstraction layer | P0 | 8h | Pending |
-| Build context builder for LLM | P0 | 6h | Pending |
-| Write proxy layer tests | P0 | 4h | Pending |
+| Task | Est. Hours | Status | Notes |
+|------|------------|--------|-------|
+| Design dashboard API schema | 4h | Pending | Metrics aggregation |
+| Implement weekly/monthly aggregations | 6h | Pending | Time-series data |
+| Create comparison endpoints | 4h | Pending | METR baseline |
+| Build caching layer | 4h | Pending | Redis/memory |
+| Write dashboard API tests | 4h | Pending | E2E scenarios |
 
 **Deliverables:**
-- [ ] Access proxy layer enforces permissions
+- [ ] Dashboard API returns all metrics
+- [ ] Time-series aggregation working
+- [ ] METR baseline comparison available
 
-### Sprint 2.3: Permission Enforcement
+### Sprint 1.2: Public Profile Enhancement
 
-| Task | Priority | Est. Hours | Status |
-|------|----------|------------|--------|
-| Implement trial period detection | P0 | 2h | Pending |
-| Create subscription status checker | P0 | 4h | Pending |
-| Build LLM access gate | P0 | 6h | Pending |
-| Add permission error handling | P0 | 4h | Pending |
-| Write permission tests | P0 | 4h | Pending |
+**Priority:** P0
+
+| Task | Est. Hours | Status | Notes |
+|------|------------|--------|-------|
+| Extend profiles table | 4h | Pending | public_metrics_enabled, show_velocity, etc. |
+| Create public profile API | 4h | Pending | /api/public/profiles/[username] |
+| Implement metrics visibility controls | 4h | Pending | User preferences |
+| Create profile badge system | 4h | Pending | Verification, milestones |
+| Write profile API tests | 4h | Pending | Privacy + public access |
 
 **Deliverables:**
-- [ ] Trial users have full LLM access
-- [ ] Official free users have restricted LLM access
+- [ ] Extended profiles schema
+- [ ] Public profile API with visibility controls
+- [ ] Badge system foundation
+
+### Sprint 1.3: Session Timeline Backend
+
+**Priority:** P0
+
+| Task | Est. Hours | Status | Notes |
+|------|------------|--------|-------|
+| Design timeline API schema | 4h | Pending | Session grouping |
+| Implement session grouping by date | 4h | Pending | Daily/weekly/monthly |
+| Create timeline filtering | 4h | Pending | By project, status, date |
+| Build timeline export | 4h | Pending | JSON/Markdown |
+| Write timeline API tests | 4h | Pending | Filtering + export |
+
+**Deliverables:**
+- [ ] Timeline API functional
+- [ ] Session grouping working
+- [ ] Export functionality ready
+
+### Sprint 1.4: Product Showcase Backend
+
+**Priority:** P0
+
+| Task | Est. Hours | Status | Notes |
+|------|------------|--------|-------|
+| Map projects table to products concept | 2h | Pending | Semantic mapping |
+| Create `/api/products/[id]/showcase` endpoint | 6h | Pending | Showcase management |
+| Implement product metrics calculation | 4h | Pending | Per-product stats |
+| Create showcase visibility controls | 4h | Pending | Public/private |
+| Write showcase API tests | 4h | Pending | CRUD + visibility |
+
+**Deliverables:**
+- [ ] Products API (mapped from projects)
+- [ ] Showcase endpoint functional
+- [ ] Product metrics calculated
 
 ---
 
-## Phase 3: Subscription System (Week 11-14)
+## Phase 2: Private Layer (2 weeks)
 
-**Goal:** Implement monetization and subscription management
+**Goal:** Implement "Grow" layer for PRD V3.4
 
-### Sprint 3.1: Subscription Plans
+### Sprint 2.1: Agent Team Manager Backend
 
-| Task | Priority | Est. Hours | Status |
-|------|----------|------------|--------|
-| Design subscription schema | P0 | 4h | Pending |
-| Integrate payment provider (Stripe) | P0 | 8h | Pending |
-| Implement early bird pricing | P0 | 4h | Pending |
-| Write subscription tests | P0 | 4h | Pending |
+**Priority:** P1
 
-**Deliverables:**
-- [ ] Payment integration functional
-
-### Sprint 3.2: Permission Upgrade
-
-| Task | Priority | Est. Hours | Status |
-|------|----------|------------|--------|
-| Implement subscription status webhook | P0 | 4h | Pending |
-| Create permission upgrade flow | P0 | 6h | Pending |
-| Add subscription status indicators | P1 | 4h | Pending |
-| Write upgrade flow tests | P0 | 4h | Pending |
+| Task | Est. Hours | Status | Notes |
+|------|------------|--------|-------|
+| Design agent_configs table schema | 4h | Pending | Agent configuration storage |
+| Create `/api/agent-configs/` CRUD | 6h | Pending | Full CRUD operations |
+| Implement config validation | 4h | Pending | Schema validation |
+| Create AGENTS.md export | 4h | Pending | Linux Foundation format |
+| Write agent config API tests | 4h | Pending | CRUD + export |
 
 **Deliverables:**
-- [ ] Automatic permission upgrade on subscription
+- [ ] agent_configs table created
+- [ ] Agent config CRUD API functional
+- [ ] AGENTS.md export working
 
-### Sprint 3.3: Trial Period Management
+### Sprint 2.2: Workflow Library Backend
 
-| Task | Priority | Est. Hours | Status |
-|------|----------|------------|--------|
-| Implement trial period timer | P0 | 4h | Pending |
-| Create trial expiration warnings | P0 | 4h | Pending |
-| Build transition to official flow | P0 | 6h | Pending |
-| Add early bird countdown | P1 | 4h | Pending |
-| Write trial management tests | P0 | 4h | Pending |
+**Priority:** P1
+
+| Task | Est. Hours | Status | Notes |
+|------|------------|--------|-------|
+| Design workflows table schema | 4h | Pending | Workflow templates |
+| Design workflow_steps table schema | 4h | Pending | Step definitions |
+| Create `/api/workflows/` CRUD | 6h | Pending | Full CRUD operations |
+| Implement workflow execution engine | 8h | Pending | Step-by-step execution |
+| Write workflow API tests | 4h | Pending | CRUD + execution |
 
 **Deliverables:**
-- [ ] Trial period management working
+- [ ] workflows + workflow_steps tables created
+- [ ] Workflow CRUD API functional
+- [ ] Execution engine foundation
+
+### Sprint 2.3: Growth Insights Backend
+
+**Priority:** P2
+
+| Task | Est. Hours | Status | Notes |
+|------|------------|--------|-------|
+| Design growth_insights table schema | 4h | Pending | Insights storage |
+| Implement insight generation | 6h | Pending | AI-powered analysis |
+| Create `/api/growth-insights/` endpoints | 4h | Pending | CRUD operations |
+| Build insight scheduling | 4h | Pending | Periodic generation |
+| Write growth API tests | 4h | Pending | CRUD + generation |
+
+**Deliverables:**
+- [ ] growth_insights table created
+- [ ] Insight generation functional
+- [ ] Scheduled insights working
 
 ---
 
-## Phase 4: Community & Growth (Week 15-18)
+## Database Schema Summary
 
-**Goal:** Enhance community features and user growth
+### New Tables (from Gap Analysis)
 
-### Sprint 4.1: Content Discovery Backend
+```sql
+-- Phase 0
+CREATE TABLE metrics_cache (
+  id UUID PRIMARY KEY,
+  user_id UUID REFERENCES auth.users NOT NULL,
+  metric_type TEXT NOT NULL,
+  value DECIMAL NOT NULL,
+  period_start TIMESTAMPTZ NOT NULL,
+  period_end TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-| Task | Priority | Est. Hours | Status |
-|------|----------|------------|--------|
-| Implement article recommendation | P1 | 8h | Pending |
-| Build trending articles algorithm | P1 | 6h | Pending |
-| Create tag-based discovery | P1 | 4h | Pending |
-| Add author follow feature | P1 | 6h | Pending |
-| Write discovery tests | P1 | 4h | Pending |
+-- Phase 2
+CREATE TABLE agent_configs (
+  id UUID PRIMARY KEY,
+  user_id UUID REFERENCES auth.users NOT NULL,
+  name TEXT NOT NULL,
+  config JSONB NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-**Deliverables:**
-- [ ] Users can discover relevant content
+CREATE TABLE workflows (
+  id UUID PRIMARY KEY,
+  user_id UUID REFERENCES auth.users NOT NULL,
+  name TEXT NOT NULL,
+  description TEXT,
+  steps JSONB NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-### Sprint 4.2: Growth Trajectory Backend
+CREATE TABLE growth_insights (
+  id UUID PRIMARY KEY,
+  user_id UUID REFERENCES auth.users NOT NULL,
+  insight_type TEXT NOT NULL,
+  content JSONB NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
 
-| Task | Priority | Est. Hours | Status |
-|------|----------|------------|--------|
-| Design growth metrics schema | P1 | 6h | Pending |
-| Implement coding statistics | P1 | 8h | Pending |
-| Build export functionality | P1 | 4h | Pending |
-| Write growth feature tests | P1 | 4h | Pending |
+### Modified Tables
 
-**Deliverables:**
-- [ ] Growth trajectory data collection functional
+```sql
+-- session_fragments: Add OpenAI format columns (ADR-005)
+ALTER TABLE session_fragments ADD COLUMN role TEXT;
+ALTER TABLE session_fragments ADD COLUMN content JSONB;
+ALTER TABLE session_fragments ADD COLUMN tool_calls JSONB;
+ALTER TABLE session_fragments ADD COLUMN metadata JSONB;
 
-### Sprint 4.3: Data Export
+-- article_paragraphs: Security fix
+ALTER TABLE article_paragraphs ADD COLUMN user_id UUID REFERENCES auth.users;
 
-| Task | Priority | Est. Hours | Status |
-|------|----------|------------|--------|
-| Design export format (JSON/Markdown) | P1 | 4h | Pending |
-| Implement one-click export | P1 | 6h | Pending |
-| Create export scheduling | P2 | 4h | Pending |
-| Build export history | P2 | 4h | Pending |
-| Write export tests | P1 | 4h | Pending |
-
-**Deliverables:**
-- [ ] One-click data export working
+-- profiles: Extend for public metrics
+ALTER TABLE profiles ADD COLUMN public_metrics_enabled BOOLEAN DEFAULT FALSE;
+ALTER TABLE profiles ADD COLUMN show_velocity BOOLEAN DEFAULT FALSE;
+ALTER TABLE profiles ADD COLUMN show_efficiency BOOLEAN DEFAULT FALSE;
+```
 
 ---
 
 ## Quality Gates
 
-### Technical Review (CTO)
+### Technical Review (CTO) - 11 Metrics
 
-| Metric | Target | Measurement |
-|--------|--------|-------------|
-| Architecture Alignment | Grade A | Design review |
-| Code Quality | Grade A | Code review |
-| Security Posture | Grade A | Security audit |
-| Test Coverage | 80%+ | Coverage report |
+| Metric | Target | Weight |
+|--------|--------|--------|
+| Architecture Alignment | Grade A | 9 points |
+| Code Quality | Grade A | 9 points |
+| Security Posture | Grade A | 9 points |
+| Test Coverage | 80%+ | 9 points |
+| Scenario Coverage | All critical paths | 9 points |
+| API Design | RESTful, documented | 9 points |
+| Database Design | Normalized, indexed | 9 points |
+| Error Handling | Comprehensive | 9 points |
+| Performance | <200ms API response | 9 points |
+| Documentation | Complete | 9 points |
+| Maintainability | High | 9 points |
+
+**Pass Threshold:** Grade A (80-89 points)
 
 ---
 
@@ -245,19 +331,25 @@ This plan covers all backend-focused tasks: database, API, MCP service, and secu
 
 | Risk | Probability | Impact | Mitigation |
 |------|-------------|--------|------------|
+| SessionFragment migration complexity | Medium | High | Keep old table 90 days, batch migration |
+| Metrics calculation performance | Medium | Medium | Async worker, incremental updates |
+| OpenAI format incompatibility | Low | Medium | Validate in MCP Server first |
 | RLS policy complexity | Medium | High | Thorough testing, rollback scripts |
-| LLM provider API changes | Low | Medium | Provider abstraction layer |
-| Payment integration issues | Low | High | Stripe sandbox testing |
 
 ---
 
 ## References
 
-- Architecture Decisions: `docs/architecture/ADR-XXX.md`
-- Task Status: `IMPLEMENTING_STATUS.md`
-- MCP Service Design: `docs/specifications/MCP_SERVICE_DESIGN.md`
+| Document | Purpose |
+|----------|---------|
+| `PRD_TRACK.md` | Current PRD requirements |
+| `docs/architecture/ADR-005` | SessionFragment OpenAI Format |
+| `docs/architecture/ADR-006` | Gap Resolution Plan |
+| `IMPLEMENTING_STATUS.md` | Task status tracking |
+| `docs/specifications/MCP_SERVICE_DESIGN.md` | MCP Server design |
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** 2026-03-19
+**Document Version:** 2.0
+**Last Updated:** 2026-03-20
+**Authority:** ADR-006 Gap Resolution Plan

@@ -1,9 +1,10 @@
 # IMPLEMENTING_STATUS.md
 
-> **Version:** 2.0
+> **Version:** 2.1
 > **Updated:** 2026-03-20
 > **Current Phase:** Phase 0 - Technical Foundation
 > **PRD Version:** V3.4 (Dual-Layer Architecture)
+> **Gap Analysis:** ADR-006 Complete
 
 ---
 
@@ -74,6 +75,8 @@ PENDING → IN_PROGRESS → CODE_COMPLETE → REVIEW_PENDING → CTO/CUIO_REVIEW
 | **0.1** | OpenAI Format Storage | PENDING | - | - | Session fragment schema |
 | **0.2** | MCP Session Sync | **COMPLETE** | Claude | A | 7 MCP tools, 203 tests |
 | **0.3** | Metrics Engine | PENDING | - | - | Velocity, efficiency, economy |
+| **0.4** | Security Fix | PENDING | - | - | article_paragraphs user_id |
+| **0.5** | API Test Coverage | PENDING | - | - | vibe-sessions, fragments |
 
 ### 0.1 OpenAI Format Storage
 
@@ -104,6 +107,22 @@ PENDING → IN_PROGRESS → CODE_COMPLETE → REVIEW_PENDING → CTO/CUIO_REVIEW
 | Token economy calculation | PENDING | Output/input ratio |
 | Percentile benchmarking | PENDING | Industry comparison |
 | METR baseline integration | PENDING | Learning curve tracking |
+
+### 0.4 Security Fix
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Add user_id to article_paragraphs | PENDING | P0 Critical |
+| Create RLS policy | PENDING | Tenant isolation |
+| Update API endpoints | PENDING | Filter by user_id |
+
+### 0.5 API Test Coverage
+
+| Task | Status | Notes |
+|------|--------|-------|
+| vibe-sessions API tests | PENDING | 0% → 80% |
+| session-fragments API tests | PENDING | CRUD + edge cases |
+| metrics API tests | PENDING | Calculation + caching |
 
 ---
 
@@ -194,14 +213,17 @@ PENDING → IN_PROGRESS → CODE_COMPLETE → REVIEW_PENDING → CTO/CUIO_REVIEW
 
 | Doc | Purpose |
 |-----|---------|
+| `PRD_TRACK.md` | PRD V3.4 status tracking |
 | `docs/prd/Viblog_PRD_V3.4.md` | Full PRD |
 | `docs/architecture/ADR-005` | OpenAI Format Alignment |
-| `plans/BACKEND_PLAN.md` | Backend tasks |
-| `plans/FRONTEND_PLAN.md` | Frontend tasks |
+| `docs/architecture/ADR-006` | Gap Resolution Plan |
+| `plans/BACKEND_IMPLEMENTATION_PLAN.md` | Backend tasks (v2.0) |
+| `plans/FRONTEND_IMPLEMENTATION_PLAN.md` | Frontend tasks (v2.0) |
 | `docs/issues/BACKEND_ISSUES.md` | Issue log |
 
 ---
 
-**Document Version:** 2.0
+**Document Version:** 2.1
 **Last Updated:** 2026-03-20
 **PRD Version:** V3.4
+**Gap Analysis:** ADR-006 Complete

@@ -1,6 +1,6 @@
 # DOC_CATALOG.md
 
-> **Version:** 2.2
+> **Version:** 2.3
 > **Updated:** 2026-03-20
 > **Purpose:** Central navigation hub for Viblog documentation
 
@@ -12,8 +12,8 @@
 |---------------|-----------|-------|
 | Start a new session | CLAUDE.md | ~200 |
 | Check current tasks | IMPLEMENTING_STATUS.md | ~100 |
-| Understand product vision | PRD.md | ~80 |
-| **Full PRD (V3.4)** | **docs/prd/Viblog_PRD_V3.4.md** | **~650** |
+| **Track PRD V3.4 status** | **PRD_TRACK.md** | **~160** |
+| Full PRD (V3.4) | docs/prd/Viblog_PRD_V3.4.md | ~650 |
 | PRD template reference | docs/prd/PRD_TEMPLATE.md | ~100 |
 | Review architecture decisions | docs/architecture/ADR-XXX.md | ~100 each |
 | Plan implementation | plans/BACKEND_PLAN.md or plans/FRONTEND_PLAN.md | ~200 each |
@@ -33,7 +33,7 @@
 |----------|---------|------------------|
 | `CLAUDE.md` | Agent instructions & workflows | Process changes |
 | `IMPLEMENTING_STATUS.md` | Task state machine | Every task change |
-| `PRD.md` | Product requirements | Strategic pivot |
+| `PRD_TRACK.md` | PRD V3.4 status tracking | PRD updates |
 | `CHANGELOG.md` | Change history | Every commit |
 
 ---
@@ -46,6 +46,8 @@
 | ADR-002 | Business Model & Data Access | Approved |
 | ADR-003 | MCP Layer 5 Commercial Architecture | Approved |
 | ADR-004 | Agent Team Architecture Redesign | Approved |
+| **ADR-005** | **Session Fragment OpenAI Format** | **Proposed** |
+| **ADR-006** | **V3.4 Gap Resolution Plan** | **Proposed** |
 | ADR-TEMPLATE | Template for new ADRs | Reference |
 
 ---
@@ -203,7 +205,7 @@
 |----------|---------------|-------|
 | DOC_CATALOG.md | Navigation hub | CAO |
 | IMPLEMENTING_STATUS.md | Task tracking | All agents |
-| PRD.md | Product vision | Product Owner |
+| PRD_TRACK.md | PRD status tracking | Product Owner |
 | CLAUDE.md | Agent instructions | CAO |
 | CHANGELOG.md | Change history | All agents |
 | ADR-XXX.md | Architecture decisions | CAO |
@@ -215,5 +217,5 @@
 
 ---
 
-**Document Version:** 2.2
+**Document Version:** 2.3
 **Last Updated:** 2026-03-20
