@@ -1,8 +1,8 @@
 {
   "name": "viblog",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "Viblog - AI-Native Blogging Platform for Vibe Coders",
+  "description": "Viblog - Personal Vibe Coding Growth Platform",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -16,12 +16,17 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
-    "test:e2e:report": "playwright show-report"
+    "test:e2e:report": "playwright show-report",
+    "docker:build": "docker-compose -f docker/docker-compose.yml build",
+    "docker:up": "docker-compose -f docker/docker-compose.yml up -d",
+    "docker:down": "docker-compose -f docker/docker-compose.yml down",
+    "docker:logs": "docker-compose -f docker/docker-compose.yml logs -f"
   },
   "keywords": [
-    "blog",
+    "viblog",
     "vibe-coding",
-    "ai-native"
+    "ai-native",
+    "personal-tool"
   ],
   "author": "",
   "license": "MIT",
@@ -41,8 +46,6 @@
     "@radix-ui/react-tabs": "1.0.4",
     "@radix-ui/react-toast": "1.1.5",
     "@radix-ui/react-tooltip": "1.0.7",
-    "@supabase/ssr": "0.9.0",
-    "@supabase/supabase-js": "2.99.1",
     "@tiptap/extension-code-block-lowlight": "2.2.3",
     "@tiptap/extension-image": "2.2.3",
     "@tiptap/extension-link": "2.2.3",
@@ -50,7 +53,6 @@
     "@tiptap/pm": "^3",
     "@tiptap/react": "3.20.1",
     "@tiptap/starter-kit": "3.20.1",
-    "@upstash/redis": "^1.37.0",
     "class-variance-authority": "0.7.0",
     "clsx": "2.1.0",
     "date-fns": "3.3.1",
@@ -59,6 +61,7 @@
     "lucide-react": "0.323.0",
     "nanoid": "5.0.5",
     "next": "16.1.6",
+    "postgres": "^3.4.5",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "7.50.1",
